@@ -31,7 +31,7 @@ public class Flight extends AbstractEntity<Long> {
     @Column(name = "is_cancelled")
     private Boolean isCancelled;
 
-    @OneToOne(mappedBy = "flight", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "flight", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private FlightDelay flightDelay;
 
     @OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)

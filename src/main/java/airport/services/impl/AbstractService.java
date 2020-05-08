@@ -7,6 +7,7 @@ import airport.services.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.Serializable;
@@ -50,6 +51,7 @@ public abstract class AbstractService
     }
 
     @Override
+    @Transactional
     public DTO create(DTO dto) {
         var entity = getMapper().toEntity(dto);
         entity = getRepository().save(entity);

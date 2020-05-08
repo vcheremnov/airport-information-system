@@ -1,6 +1,7 @@
 package airport.services.impl;
 
 import airport.dtos.AirplaneDto;
+import airport.dtos.FlightDelayDto;
 import airport.dtos.RepairDto;
 import airport.dtos.TechInspectionDto;
 import airport.entities.Airplane;
@@ -17,7 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Service

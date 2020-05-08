@@ -1,5 +1,6 @@
 package airport.entities;
 
+import airport.entities.types.FlightDelayReason;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +15,7 @@ public class FlightDelay extends AbstractEntity<Long> {
     private Flight flight;
 
     @JoinColumn(name = "delay_reason")
-    private String delayReason;
+    @Enumerated(EnumType.STRING)
+    private FlightDelayReason delayReason;
 
 }

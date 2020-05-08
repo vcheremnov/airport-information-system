@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Collection;
 
 public interface AirplaneService extends Service<AirplaneDto, Long> {

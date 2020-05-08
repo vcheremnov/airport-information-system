@@ -1,9 +1,6 @@
 package airport.controllers;
 
-import airport.dtos.AirplaneDto;
-import airport.dtos.EmployeeDto;
-import airport.dtos.RepairDto;
-import airport.dtos.TechInspectionDto;
+import airport.dtos.*;
 import airport.filters.AirplaneFilter;
 import airport.filters.EmployeeFilter;
 import airport.services.AirplaneService;
@@ -15,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.sql.Date;
 
