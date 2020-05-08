@@ -4,6 +4,8 @@ import airport.dtos.AirplaneDto;
 import airport.dtos.EmployeeDto;
 import airport.dtos.RepairDto;
 import airport.dtos.TechInspectionDto;
+import airport.filters.AirplaneFilter;
+import airport.filters.EmployeeFilter;
 import airport.services.AirplaneService;
 import airport.services.Service;
 import org.apache.coyote.Response;
@@ -13,8 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Date;
 import java.util.Collection;
+import java.sql.Date;
 
 @RestController
 @RequestMapping("/airplanes")
@@ -43,23 +45,21 @@ public class AirplaneController extends AbstractController<AirplaneDto, Long> {
         return ResponseEntity.ok(airplaneService.getTechInspections(id, pageable));
     }
 
-    @GetMapping("/inspected-between")
-    public ResponseEntity<Page<AirplaneDto>> getInspectedBetween(
-            @RequestParam Date minDate,
-            @RequestParam Date maxDate,
+    @PostMapping("/search")
+    public ResponseEntity<Page<AirplaneDto>> search(
+            @RequestBody AirplaneFilter filter,
             Pageable pageable
     ) {
-        return ResponseEntity.ok(airplaneService.getInspectedBetween(minDate, maxDate, pageable));
+        return ResponseEntity.ok(airplaneService.search(filter, pageable));
     }
 
-    @GetMapping("/repaired-between")
-    public ResponseEntity<Page<AirplaneDto>> getRepairedBetween(
-            @RequestParam Date minDate,
-            @RequestParam Date maxDate,
-            Pageable pageable
-    ) {
-        return ResponseEntity.ok(airplaneService.getRepairedBetween(minDate, maxDate, pageable));
-    }
+//    @GetMapping("/at-the-airport")
+//    public ResponseEntity<Page<AirplaneDto>> getAirplanesAtTheAirport(
+//            @RequestParam("time") Date time,
+//            Pageable pageable
+//    ) {
+//        return ResponseEntity.ok(airplaneService.getAirplanesAtTheAirport(time, pageable));
+//    }
 
     @Override
     protected Service<AirplaneDto, Long> getService() {

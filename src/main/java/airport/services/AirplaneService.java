@@ -1,6 +1,7 @@
 package airport.services;
 
 import airport.dtos.*;
+import airport.filters.AirplaneFilter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,8 @@ public interface AirplaneService extends Service<AirplaneDto, Long> {
 
     Page<TechInspectionDto> getTechInspections(Long airplaneId, Pageable pageable);
 
-    Page<AirplaneDto> getInspectedBetween(Date minDate, Date maxDate, Pageable pageable);
+    Page<AirplaneDto> search(AirplaneFilter filter, Pageable pageable);
 
-    Page<AirplaneDto> getRepairedBetween(Date minDate, Date maxDate, Pageable pageable);
+//    Page<AirplaneDto> getAirplanesAtTheAirport(java.util.Date time, Pageable pageable);
 }
 

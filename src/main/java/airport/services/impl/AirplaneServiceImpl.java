@@ -6,6 +6,7 @@ import airport.dtos.TechInspectionDto;
 import airport.entities.Airplane;
 import airport.entities.Repair;
 import airport.entities.TechInspection;
+import airport.filters.AirplaneFilter;
 import airport.mappers.Mapper;
 import airport.repositories.AirplaneRepository;
 import airport.repositories.RepairRepository;
@@ -17,8 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
-import java.util.stream.Collectors;
+import java.util.Date;
 
 @Service
 public class AirplaneServiceImpl
@@ -63,18 +63,30 @@ public class AirplaneServiceImpl
     }
 
     @Override
-    public Page<AirplaneDto> getInspectedBetween(Date minDate, Date maxDate, Pageable pageable) {
+    public Page<AirplaneDto> search(AirplaneFilter filter, Pageable pageable) {
         return repository
-                .findAllInspectedAirplanesBetween(minDate, maxDate, pageable)
-                .map(getMapper()::toDto);
+                .searchByFilter(
+                        filter.getAirplaneTypeId(),
+                        filter.getMinCommissioningDate(),
+                        filter.getMaxCommissioningDate(),
+                        filter.getMinRepairsNumber(),
+                        filter.getMaxRepairsNumber(),
+                        filter.getMinRepairDate(),
+                        filter.getMaxRepairDate(),
+                        filter.getMinTechInspectionDate(),
+                        filter.getMaxTechInspectionDate(),
+                        filter.getMinFlightsNumber(),
+                        filter.getMaxFlightsNumber(),
+                        pageable
+                ).map(mapper::toDto);
     }
 
-    @Override
-    public Page<AirplaneDto> getRepairedBetween(Date minDate, Date maxDate, Pageable pageable) {
-        return repository
-                .findAllRepairedAirplanesBetween(minDate, maxDate, pageable)
-                .map(getMapper()::toDto);
-    }
+//    @Override
+//    public Page<AirplaneDto> getAirplanesAtTheAirport(Date time, Pageable pageable) {
+//        return repository
+//                .getAirplanesAtTheAirport(time, pageable)
+//                .map(mapper::toDto);
+//    }
 
     @Override
     protected JpaRepository<Airplane, Long> getRepository() {
