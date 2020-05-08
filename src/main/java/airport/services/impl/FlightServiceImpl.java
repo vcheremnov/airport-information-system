@@ -1,15 +1,11 @@
 package airport.services.impl;
 
 import airport.dtos.FlightDto;
-import airport.dtos.FlightDto;
-import airport.entities.Flight;
 import airport.entities.Flight;
 import airport.filters.FlightFilter;
 import airport.mappers.Mapper;
 import airport.repositories.FlightRepository;
 import airport.services.FlightService;
-import airport.services.FlightService;
-import airport.specifications.FlightSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,17 +22,29 @@ public class FlightServiceImpl
 
     @Autowired
     public FlightServiceImpl(FlightRepository repository,
-                           Mapper<Flight, FlightDto, Long> mapper) {
+                             Mapper<Flight, FlightDto, Long> mapper) {
         this.repository = repository;
         this.mapper = mapper;
     }
 
     @Override
-    public Page<FlightDto> search(Pageable pageable, FlightFilter filter) {
-        FlightSpecification specification = new FlightSpecification(filter);
-        return repository
-                .findAll(specification, pageable)
-                .map(mapper::toDto);
+    public Page<FlightDto> search(FlightFilter filter, Pageable pageable) {
+        return repository.searchByFilter(
+                filter.getAirplaneId(),
+                filter.getFlightType(),
+                filter.getAirplaneTypeId(),
+                filter.getCityId(),
+                filter.getIsCancelled(),
+                filter.getIsDelayed(),
+                filter.getDelayReason(),
+                filter.getMinDate(),
+                filter.getMaxDate(),
+                filter.getMinDuration(),
+                filter.getMaxDuration(),
+                filter.getMinTicketPrice(),
+                filter.getMaxTicketPrice(),
+                pageable
+        ).map(mapper::toDto);
     }
 
     @Override

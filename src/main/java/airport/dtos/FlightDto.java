@@ -13,8 +13,8 @@ public class FlightDto extends AbstractDto<Long> {
     private FlightType flightType;
     private Timestamp flightTime;
     private Boolean isCancelled;
-    private Integer duration;
-    private Integer ticketPrice;
+    private Double duration;
+    private Double ticketPrice;
     private CityDto city;
     private FlightDelayDto flightDelay;
 

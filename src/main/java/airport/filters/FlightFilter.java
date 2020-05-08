@@ -9,14 +9,21 @@ import java.util.Date;
 @Getter @Setter
 public class FlightFilter {
 
-    private FlightType flightType;
     private Long airplaneId;
+    private FlightType flightType;
     private Long airplaneTypeId;
     private Long cityId;
     private Boolean isCancelled;
     private Boolean isDelayed;
     private String delayReason;
-    private Date minFlightDate;
-    private Date maxFlightDate;
+
+    private Date minDate;
+    private Date maxDate;
+
+    private Double minDuration;
+    private Double maxDuration;
+
+    private Double minTicketPrice;
+    private Double maxTicketPrice;
 
 }

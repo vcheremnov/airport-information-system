@@ -7,8 +7,9 @@ import lombok.Setter;
 @Getter @Setter
 public class TicketDto extends AbstractDto<Long> {
 
-    private Long passengerId;
     private Long flightId;
+    private PassengerDto passenger;
     private TicketStatus status;
+    private Double price;
 
 }

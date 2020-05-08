@@ -31,7 +31,7 @@ public class EmployeeController extends AbstractController<EmployeeDto, Long> {
             Pageable pageable,
             @RequestBody EmployeeFilter filter
     ) {
-        return ResponseEntity.ok(employeeService.search(pageable, filter));
+        return ResponseEntity.ok(employeeService.search(filter, pageable));
     }
 
     @GetMapping("/by-med-exam-result")
@@ -41,7 +41,7 @@ public class EmployeeController extends AbstractController<EmployeeDto, Long> {
             @RequestParam Boolean isPassed
     ) {
         return ResponseEntity.ok(
-                employeeService.getByMedExamResult(pageable, year, isPassed)
+                employeeService.getByMedExamResult(year, isPassed, pageable)
         );
     }
 

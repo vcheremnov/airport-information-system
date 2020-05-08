@@ -1,16 +1,18 @@
 package airport.services.impl;
 
 import airport.dtos.TicketDto;
-import airport.dtos.TicketDto;
 import airport.entities.Ticket;
-import airport.entities.Ticket;
+import airport.filters.TicketFilter;
 import airport.mappers.Mapper;
 import airport.repositories.TicketRepository;
 import airport.services.TicketService;
-import airport.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
 
 @Service
 public class TicketServiceImpl
@@ -37,4 +39,19 @@ public class TicketServiceImpl
         return mapper;
     }
 
+    @Override
+    public Page<TicketDto> getTickets(TicketFilter filter, Pageable pageable) {
+        return repository.searchByFilter(
+                filter.getFlightId(),
+                filter.getMinFlightDate(),
+                filter.getMaxFlightDate(),
+                filter.getMinPrice(),
+                filter.getMaxPrice(),
+                filter.getTicketStatus(),
+                filter.getPassengerSex(),
+                filter.getMinPassengerBirthDate(),
+                filter.getMaxPassengerBirthDate(),
+                pageable
+        ).map(mapper::toDto);
+    }
 }

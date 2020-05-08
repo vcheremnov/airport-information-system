@@ -11,10 +11,10 @@ import java.util.Collection;
 import java.util.Date;
 
 public interface EmployeeService extends Service<EmployeeDto, Long> {
-    Page<EmployeeDto> search(Pageable pageable, EmployeeFilter filter);
+    Page<EmployeeDto> search(EmployeeFilter filter, Pageable pageable);
 
     Page<EmployeeDto> getByMedExamResult(
-            Pageable pageable, Integer year, Boolean isPassed
+            Integer year, Boolean isPassed, Pageable pageable
     );
 
     Collection<MedicalExaminationDto> getMedExams(Long employeeId);

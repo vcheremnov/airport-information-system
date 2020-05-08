@@ -33,5 +33,20 @@ public class Flight extends AbstractEntity<Long> {
     @OneToOne(mappedBy = "flight", fetch = FetchType.LAZY)
     private FlightDelay flightDelay;
 
+    @Transient
+    private Double ticketPrice;
+
+    @Transient
+    private Double duration;
+
+    @PostLoad
+    private void postLoad() {
+        Integer flightDistance = city.getDistance();
+        Integer airplaneSpeed = airplane.getAirplaneType().getSpeed();
+
+        duration = flightDistance / (double) airplaneSpeed;
+        ticketPrice = duration * 10000.;
+    }
+
 }
 

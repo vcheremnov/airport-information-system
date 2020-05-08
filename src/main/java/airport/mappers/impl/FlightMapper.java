@@ -3,7 +3,6 @@ package airport.mappers.impl;
 import airport.dtos.CityDto;
 import airport.dtos.FlightDelayDto;
 import airport.dtos.FlightDto;
-import airport.dtos.custom.FlightInfoCalculator;
 import airport.entities.Airplane;
 import airport.entities.City;
 import airport.entities.Flight;
@@ -51,8 +50,6 @@ public class FlightMapper extends AbstractMapper<Flight, FlightDto, Long> {
         destinationDto.setAirplaneId(sourceEntity.getAirplane().getId());
         destinationDto.setCity(cityMapper.toDto(sourceEntity.getCity()));
         destinationDto.setFlightDelay(flightDelayMapper.toDto(sourceEntity.getFlightDelay()));
-        destinationDto.setDuration(FlightInfoCalculator.getFlightDuration(sourceEntity));
-        destinationDto.setTicketPrice(FlightInfoCalculator.getTicketPrice(sourceEntity));
     }
 
     @Override

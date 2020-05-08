@@ -1,19 +1,16 @@
 package airport.controllers;
 
-import airport.dtos.EmployeeDto;
 import airport.dtos.FlightDto;
-import airport.filters.EmployeeFilter;
+import airport.dtos.TicketDto;
 import airport.filters.FlightFilter;
+import airport.filters.TicketFilter;
 import airport.services.FlightService;
 import airport.services.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/flights")
@@ -31,7 +28,7 @@ public class FlightController extends AbstractController<FlightDto, Long> {
             Pageable pageable,
             @RequestBody FlightFilter filter
     ) {
-        return ResponseEntity.ok(flightService.search(pageable, filter));
+        return ResponseEntity.ok(flightService.search(filter, pageable));
     }
 
     @Override

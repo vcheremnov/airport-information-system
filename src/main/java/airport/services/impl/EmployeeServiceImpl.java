@@ -6,7 +6,6 @@ import airport.filters.EmployeeFilter;
 import airport.mappers.Mapper;
 import airport.repositories.EmployeeRepository;
 import airport.services.*;
-import airport.specifications.EmployeeSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,18 +35,30 @@ public class EmployeeServiceImpl
     }
 
     @Override
-    public Page<EmployeeDto> search(Pageable pageable, EmployeeFilter filter) {
-        EmployeeSpecification specification = new EmployeeSpecification(filter);
-        return repository.findAll(specification, pageable).map(getMapper()::toDto);
+    public Page<EmployeeDto> search(EmployeeFilter filter, Pageable pageable) {
+        return repository.searchByFilter(
+                filter.getSex(),
+                filter.getDepartmentId(),
+                filter.getMinBirthDate(),
+                filter.getMaxBirthDate(),
+                filter.getMinEmploymentDate(),
+                filter.getMaxEmploymentDate(),
+                filter.getMinSalary(),
+                filter.getMaxSalary(),
+                pageable
+        ).map(getMapper()::toDto);
     }
 
     @Override
     public Page<EmployeeDto> getByMedExamResult(
-            Pageable pageable, Integer year, Boolean isPassed
-    ) {
+            Integer year, Boolean isPassed, Pageable pageable
+            ) {
         return repository
-                .findEmployeesByMedExamResult(pageable, year, isPassed)
-                .map(getMapper()::toDto);
+                .findEmployeesByMedExamResult(
+                        year,
+                        isPassed,
+                        pageable
+                ).map(getMapper()::toDto);
     }
 
     @Override

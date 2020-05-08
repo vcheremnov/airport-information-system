@@ -6,5 +6,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface MedicalExaminationRepository extends
-        JpaRepository<MedicalExamination, Long>,
-        JpaSpecificationExecutor<MedicalExamination> { }
+        JpaRepository<MedicalExamination, Long> { }

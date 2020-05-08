@@ -7,15 +7,14 @@ import lombok.Setter;
 import java.util.Date;
 
 @Getter @Setter
-public class EmployeeFilter {
+public class PassengerFilter {
+
+    private Long flightId;
+    private Date minFlightDate;
+    private Date maxFlightDate;
 
     private Sex sex;
-    private Long departmentId;
     private Date minBirthDate;
     private Date maxBirthDate;
-    private Date minEmploymentDate;
-    private Date maxEmploymentDate;
-    private Integer minSalary;
-    private Integer maxSalary;
 
 }
