@@ -48,4 +48,17 @@ public interface TicketRepository
         Pageable pageable
     );
 
+    @Query(
+        nativeQuery = true, value =
+            "select avg(ticketsSold) from (" +
+            "   select count(*) as ticketsSold" +
+            "   from Flight f inner join Ticket t on f.id = t.flight_id" +
+            "   where f.city_id = :cityId" +
+            "   and f.is_cancelled = false" +
+            "   and t.status = 'SOLD'" +
+            "   group by f.id" +
+            ") as ticketsSoldPerFlight"
+    )
+    Double getAverageTicketsSoldByCity(@Param("cityId") Long cityId);
+
 }

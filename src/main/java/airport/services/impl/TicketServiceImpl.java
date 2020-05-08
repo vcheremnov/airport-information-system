@@ -54,4 +54,9 @@ public class TicketServiceImpl
                 pageable
         ).map(mapper::toDto);
     }
+
+    @Override
+    public Double getAverageTicketsSoldByCity(Long cityId) {
+        return repository.getAverageTicketsSoldByCity(cityId);
+    }
 }

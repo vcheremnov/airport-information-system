@@ -29,6 +29,13 @@ public class TicketController extends AbstractController<TicketDto, Long> {
         return ResponseEntity.ok(ticketService.getTickets(filter, pageable));
     }
 
+    @GetMapping("/average-sold-by-city")
+    public ResponseEntity<Double> getAverageTicketsSoldByCity(
+            @RequestParam("cityId") Long cityId
+    ) {
+        return ResponseEntity.ok(ticketService.getAverageTicketsSoldByCity(cityId));
+    }
+
     @Override
     protected Service<TicketDto, Long> getService() {
         return ticketService;

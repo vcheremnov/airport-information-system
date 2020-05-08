@@ -5,7 +5,6 @@ import airport.entities.types.Sex;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,6 +17,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query(
         "select distinct e " +
         "from Employee e " +
+        "join e.team t " +
         "where (:sex is null or e.sex = :sex)" +
         "and (:departmentId is null or e.team.department.id = :departmentId)" +
         "and (coalesce(:minBirthDate, :minBirthDate) is null or e.birthDate >= :minBirthDate)" +
@@ -25,7 +25,13 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
         "and (coalesce(:minEmploymentDate, :minEmploymentDate) is null or e.employmentDate >= :minEmploymentDate)" +
         "and (coalesce(:maxEmploymentDate, :maxEmploymentDate) is null or e.employmentDate >= :maxEmploymentDate)" +
         "and (:minSalary is null or e.salary >= :minSalary)" +
-        "and (:maxSalary is null or e.salary <= :maxSalary)"
+        "and (:maxSalary is null or e.salary <= :maxSalary)" +
+        "and (:minTeamAverageSalary is null or :minTeamAverageSalary <= " +
+                "(select avg(e.salary) from Employee e join e.team et group by et having et.id = t.id)" +
+            ")" +
+        "and (:maxTeamAverageSalary is null or :maxTeamAverageSalary >= " +
+                "(select avg(e.salary) from Employee e join e.team et group by et having et.id = t.id)" +
+            ")"
     )
     Page<Employee> searchByFilter(
             @Param("sex") Sex sex,
@@ -36,6 +42,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             @Param("maxEmploymentDate") Date maxEmploymentDate,
             @Param("minSalary") Integer minSalary,
             @Param("maxSalary") Integer maxSalary,
+            @Param("minTeamAverageSalary") Double minTeamAverageSalary,
+            @Param("maxTeamAverageSalary") Double maxTeamAverageSalary,
             Pageable pageable
     );
 

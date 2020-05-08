@@ -8,6 +8,7 @@ import airport.entities.Repair;
 import airport.entities.TechInspection;
 import airport.mappers.Mapper;
 import airport.repositories.AirplaneRepository;
+import airport.repositories.RepairRepository;
 import airport.repositories.TechInspectionRepository;
 import airport.services.AirplaneService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
-import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +27,7 @@ public class AirplaneServiceImpl
 
     private final AirplaneRepository repository;
     private final TechInspectionRepository techInspectionRepository;
+    private final RepairRepository repairRepository;
 
     private final Mapper<Airplane, AirplaneDto, Long> mapper;
     private final Mapper<TechInspection, TechInspectionDto, Long> techInspectionMapper;
@@ -34,48 +35,45 @@ public class AirplaneServiceImpl
 
     @Autowired
     public AirplaneServiceImpl(AirplaneRepository repository,
-                               TechInspectionRepository techInspectionRepository, Mapper<Airplane, AirplaneDto, Long> mapper,
+                               TechInspectionRepository techInspectionRepository,
+                               RepairRepository repairRepository,
+                               Mapper<Airplane, AirplaneDto, Long> mapper,
                                Mapper<TechInspection, TechInspectionDto, Long> techInspectionMapper,
                                Mapper<Repair, RepairDto, Long> repairMapper) {
         this.repository = repository;
         this.techInspectionRepository = techInspectionRepository;
+        this.repairRepository = repairRepository;
         this.mapper = mapper;
         this.techInspectionMapper = techInspectionMapper;
         this.repairMapper = repairMapper;
     }
 
     @Override
-    public Collection<RepairDto> getRepairs(Long airplaneId) {
-        return getEntityByIdOrThrow(airplaneId)
-                .getRepairs()
-                .stream()
-                .map(repairMapper::toDto)
-                .collect(Collectors.toList());
+    public Page<RepairDto> getRepairs(Long airplaneId, Pageable pageable) {
+        return repairRepository
+                .findAllByAirplaneId(airplaneId, pageable)
+                .map(repairMapper::toDto);
     }
 
     @Override
-    public Page<TechInspectionDto> getTechInspections(Pageable pageable, Long airplaneId) {
+    public Page<TechInspectionDto> getTechInspections(Long airplaneId, Pageable pageable) {
         return techInspectionRepository
                 .findAllByAirplaneId(airplaneId, pageable)
                 .map(techInspectionMapper::toDto);
     }
 
     @Override
-    public Collection<AirplaneDto> getInspectedBetween(Date minDate, Date maxDate) {
+    public Page<AirplaneDto> getInspectedBetween(Date minDate, Date maxDate, Pageable pageable) {
         return repository
-                .findAllInspectedAirplanesBetween(minDate, maxDate)
-                .stream()
-                .map(getMapper()::toDto)
-                .collect(Collectors.toList());
+                .findAllInspectedAirplanesBetween(minDate, maxDate, pageable)
+                .map(getMapper()::toDto);
     }
 
     @Override
-    public Collection<AirplaneDto> getRepairedBetween(Date minDate, Date maxDate) {
+    public Page<AirplaneDto> getRepairedBetween(Date minDate, Date maxDate, Pageable pageable) {
         return repository
-                .findAllRepairedAirplanesBetween(minDate, maxDate)
-                .stream()
-                .map(getMapper()::toDto)
-                .collect(Collectors.toList());
+                .findAllRepairedAirplanesBetween(minDate, maxDate, pageable)
+                .map(getMapper()::toDto);
     }
 
     @Override

@@ -31,6 +31,7 @@ public class TeamMapper extends AbstractMapper<Team, TeamDto, Long> {
     @PostConstruct
     public void setupMapper() {
         skipDtoField(TeamDto::setDepartmentId);
+        skipDtoField(TeamDto::setAverageSalary);
 
         skipEntityField(Team::setDepartment);
         skipEntityField(Team::setEmployees);
@@ -39,6 +40,14 @@ public class TeamMapper extends AbstractMapper<Team, TeamDto, Long> {
     @Override
     protected void mapSpecificFields(Team sourceEntity, TeamDto destinationDto) {
         destinationDto.setDepartmentId(sourceEntity.getDepartment().getId());
+        destinationDto.setAverageSalary(
+            sourceEntity
+                .getEmployees()
+                .stream()
+                .mapToInt(Employee::getSalary)
+                .average()
+                .orElse(0.0)
+        );
     }
 
     @Override

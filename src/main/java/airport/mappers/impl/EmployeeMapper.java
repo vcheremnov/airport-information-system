@@ -1,21 +1,16 @@
 package airport.mappers.impl;
 
 import airport.dtos.EmployeeDto;
-import airport.entities.AbstractEntity;
+import airport.dtos.TeamDto;
 import airport.entities.Employee;
-import airport.entities.MedicalExamination;
 import airport.entities.Team;
-import airport.repositories.TeamRepository;
+import airport.mappers.Mapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 @Component
@@ -33,6 +28,7 @@ public class EmployeeMapper extends AbstractMapper<Employee, EmployeeDto, Long> 
     @PostConstruct
     public void setupMapper() {
         skipDtoField(EmployeeDto::setTeamId);
+        skipDtoField(EmployeeDto::setDepartmentId);
 
         skipEntityField(Employee::setTeam);
         skipEntityField(Employee::setMedicalExaminations);
@@ -40,8 +36,9 @@ public class EmployeeMapper extends AbstractMapper<Employee, EmployeeDto, Long> 
 
     @Override
     protected void mapSpecificFields(Employee sourceEntity, EmployeeDto destinationDto) {
-        destinationDto.setTeamId(sourceEntity.getTeam().getId());
-        destinationDto.setDepartmentId(sourceEntity.getTeam().getDepartment().getId());
+        Team team = sourceEntity.getTeam();
+        destinationDto.setTeamId(team.getId());
+        destinationDto.setDepartmentId(team.getDepartment().getId());
     }
 
     @Override

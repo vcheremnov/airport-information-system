@@ -17,5 +17,7 @@ public class EmployeeFilter {
     private Date maxEmploymentDate;
     private Integer minSalary;
     private Integer maxSalary;
+    private Double minTeamAverageSalary;
+    private Double maxTeamAverageSalary;
 
 }

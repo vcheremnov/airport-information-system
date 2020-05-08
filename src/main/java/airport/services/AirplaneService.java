@@ -9,12 +9,12 @@ import java.sql.Date;
 import java.util.Collection;
 
 public interface AirplaneService extends Service<AirplaneDto, Long> {
-    Collection<RepairDto> getRepairs(Long airplaneId);
+    Page<RepairDto> getRepairs(Long airplaneId, Pageable pageable);
 
-    Page<TechInspectionDto> getTechInspections(Pageable pageable, Long airplaneId);
+    Page<TechInspectionDto> getTechInspections(Long airplaneId, Pageable pageable);
 
-    Collection<AirplaneDto> getInspectedBetween(Date minDate, Date maxDate);
+    Page<AirplaneDto> getInspectedBetween(Date minDate, Date maxDate, Pageable pageable);
 
-    Collection<AirplaneDto> getRepairedBetween(Date minDate, Date maxDate);
+    Page<AirplaneDto> getRepairedBetween(Date minDate, Date maxDate, Pageable pageable);
 }
 

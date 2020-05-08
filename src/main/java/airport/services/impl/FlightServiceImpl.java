@@ -43,6 +43,8 @@ public class FlightServiceImpl
                 filter.getMaxDuration(),
                 filter.getMinTicketPrice(),
                 filter.getMaxTicketPrice(),
+//                filter.getMinSoldSeatsPercentage(),
+//                filter.getMaxSoldSeatsPercentage(),
                 pageable
         ).map(mapper::toDto);
     }

@@ -18,4 +18,8 @@ public class FlightDto extends AbstractDto<Long> {
     private CityDto city;
     private FlightDelayDto flightDelay;
 
+    private Long ticketsSold;
+    private Long ticketsBooked;
+    private Long ticketsReturned;
+
 }

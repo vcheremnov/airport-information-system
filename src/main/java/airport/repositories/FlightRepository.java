@@ -34,6 +34,14 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
         "and (:maxTicketPrice is null or (c.distance * 1.) / atype.speed * 10000. <= :maxTicketPrice) " +
         "and (:isDelayed is null or :isDelayed = case when fd.id is null then false else true end)" +
         "and (:delayReason is null or fd.delayReason = :delayReason)"
+//        "and (:minSoldSeatsPercentage is null or :minSoldSeatsPercentage <= " +
+//                "(select 100. * count(t) / atype.capacity from Ticket t " +
+//                "where t.flight.id = f.id and t.status = 'SOLD')" +
+//            ")" +
+//        "and (:maxSoldSeatsPercentage is null or :maxSoldSeatsPercentage >= " +
+//                "(select 100. * count(t) / atype.capacity from Ticket t " +
+//                "where t.flight.id = f.id and t.status = 'SOLD')" +
+//            ")"
     )
     Page<Flight> searchByFilter(
             @Param("airplaneId") Long airplaneId,
@@ -49,6 +57,8 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
             @Param("maxDuration") Double maxDuration,
             @Param("minTicketPrice") Double minTicketPrice,
             @Param("maxTicketPrice") Double maxTicketPrice,
+//            @Param("minSoldSeatsPercentage") Double minSoldSeatsPercentage,
+//            @Param("maxSoldSeatsPercentage") Double maxSoldSeatsPercentage,
             Pageable pageable
     );
 }

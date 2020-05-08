@@ -26,4 +26,7 @@ public class FlightFilter {
     private Double minTicketPrice;
     private Double maxTicketPrice;
 
+    private Double minSoldSeatsPercentage;
+    private Double maxSoldSeatsPercentage;
+
 }

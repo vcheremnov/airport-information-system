@@ -9,5 +9,6 @@ import java.util.List;
 public class TeamDto extends AbstractDto<Long> {
 
     private Long departmentId;
+    private Double averageSalary;
 
 }

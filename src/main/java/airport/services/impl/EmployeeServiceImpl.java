@@ -45,6 +45,8 @@ public class EmployeeServiceImpl
                 filter.getMaxEmploymentDate(),
                 filter.getMinSalary(),
                 filter.getMaxSalary(),
+                filter.getMinTeamAverageSalary(),
+                filter.getMaxTeamAverageSalary(),
                 pageable
         ).map(getMapper()::toDto);
     }

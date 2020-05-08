@@ -28,10 +28,11 @@ public class AirplaneController extends AbstractController<AirplaneDto, Long> {
     }
 
     @GetMapping("/{id}/repairs")
-    public ResponseEntity<Collection<RepairDto>> getRepairs(
-            @PathVariable Long id
+    public ResponseEntity<Page<RepairDto>> getRepairs(
+            @PathVariable Long id,
+            Pageable pageable
     ) {
-        return ResponseEntity.ok(airplaneService.getRepairs(id));
+        return ResponseEntity.ok(airplaneService.getRepairs(id, pageable));
     }
 
     @GetMapping("/{id}/tech-inspections")
@@ -39,23 +40,25 @@ public class AirplaneController extends AbstractController<AirplaneDto, Long> {
             Pageable pageable,
             @PathVariable Long id
     ) {
-        return ResponseEntity.ok(airplaneService.getTechInspections(pageable, id));
+        return ResponseEntity.ok(airplaneService.getTechInspections(id, pageable));
     }
 
     @GetMapping("/inspected-between")
-    public ResponseEntity<Collection<AirplaneDto>> getInspectedBetween(
+    public ResponseEntity<Page<AirplaneDto>> getInspectedBetween(
             @RequestParam Date minDate,
-            @RequestParam Date maxDate
+            @RequestParam Date maxDate,
+            Pageable pageable
     ) {
-        return ResponseEntity.ok(airplaneService.getInspectedBetween(minDate, maxDate));
+        return ResponseEntity.ok(airplaneService.getInspectedBetween(minDate, maxDate, pageable));
     }
 
     @GetMapping("/repaired-between")
-    public ResponseEntity<Collection<AirplaneDto>> getRepairedBetween(
+    public ResponseEntity<Page<AirplaneDto>> getRepairedBetween(
             @RequestParam Date minDate,
-            @RequestParam Date maxDate
+            @RequestParam Date maxDate,
+            Pageable pageable
     ) {
-        return ResponseEntity.ok(airplaneService.getRepairedBetween(minDate, maxDate));
+        return ResponseEntity.ok(airplaneService.getRepairedBetween(minDate, maxDate, pageable));
     }
 
     @Override

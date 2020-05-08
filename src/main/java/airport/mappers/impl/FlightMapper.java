@@ -3,10 +3,8 @@ package airport.mappers.impl;
 import airport.dtos.CityDto;
 import airport.dtos.FlightDelayDto;
 import airport.dtos.FlightDto;
-import airport.entities.Airplane;
-import airport.entities.City;
-import airport.entities.Flight;
-import airport.entities.FlightDelay;
+import airport.entities.*;
+import airport.entities.types.TicketStatus;
 import airport.mappers.Mapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class FlightMapper extends AbstractMapper<Flight, FlightDto, Long> {
@@ -50,6 +52,14 @@ public class FlightMapper extends AbstractMapper<Flight, FlightDto, Long> {
         destinationDto.setAirplaneId(sourceEntity.getAirplane().getId());
         destinationDto.setCity(cityMapper.toDto(sourceEntity.getCity()));
         destinationDto.setFlightDelay(flightDelayMapper.toDto(sourceEntity.getFlightDelay()));
+
+        List<Ticket> tickets = sourceEntity.getTickets();
+        Map<TicketStatus, Long> statusToCount = tickets.stream()
+                .collect(Collectors.groupingBy(Ticket::getStatus, Collectors.counting()));
+
+        destinationDto.setTicketsSold(statusToCount.get(TicketStatus.SOLD));
+        destinationDto.setTicketsBooked(statusToCount.get(TicketStatus.BOOKED));
+        destinationDto.setTicketsReturned(statusToCount.get(TicketStatus.RETURNED));
     }
 
     @Override

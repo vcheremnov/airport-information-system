@@ -7,4 +7,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface TicketService extends Service<TicketDto, Long> {
     Page<TicketDto> getTickets(TicketFilter filter, Pageable pageable);
+
+    Double getAverageTicketsSoldByCity(Long cityId);
 }
