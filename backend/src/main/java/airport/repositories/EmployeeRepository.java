@@ -58,5 +58,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             Pageable pageable
     );
 
+    Page<Employee> getAllByTeamId(Long teamId, Pageable pageable);
 
 }

@@ -6,6 +6,8 @@ import airport.dtos.TeamDto;
 import airport.services.DepartmentService;
 import airport.services.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,10 +28,11 @@ public class DepartmentController extends AbstractController<DepartmentDto, Long
     }
 
     @GetMapping("/{id}/teams")
-    public ResponseEntity<Collection<TeamDto>> getRepairs(
-            @PathVariable Long id
+    public ResponseEntity<Page<TeamDto>> getTeams(
+            @PathVariable Long id,
+            Pageable pageable
     ) {
-        return ResponseEntity.ok(departmentService.getTeams(id));
+        return ResponseEntity.ok(departmentService.getTeams(id, pageable));
     }
 
     @Override

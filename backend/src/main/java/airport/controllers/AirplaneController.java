@@ -37,8 +37,8 @@ public class AirplaneController extends AbstractController<AirplaneDto, Long> {
 
     @GetMapping("/{id}/tech-inspections")
     public ResponseEntity<Page<TechInspectionDto>> getTechInspections(
-            Pageable pageable,
-            @PathVariable Long id
+            @PathVariable Long id,
+            Pageable pageable
     ) {
         return ResponseEntity.ok(airplaneService.getTechInspections(id, pageable));
     }

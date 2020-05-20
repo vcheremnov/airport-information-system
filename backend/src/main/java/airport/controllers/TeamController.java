@@ -5,6 +5,8 @@ import airport.dtos.TeamDto;
 import airport.services.TeamService;
 import airport.services.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,10 +27,11 @@ public class TeamController extends AbstractController<TeamDto, Long> {
     }
 
     @GetMapping("/{id}/employees")
-    public ResponseEntity<Collection<EmployeeDto>> getEmployees(
-            @PathVariable Long id
+    public ResponseEntity<Page<EmployeeDto>> getEmployees(
+            @PathVariable Long id,
+            Pageable pageable
     ) {
-        return ResponseEntity.ok(teamService.getEmployees(id));
+        return ResponseEntity.ok(teamService.getEmployees(id, pageable));
     }
 
     @Override

@@ -6,8 +6,11 @@ import airport.entities.Department;
 import airport.entities.Team;
 import airport.mappers.Mapper;
 import airport.repositories.DepartmentRepository;
+import airport.repositories.TeamRepository;
 import airport.services.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,25 +23,28 @@ public class DepartmentServiceImpl
         implements DepartmentService {
 
     private final DepartmentRepository repository;
+    private final TeamRepository teamRepository;
     private final Mapper<Department, DepartmentDto, Long> mapper;
     private final Mapper<Team, TeamDto, Long> teamMapper;
 
     @Autowired
-    public DepartmentServiceImpl(DepartmentRepository repository,
-                                 Mapper<Department, DepartmentDto, Long> mapper,
-                                 Mapper<Team, TeamDto, Long> teamMapper) {
+    public DepartmentServiceImpl(
+            DepartmentRepository repository,
+            TeamRepository teamRepository,
+            Mapper<Department, DepartmentDto, Long> mapper,
+            Mapper<Team, TeamDto, Long> teamMapper
+    ) {
         this.repository = repository;
+        this.teamRepository = teamRepository;
         this.mapper = mapper;
         this.teamMapper = teamMapper;
     }
 
     @Override
-    public Collection<TeamDto> getTeams(Long departmentId) {
-        return getEntityByIdOrThrow(departmentId)
-                .getTeams()
-                .stream()
-                .map(teamMapper::toDto)
-                .collect(Collectors.toList());
+    public Page<TeamDto> getTeams(Long departmentId, Pageable pageable) {
+        return teamRepository
+                .getAllByDepartmentId(departmentId, pageable)
+                .map(teamMapper::toDto);
     }
 
     @Override

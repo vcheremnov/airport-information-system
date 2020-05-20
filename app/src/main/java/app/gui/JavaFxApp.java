@@ -1,4 +1,4 @@
-package gui;
+package app.gui;
 
 import javafx.application.Application;
 import javafx.scene.Parent;
