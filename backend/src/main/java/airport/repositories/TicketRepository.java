@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -48,17 +49,7 @@ public interface TicketRepository
         Pageable pageable
     );
 
-    @Query(
-        nativeQuery = true, value =
-            "select avg(ticketsSold) from (" +
-            "   select count(*) as ticketsSold" +
-            "   from Flight f inner join Ticket t on f.id = t.flight_id" +
-            "   where f.city_id = :cityId" +
-            "   and f.is_cancelled = false" +
-            "   and t.status = 'SOLD'" +
-            "   group by f.id" +
-            ") as ticketsSoldPerFlight"
-    )
-    Double getAverageTicketsSoldByCity(@Param("cityId") Long cityId);
+    @Query(nativeQuery = true, value = "select get_average_tickets_sold_by_city_id(:cityId)")
+    Double getAverageTicketsSoldByCityId(@Param ("cityId") Long cityId);
 
 }

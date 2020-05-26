@@ -22,29 +22,26 @@ import java.util.List;
 
 public abstract class AbstractCrudServiceImpl<T extends Entity> implements Service<T> {
 
-    private static final Retrofit retrofit;
-    private static final Gson gson;
+    private static final Gson gson = new Gson();
 
     private final String urlRoot;
     private final CrudServiceApi crudServiceApi;
     private final Class<T> entityClass;
 
-    static {
-        retrofit = new Retrofit.Builder()
-                .baseUrl(AppProperties.getServerHostname())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        gson = new Gson();
-    }
-
     protected AbstractCrudServiceImpl(
             Class<? extends CrudServiceApi> serviceApiClass,
             Class<T> entityClass,
+            String baseUrl,
             String urlRoot
     ) {
         this.urlRoot = urlRoot;
         this.entityClass = entityClass;
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
         crudServiceApi = retrofit.create(serviceApiClass);
     }
 

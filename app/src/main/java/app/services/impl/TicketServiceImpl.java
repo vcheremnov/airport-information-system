@@ -9,8 +9,8 @@ public class TicketServiceImpl
         extends AbstractCrudServiceImpl<Ticket>
         implements TicketService {
 
-    public TicketServiceImpl() {
-        super(TicketServiceApi.class, Ticket.class, "tickets");
+    public TicketServiceImpl(String baseUrl) {
+        super(TicketServiceApi.class, Ticket.class, baseUrl, "tickets");
     }
 
     @Override

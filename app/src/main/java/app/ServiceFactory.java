@@ -8,59 +8,59 @@ import lombok.experimental.UtilityClass;
 public class ServiceFactory {
 
     public AirplaneService getAirplaneService() {
-        return new AirplaneServiceImplImpl();
+        return new AirplaneServiceImplImpl(AppProperties.getServerHostname());
     }
 
     public AirplaneTypeService getAirplaneTypeService() {
-        return new AirplaneTypeServiceImpl();
+        return new AirplaneTypeServiceImpl(AppProperties.getServerHostname());
     }
 
     public ChiefService getChiefService() {
-        return new ChiefServiceImpl();
+        return new ChiefServiceImpl(AppProperties.getServerHostname());
     }
 
     public CityService getCityService() {
-        return new CityServiceImpl();
+        return new CityServiceImpl(AppProperties.getServerHostname());
     }
 
     public DepartmentService getDepartmentService() {
-        return new DepartmentServiceImpl();
+        return new DepartmentServiceImpl(AppProperties.getServerHostname());
     }
 
     public EmployeeService getEmployeeService() {
-        return new EmployeeServiceImpl();
+        return new EmployeeServiceImpl(AppProperties.getServerHostname());
     }
 
     public FlightDelayService getFlightDelayService() {
-        return new FlightDelayServiceImpl();
+        return new FlightDelayServiceImpl(AppProperties.getServerHostname());
     }
 
     public FlightService getFlightService() {
-        return new FlightServiceImpl();
+        return new FlightServiceImpl(AppProperties.getServerHostname());
     }
 
     public MedicalExaminationService getMedicalExaminationService() {
-        return new MedicalExaminationServiceImpl();
+        return new MedicalExaminationServiceImpl(AppProperties.getServerHostname());
     }
 
     public PassengerService getPassengerService() {
-        return new PassengerServiceImpl();
+        return new PassengerServiceImpl(AppProperties.getServerHostname());
     }
 
     public RepairService getRepairService() {
-        return new RepairServiceImpl();
+        return new RepairServiceImpl(AppProperties.getServerHostname());
     }
 
     public TeamService getTeamService() {
-        return new TeamServiceImpl();
+        return new TeamServiceImpl(AppProperties.getServerHostname());
     }
 
     public TechInspectionService getTechInspectionService() {
-        return new TechInspectionServiceImpl();
+        return new TechInspectionServiceImpl(AppProperties.getServerHostname());
     }
 
     public TicketService getTicketService() {
-        return new TicketServiceImpl();
+        return new TicketServiceImpl(AppProperties.getServerHostname());
     }
 
 }

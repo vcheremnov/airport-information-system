@@ -12,8 +12,8 @@ public class TeamServiceImpl
         extends AbstractCrudServiceImpl<Team>
         implements TeamService {
 
-    public TeamServiceImpl() {
-        super(TeamServiceApi.class, Team.class, "teams");
+    public TeamServiceImpl(String baseUrl) {
+        super(TeamServiceApi.class, Team.class, baseUrl, "teams");
     }
 
     @Override

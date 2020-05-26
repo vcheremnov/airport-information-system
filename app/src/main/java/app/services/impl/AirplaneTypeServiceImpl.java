@@ -8,8 +8,8 @@ public class AirplaneTypeServiceImpl
         extends AbstractCrudServiceImpl<AirplaneType>
         implements AirplaneTypeService {
 
-    public AirplaneTypeServiceImpl() {
-        super(AirplaneTypeServiceApi.class, AirplaneType.class, "airplane-types");
+    public AirplaneTypeServiceImpl(String baseUrl) {
+        super(AirplaneTypeServiceApi.class, AirplaneType.class, baseUrl, "airplane-types");
     }
 
 

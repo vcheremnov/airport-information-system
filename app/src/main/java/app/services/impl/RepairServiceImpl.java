@@ -8,8 +8,8 @@ public class RepairServiceImpl
         extends AbstractCrudServiceImpl<Repair>
         implements RepairService {
 
-    public RepairServiceImpl() {
-        super(RepairServiceApi.class, Repair.class, "repairs");
+    public RepairServiceImpl(String baseUrl) {
+        super(RepairServiceApi.class, Repair.class, baseUrl, "repairs");
     }
 
 

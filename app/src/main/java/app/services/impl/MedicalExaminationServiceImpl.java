@@ -8,8 +8,9 @@ public class MedicalExaminationServiceImpl
         extends AbstractCrudServiceImpl<MedicalExamination>
         implements MedicalExaminationService {
 
-    public MedicalExaminationServiceImpl() {
-        super(MedicalExaminationServiceApi.class, MedicalExamination.class, "medical-examinations");
+    public MedicalExaminationServiceImpl(String baseUrl) {
+        super(MedicalExaminationServiceApi.class, MedicalExamination.class,
+                baseUrl, "medical-examinations");
     }
 
 

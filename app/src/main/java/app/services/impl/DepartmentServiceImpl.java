@@ -12,8 +12,8 @@ public class DepartmentServiceImpl
         extends AbstractCrudServiceImpl<Department>
         implements DepartmentService {
 
-    public DepartmentServiceImpl() {
-        super(DepartmentServiceApi.class, Department.class, "departments");
+    public DepartmentServiceImpl(String baseUrl) {
+        super(DepartmentServiceApi.class, Department.class, baseUrl, "departments");
     }
 
     @Override

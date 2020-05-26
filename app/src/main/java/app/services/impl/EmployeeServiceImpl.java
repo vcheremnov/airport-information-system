@@ -12,8 +12,8 @@ public class EmployeeServiceImpl
         extends AbstractCrudServiceImpl<Employee>
         implements EmployeeService {
 
-    public EmployeeServiceImpl() {
-        super(EmployeeServiceApi.class, Employee.class, "employees");
+    public EmployeeServiceImpl(String baseUrl) {
+        super(EmployeeServiceApi.class, Employee.class, baseUrl, "employees");
     }
 
     @Override

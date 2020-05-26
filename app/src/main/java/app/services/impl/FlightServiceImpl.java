@@ -12,8 +12,8 @@ public class FlightServiceImpl
         extends AbstractCrudServiceImpl<Flight>
         implements FlightService {
 
-    public FlightServiceImpl() {
-        super(FlightServiceApi.class, Flight.class, "flights");
+    public FlightServiceImpl(String baseUrl) {
+        super(FlightServiceApi.class, Flight.class, baseUrl, "flights");
     }
 
     @Override

@@ -13,8 +13,8 @@ public class AirplaneServiceImplImpl
         extends AbstractCrudServiceImpl<Airplane>
         implements AirplaneService {
 
-    public AirplaneServiceImplImpl() {
-        super(AirplaneServiceApi.class, Airplane.class, "airplanes");
+    public AirplaneServiceImplImpl(String baseUrl) {
+        super(AirplaneServiceApi.class, Airplane.class, baseUrl, "airplanes");
     }
 
     @Override

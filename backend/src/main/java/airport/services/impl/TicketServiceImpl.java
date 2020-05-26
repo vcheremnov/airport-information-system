@@ -12,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-
 @Service
 public class TicketServiceImpl
         extends AbstractService<Ticket, TicketDto, Long>
@@ -57,6 +55,6 @@ public class TicketServiceImpl
 
     @Override
     public Double getAverageTicketsSoldByCity(Long cityId) {
-        return repository.getAverageTicketsSoldByCity(cityId);
+        return repository.getAverageTicketsSoldByCityId(cityId);
     }
 }

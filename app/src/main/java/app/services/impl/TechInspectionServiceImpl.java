@@ -8,8 +8,8 @@ public class TechInspectionServiceImpl
         extends AbstractCrudServiceImpl<TechInspection>
         implements TechInspectionService {
 
-    public TechInspectionServiceImpl() {
-        super(TechInspectionServiceApi.class, TechInspection.class, "tech-inspections");
+    public TechInspectionServiceImpl(String baseUrl) {
+        super(TechInspectionServiceApi.class, TechInspection.class, baseUrl, "tech-inspections");
     }
 
 

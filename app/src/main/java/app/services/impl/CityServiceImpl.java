@@ -8,8 +8,8 @@ public class CityServiceImpl
         extends AbstractCrudServiceImpl<City>
         implements CityService {
 
-    public CityServiceImpl() {
-        super(CityServiceApi.class, City.class, "cities");
+    public CityServiceImpl(String baseUrl) {
+        super(CityServiceApi.class, City.class, baseUrl, "cities");
     }
 
 

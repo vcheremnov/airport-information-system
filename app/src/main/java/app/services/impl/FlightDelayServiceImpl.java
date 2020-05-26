@@ -8,8 +8,8 @@ public class FlightDelayServiceImpl
         extends AbstractCrudServiceImpl<FlightDelay>
         implements FlightDelayService {
 
-    public FlightDelayServiceImpl() {
-        super(FlightDelayServiceApi.class, FlightDelay.class, "flight-delays");
+    public FlightDelayServiceImpl(String baseUrl) {
+        super(FlightDelayServiceApi.class, FlightDelay.class, baseUrl, "flight-delays");
     }
 
 

@@ -8,8 +8,8 @@ public class PassengerServiceImpl
         extends AbstractCrudServiceImpl<Passenger>
         implements PassengerService {
 
-    public PassengerServiceImpl() {
-        super(PassengerServiceApi.class, Passenger.class, "passengers");
+    public PassengerServiceImpl(String baseUrl) {
+        super(PassengerServiceApi.class, Passenger.class, baseUrl, "passengers");
     }
 
 

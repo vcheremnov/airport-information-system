@@ -8,8 +8,8 @@ public class ChiefServiceImpl
         extends AbstractCrudServiceImpl<Chief>
         implements ChiefService {
 
-    public ChiefServiceImpl() {
-        super(ChiefServiceApi.class, Chief.class, "chiefs");
+    public ChiefServiceImpl(String baseUrl) {
+        super(ChiefServiceApi.class, Chief.class, baseUrl, "chiefs");
     }
 
 
