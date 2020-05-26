@@ -22,11 +22,11 @@ public class TicketController extends AbstractController<TicketDto, Long> {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<Page<TicketDto>> getTickets(
+    public ResponseEntity<Page<TicketDto>> search(
             @RequestBody TicketFilter filter,
             Pageable pageable
     ) {
-        return ResponseEntity.ok(ticketService.getTickets(filter, pageable));
+        return ResponseEntity.ok(ticketService.search(filter, pageable));
     }
 
     @GetMapping("/average-sold-by-city")

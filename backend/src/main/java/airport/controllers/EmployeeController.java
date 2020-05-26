@@ -11,10 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
-import java.sql.Date;
-import java.util.Collection;
-
 @RestController
 @RequestMapping("/employees")
 public class EmployeeController extends AbstractController<EmployeeDto, Long> {
@@ -46,10 +42,11 @@ public class EmployeeController extends AbstractController<EmployeeDto, Long> {
     }
 
     @GetMapping("/{id}/med-exams")
-    public ResponseEntity<Collection<MedicalExaminationDto>> getMedExams(
-            @PathVariable Long id
+    public ResponseEntity<Page<MedicalExaminationDto>> getMedExams(
+            @PathVariable Long id,
+            Pageable pageable
     ) {
-        return ResponseEntity.ok(employeeService.getMedExams(id));
+        return ResponseEntity.ok(employeeService.getMedicalExaminations(id, pageable));
     }
 
     @Override

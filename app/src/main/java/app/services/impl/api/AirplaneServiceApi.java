@@ -2,7 +2,6 @@ package app.services.impl.api;
 
 import app.model.Repair;
 import app.model.TechInspection;
-import app.services.CrudServiceApi;
 import app.services.pagination.Page;
 import retrofit2.Call;
 import retrofit2.http.GET;

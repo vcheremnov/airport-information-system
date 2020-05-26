@@ -5,16 +5,13 @@ import airport.entities.*;
 import airport.filters.EmployeeFilter;
 import airport.mappers.Mapper;
 import airport.repositories.EmployeeRepository;
+import airport.repositories.MedicalExaminationRepository;
 import airport.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.stream.Collectors;
 
 @Service
 public class EmployeeServiceImpl
@@ -23,14 +20,19 @@ public class EmployeeServiceImpl
 
     private final EmployeeRepository repository;
     private final Mapper<Employee, EmployeeDto, Long> mapper;
+    private final MedicalExaminationRepository medicalExaminationRepository;
     private final Mapper<MedicalExamination, MedicalExaminationDto, Long> medExamMapper;
 
     @Autowired
-    public EmployeeServiceImpl(EmployeeRepository repository,
-                               Mapper<Employee, EmployeeDto, Long> mapper,
-                               Mapper<MedicalExamination, MedicalExaminationDto, Long> medExamMapper) {
+    public EmployeeServiceImpl(
+            EmployeeRepository repository,
+            Mapper<Employee, EmployeeDto, Long> mapper,
+            MedicalExaminationRepository medicalExaminationRepository,
+            Mapper<MedicalExamination, MedicalExaminationDto, Long> medExamMapper
+    ) {
         this.repository = repository;
         this.mapper = mapper;
+        this.medicalExaminationRepository = medicalExaminationRepository;
         this.medExamMapper = medExamMapper;
     }
 
@@ -54,7 +56,7 @@ public class EmployeeServiceImpl
     @Override
     public Page<EmployeeDto> getByMedExamResult(
             Integer year, Boolean isPassed, Pageable pageable
-            ) {
+    ) {
         return repository
                 .findEmployeesByMedExamResult(
                         year,
@@ -64,12 +66,10 @@ public class EmployeeServiceImpl
     }
 
     @Override
-    public Collection<MedicalExaminationDto> getMedExams(Long employeeId) {
-        return getEntityByIdOrThrow(employeeId)
-                .getMedicalExaminations()
-                .stream()
-                .map(medExamMapper::toDto)
-                .collect(Collectors.toList());
+    public Page<MedicalExaminationDto> getMedicalExaminations(Long employeeId, Pageable pageable) {
+        return medicalExaminationRepository
+                .getAllByEmployeeId(employeeId, pageable)
+                .map(medExamMapper::toDto);
     }
 
     @Override

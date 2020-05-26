@@ -10,7 +10,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ServiceResponse<T> {
 
-    private int httpStatusCode;
     private T body;
+    private int httpStatusCode;
+    private String errorMessage;
 
 }

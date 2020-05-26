@@ -40,7 +40,7 @@ public class TicketServiceImpl
     }
 
     @Override
-    public Page<TicketDto> getTickets(TicketFilter filter, Pageable pageable) {
+    public Page<TicketDto> search(TicketFilter filter, Pageable pageable) {
         return repository.searchByFilter(
                 filter.getFlightId(),
                 filter.getMinFlightDate(),

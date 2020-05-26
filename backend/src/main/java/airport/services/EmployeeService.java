@@ -17,5 +17,5 @@ public interface EmployeeService extends Service<EmployeeDto, Long> {
             Integer year, Boolean isPassed, Pageable pageable
     );
 
-    Collection<MedicalExaminationDto> getMedExams(Long employeeId);
+    Page<MedicalExaminationDto> getMedicalExaminations(Long employeeId, Pageable pageable);
 }
