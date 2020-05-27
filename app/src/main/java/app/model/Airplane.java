@@ -1,9 +1,11 @@
 package app.model;
 
+import app.model.types.Attribute;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Date;
+import java.util.List;
 
 @Getter @Setter
 public class Airplane extends Entity {
