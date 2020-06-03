@@ -3,6 +3,7 @@ package app.gui.controllers;
 import app.services.ServiceResponse;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,26 +37,26 @@ public class RequestExecutor {
     public class RequestBuilder<T> {
 
         private final ResponseBodySupplier<T> responseBodySupplier;
-        private OnSuccessAction<T> onSuccessAction;
-        private OnFailureAction onFailureAction;
-        private Runnable finalAction;
+        private Optional<OnSuccessAction<T>> onSuccessAction = Optional.empty();
+        private Optional<OnFailureAction> onFailureAction = Optional.empty();
+        private Optional<Runnable> finalAction = Optional.empty();
 
         private RequestBuilder(ResponseBodySupplier<T> responseBodySupplier) {
             this.responseBodySupplier = responseBodySupplier;
         }
 
         public RequestBuilder<T> setOnSuccessAction(OnSuccessAction<T> onSuccessAction) {
-            this.onSuccessAction = onSuccessAction;
+            this.onSuccessAction = Optional.ofNullable(onSuccessAction);
             return this;
         }
 
         public RequestBuilder<T> setOnFailureAction(OnFailureAction onFailureAction) {
-            this.onFailureAction = onFailureAction;
+            this.onFailureAction = Optional.ofNullable(onFailureAction);
             return this;
         }
 
         public RequestBuilder<T> setFinalAction(Runnable finalAction) {
-            this.finalAction = finalAction;
+            this.finalAction = Optional.ofNullable(finalAction);
             return this;
         }
 
@@ -65,20 +66,14 @@ public class RequestExecutor {
                     ServiceResponse<T> serviceResponse = responseBodySupplier.getServiceResponse();
                     T responseBody = serviceResponse.getBody();
                     if (responseBody == null) {
-                        if (onFailureAction != null) {
-                            onFailureAction.run(serviceResponse.getErrorMessage());
-                        }
-                    } else if (onSuccessAction != null) {
-                        onSuccessAction.run(responseBody);
+                        onFailureAction.ifPresent(a -> a.run(serviceResponse.getErrorMessage()));
+                    } else {
+                        onSuccessAction.ifPresent(a -> a.run(responseBody));
                     }
                 } catch (Exception e) {
-                    if (onFailureAction != null) {
-                        onFailureAction.run(e.getMessage());
-                    }
+                    onFailureAction.ifPresent(a -> a.run(e.getMessage()));
                 } finally {
-                    if (finalAction != null) {
-                        finalAction.run();
-                    }
+                    finalAction.ifPresent(Runnable::run);
                 }
             });
         }
