@@ -1,12 +1,10 @@
 package app.model;
 
-import app.model.types.Attribute;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 @Getter @Setter
@@ -17,31 +15,26 @@ public class Employee extends Person {
     private Long departmentId;
     private Long teamId;
 
-    private static final Map<String, String> localizedFields = new LinkedHashMap<>();
-
-    static {
-        localizedFields.putAll(Person.getLocalizedFields());
-        localizedFields.put("employmentDate", "Дата найма");
-        localizedFields.put("salary", "Зарплата");
-        localizedFields.put("departmentId", "Номер отдела");
-        localizedFields.put("teamId", "Номер бригады");
-    }
-
-    public static Map<String, String> getLocalizedFields() {
-        return localizedFields;
-    }
+    private String employmentDateProperty;
 
     @Override
-    public List<Attribute> getAttributes() {
-        List<Attribute> attributes = super.getAttributes();
-        attributes.addAll(List.of(
-                new Attribute("Дата найма", String.valueOf(employmentDate)),
-                new Attribute("Зарплата", String.valueOf(salary)),
-                new Attribute("Номер отдела", String.valueOf(departmentId)),
-                new Attribute("Номер команды", String.valueOf(teamId))
-        ));
+    public void calculateProperties() {
+        super.calculateProperties();
+        employmentDateProperty = LocalDateFormatter.getFormattedDate(employmentDate);
+    }
+    
+    private static final Map<String, String> propertyNames = new LinkedHashMap<>();
 
-        return attributes;
+    static {
+        propertyNames.putAll(Person.getPropertyNames());
+        propertyNames.put("departmentId", "№ отдела");
+        propertyNames.put("teamId", "№ бригады");
+        propertyNames.put("employmentDateProperty", "Дата найма");
+        propertyNames.put("salary", "Зарплата");
+    }
+
+    public static Map<String, String> getPropertyNames() {
+        return propertyNames;
     }
 
 }

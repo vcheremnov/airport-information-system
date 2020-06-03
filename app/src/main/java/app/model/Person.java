@@ -1,6 +1,5 @@
 package app.model;
 
-import app.model.types.Attribute;
 import app.model.types.Sex;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,30 +12,29 @@ public class Person extends Entity {
     private String name;
     private Sex sex;
     private Date birthDate;
-
-    private static final Map<String, String> localizedFields = new LinkedHashMap<>();
-
-    static {
-        localizedFields.putAll(Entity.getLocalizedFields());
-        localizedFields.put("name", "ФИО");
-        localizedFields.put("sex", "Пол");
-        localizedFields.put("birthDate", "Дата рождения");
-    }
-
-    public static Map<String, String> getLocalizedFields() {
-        return localizedFields;
-    }
+    
+    private String birthDateProperty;
+    private String sexProperty;
 
     @Override
-    public List<Attribute> getAttributes() {
-        List<Attribute> attributes = super.getAttributes();
-        attributes.addAll(List.of(
-                new Attribute("Имя", name),
-                new Attribute("Дата рождения", String.valueOf(birthDate)),
-                new Attribute("Пол", String.valueOf(sex))
-        ));
+    public void calculateProperties() {
+        super.calculateProperties();
 
-        return attributes;
+        birthDateProperty = LocalDateFormatter.getFormattedDate(birthDate);
+        sexProperty = Sex.toLocalizedString(sex);
+    }
+
+    private static final Map<String, String> propertyNames = new LinkedHashMap<>();
+
+    static {
+        propertyNames.putAll(Entity.getPropertyNames());
+        propertyNames.put("name", "ФИО");
+        propertyNames.put("sexProperty", "Пол");
+        propertyNames.put("birthDateProperty", "Дата рождения");
+    }
+
+    public static Map<String, String> getPropertyNames() {
+        return propertyNames;
     }
 
 }

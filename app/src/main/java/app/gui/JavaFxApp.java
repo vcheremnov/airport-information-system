@@ -3,7 +3,8 @@ package app.gui;
 import app.ServiceFactory;
 import app.gui.controllers.EntityTableController;
 import app.gui.controllers.MainController;
-import app.model.Employee;
+import app.gui.controllers.RequestExecutor;
+import app.model.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -22,6 +23,8 @@ public class JavaFxApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        RequestExecutor requestExecutor = new RequestExecutor();
+
         FXMLLoader mainLoader = new FXMLLoader();
         URL mainFxmlLocation = getClass().getClassLoader().getResource("gui/main_view.fxml");
         mainLoader.setLocation(mainFxmlLocation);
@@ -32,10 +35,12 @@ public class JavaFxApp extends Application {
         URL entityTableLocation = getClass().getClassLoader().getResource("gui/entity_table.fxml");
         tableLoader.setLocation(entityTableLocation);
         Node table = tableLoader.load();
-        EntityTableController<Employee> controller = tableLoader.getController();
+
+        EntityTableController<MedicalExamination> controller = tableLoader.getController();
         controller.init(
-                Employee.getLocalizedFields(),
-                ServiceFactory.getEmployeeService()
+                MedicalExamination.getPropertyNames(),
+                requestExecutor,
+                ServiceFactory.getMedicalExaminationService()
         );
 
         mainController.setTable(table, "TEST");
@@ -46,6 +51,9 @@ public class JavaFxApp extends Application {
         stage.setMaximized(true);
         stage.show();
 
-        stage.setOnCloseRequest(event -> Platform.exit());
+        stage.setOnCloseRequest(event -> {
+            requestExecutor.shutdown();
+            Platform.exit();
+        });
     }
 }
