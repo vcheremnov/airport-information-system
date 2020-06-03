@@ -1,6 +1,7 @@
 package app.gui.controllers;
 
 import app.model.Entity;
+import app.model.LocalDateFormatter;
 import app.services.Service;
 import app.services.pagination.PageInfo;
 import app.services.pagination.PageSort;
@@ -9,18 +10,22 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Pagination;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class EntityTableController<T extends Entity> {
+
+    @FXML
+    private VBox rootVBox;
 
     @FXML
     private Pagination pagination;
@@ -40,18 +45,26 @@ public class EntityTableController<T extends Entity> {
     private Service<T> entityService;
     private PageInfo pageInfo;
     private PageSort pageSort;
+    private Consumer<String> statusBarMessageSetter;
 
     public void init(
-            Map<String, String> localizedColumns,
+            Map<String, String> entityPropertyNames,
             RequestExecutor requestExecutor,
-            Service<T> entityService
+            Service<T> entityService,
+            Consumer<String> statusBarMessageSetter
     ) {
-        pageSort = new PageSort();
-        pageInfo = new PageInfo(0L, 23L, pageSort);
         this.entityService = entityService;
         this.requestExecutor = requestExecutor;
+        this.statusBarMessageSetter = statusBarMessageSetter;
 
-        List<TableColumn<T, String>> columns = localizedColumns
+        pageSort = new PageSort();
+        pageInfo = new PageInfo(0L, 23L, pageSort);
+
+        Label tablePlaceholder = new Label("Нажмите \"Обновить\" для отображения данных");
+        entityTable.placeholderProperty().setValue(tablePlaceholder);
+        pagination.setDisable(true);
+
+        List<TableColumn<T, String>> columns = entityPropertyNames
                 .entrySet()
                 .stream()
                 .map(e -> {
@@ -77,16 +90,15 @@ public class EntityTableController<T extends Entity> {
 
                     entityObservableList.clear();
                     entityObservableList.addAll(entities);
+                    statusBarMessageSetter.accept("Данные успешно загружены");
                 }))
-                .setOnFailureAction(System.err::println)
+                .setOnFailureAction(errorMsg -> statusBarMessageSetter.accept(errorMsg))
                 .setFinalAction(() -> Platform.runLater(() -> setDisable(false)))
                 .submit();
     }
 
     private void setDisable(boolean value) {
-        pagination.setDisable(value);
-        refreshButton.setDisable(value);
-        entityTable.setDisable(value);
+        rootVBox.setDisable(value);
     }
 
 }

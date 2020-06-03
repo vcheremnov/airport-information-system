@@ -28,32 +28,20 @@ public class JavaFxApp extends Application {
         FXMLLoader mainLoader = new FXMLLoader();
         URL mainFxmlLocation = getClass().getClassLoader().getResource("gui/main_view.fxml");
         mainLoader.setLocation(mainFxmlLocation);
+
         Parent root = mainLoader.load();
         MainController mainController = mainLoader.getController();
-
-        FXMLLoader tableLoader = new FXMLLoader();
-        URL entityTableLocation = getClass().getClassLoader().getResource("gui/entity_table.fxml");
-        tableLoader.setLocation(entityTableLocation);
-        Node table = tableLoader.load();
-
-        EntityTableController<MedicalExamination> controller = tableLoader.getController();
-        controller.init(
-                MedicalExamination.getPropertyNames(),
-                requestExecutor,
-                ServiceFactory.getMedicalExaminationService()
-        );
-
-        mainController.setTable(table, "TEST");
+        mainController.init(stage, requestExecutor);
 
         Scene scene = new Scene(root);
         stage.setTitle("Airport information system");
         stage.setScene(scene);
         stage.setMaximized(true);
-        stage.show();
-
         stage.setOnCloseRequest(event -> {
             requestExecutor.shutdown();
             Platform.exit();
         });
+        stage.show();
+
     }
 }

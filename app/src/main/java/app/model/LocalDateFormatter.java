@@ -14,14 +14,22 @@ public class LocalDateFormatter {
 
     static {
         dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
-        timestampFormatter = new SimpleDateFormat("dd-MM-yyyy hh:mm");
+        timestampFormatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
     }
 
     public static String getFormattedDate(Date date) {
         return dateFormatter.format(date);
     }
 
+    public static String getFormattedDate(long timeMillis) {
+        return dateFormatter.format(new Date(timeMillis));
+    }
+
     public static String getFormattedTimestamp(Timestamp timestamp) {
         return timestampFormatter.format(timestamp);
+    }
+
+    public static String getFormattedTimestamp(long timeMillis) {
+        return timestampFormatter.format(new Date(timeMillis));
     }
 }

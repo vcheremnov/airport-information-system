@@ -74,7 +74,7 @@ public class Flight extends Entity {
         propertyNames.put("cityNameProperty", "Город");
         propertyNames.put("flightTimeProperty", "Время");
         propertyNames.put("durationProperty", "Длительность");
-        propertyNames.put("ticketPriceProperty", "Цена, р");
+        propertyNames.put("ticketPriceProperty", "Цена билета, р");
         propertyNames.put("statusProperty", "Статус");
         propertyNames.put("flightDelayReasonProperty", "Причина задержки");
     }

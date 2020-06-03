@@ -28,27 +28,27 @@
                            <content>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Отделы">
+                                    <Button fx:id="departmentButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openDepartments" text="Отделы">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Начальники">
+                                    <Button fx:id="chiefButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openChiefs" text="Начальники">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Бригады">
+                                    <Button fx:id="teamButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openTeams" text="Бригады">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Сотрудники">
+                                    <Button fx:id="employeeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openEmployees" text="Сотрудники">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Медосмотры">
+                                    <Button fx:id="mexExamButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openMedExams" text="Медосмотры">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
@@ -61,22 +61,22 @@
                            <content>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Модели">
+                                    <Button fx:id="airplaneTypeButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openAirplaneTypes" text="Модели">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Самолеты">
+                                    <Button fx:id="airplaneButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openAirplanes" text="Самолеты">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Ремонты">
+                                    <Button fx:id="repairButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openRepairs" text="Ремонты">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Тех. осмотры">
+                                    <Button fx:id="techInspectionButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openTechInspections" text="Тех. осмотры">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
@@ -89,22 +89,22 @@
                            <content>
                               <VBox prefHeight="200.0" prefWidth="100.0">
                                  <children>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Города">
+                                    <Button fx:id="cityButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openCities" text="Города">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Рейсы">
+                                    <Button fx:id="flightButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openFlights" text="Рейсы">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Билеты">
+                                    <Button fx:id="ticketButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openTickets" text="Билеты">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Пассажиры">
+                                    <Button fx:id="passengerButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openPassengers" text="Пассажиры">
                                        <VBox.margin>
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
@@ -119,7 +119,7 @@
             </VBox>
             <TabPane fx:id="contentTabPane">
                <tabs>
-                  <Tab text="Главный экран">
+                  <Tab fx:id="defaultTab" closable="false" text="Главный экран">
                      <content>
                         <VBox alignment="CENTER" maxWidth="1.7976931348623157E308">
                            <children>
@@ -136,6 +136,6 @@
             </TabPane>
          </items>
       </SplitPane>
-      <Label VBox.vgrow="NEVER" />
+      <Label fx:id="statusBarLabel" VBox.vgrow="NEVER" />
    </children>
 </VBox>
