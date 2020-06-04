@@ -3,8 +3,7 @@ package app.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Getter @Setter
 public class Department extends Entity {
@@ -19,17 +18,26 @@ public class Department extends Entity {
         super.calculateProperties();
         chiefNameProperty = chief.getName();
     }
-    
+
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
+    private static final Map<String, String> sortPropertyNames = new LinkedHashMap<>();
 
     static {
         propertyNames.putAll(Entity.getPropertyNames());
         propertyNames.put("name", "Отдел");
-        propertyNames.put("chiefNameProperty", "Начальник");
+        propertyNames.put("chiefNameProperty", "ФИО начальника");
+
+        sortPropertyNames.putAll(Entity.getSortPropertyNames());
+        sortPropertyNames.put("name", "Название отдела");
+        sortPropertyNames.put("chiefName", "ФИО начальника");
     }
 
     public static Map<String, String> getPropertyNames() {
-        return propertyNames;
+        return Collections.unmodifiableMap(propertyNames);
+    }
+
+    public static Map<String, String> getSortPropertyNames() {
+        return Collections.unmodifiableMap(sortPropertyNames);
     }
 
 }

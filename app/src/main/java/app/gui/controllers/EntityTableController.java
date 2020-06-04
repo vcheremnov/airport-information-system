@@ -4,6 +4,7 @@ import app.model.Entity;
 import app.services.Service;
 import app.services.pagination.PageInfo;
 import app.services.pagination.PageSort;
+import app.utils.RequestExecutor;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,6 +12,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
@@ -29,21 +34,32 @@ public class EntityTableController<T extends Entity> {
     private TableView<T> entityTable;
 
     @FXML
-    private VBox filteringVBox;
+    private ChoiceBox<SortField> sortChoiceBox;
 
     @FXML
-    private Button refreshButton;
+    private VBox filteringVBox;
 
     private final ObservableList<T> entityObservableList = FXCollections.observableArrayList();
-
     private RequestExecutor requestExecutor;
     private Service<T> entityService;
+    private Consumer<String> statusBarMessageSetter;
     private PageInfo pageInfo;
     private PageSort pageSort;
-    private Consumer<String> statusBarMessageSetter;
+
+    @AllArgsConstructor
+    private static class SortField {
+        private final String key;
+        private final String value;
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
 
     public void init(
             Map<String, String> entityPropertyNames,
+            Map<String, String> entitySortPropertyNames,
             RequestExecutor requestExecutor,
             Service<T> entityService,
             Consumer<String> statusBarMessageSetter
@@ -64,6 +80,23 @@ public class EntityTableController<T extends Entity> {
         Label tablePlaceholder = new Label("Нажмите \"Обновить\" для отображения данных");
         entityTable.placeholderProperty().setValue(tablePlaceholder);
 
+        List<SortField> sortFieldList = entitySortPropertyNames
+                .entrySet()
+                .stream()
+                .map(e -> new SortField(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+
+        SortField defaultSortField = new SortField(null, "Не указано");
+        sortFieldList.add(defaultSortField);
+        sortChoiceBox.setValue(defaultSortField);
+        sortChoiceBox.getItems().addAll(sortFieldList);
+        sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            pageSort.removeAllFields();
+            if (newValue.key != null) {
+                pageSort.addField(newValue.key);
+            }
+        });
+
         List<TableColumn<T, String>> columns = entityPropertyNames
                 .entrySet()
                 .stream()
@@ -74,9 +107,9 @@ public class EntityTableController<T extends Entity> {
                     tableColumn.setEditable(false);
                     return tableColumn;
                 }).collect(Collectors.toList());
-
         entityTable.getColumns().addAll(columns);
         entityTable.setItems(entityObservableList);
+
         refreshTableContents();
     }
 
@@ -99,6 +132,16 @@ public class EntityTableController<T extends Entity> {
                 .setOnFailureAction(errorMsg -> statusBarMessageSetter.accept(errorMsg))
                 .setFinalAction(() -> Platform.runLater(this::enableComponent))
                 .submit();
+    }
+
+    @FXML
+    void setAscendingSortOrder() {
+        pageSort.setOrder(PageSort.Order.ASC);
+    }
+
+    @FXML
+    void setDescendingSortOrder() {
+        pageSort.setOrder(PageSort.Order.DESC);
     }
 
     private void disableComponent() {

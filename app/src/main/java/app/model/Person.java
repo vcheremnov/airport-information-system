@@ -1,6 +1,7 @@
 package app.model;
 
 import app.model.types.Sex;
+import app.utils.LocalDateFormatter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,16 +26,25 @@ public class Person extends Entity {
     }
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
+    private static final Map<String, String> sortPropertyNames = new LinkedHashMap<>();
 
     static {
         propertyNames.putAll(Entity.getPropertyNames());
         propertyNames.put("name", "ФИО");
         propertyNames.put("sexProperty", "Пол");
         propertyNames.put("birthDateProperty", "Дата рождения");
+
+        sortPropertyNames.putAll(Entity.getSortPropertyNames());
+        sortPropertyNames.put("name", "ФИО");
+        sortPropertyNames.put("birthDate", "Дата рождения");
     }
 
     public static Map<String, String> getPropertyNames() {
-        return propertyNames;
+        return Collections.unmodifiableMap(propertyNames);
+    }
+
+    public static Map<String, String> getSortPropertyNames() {
+        return Collections.unmodifiableMap(sortPropertyNames);
     }
 
 }

@@ -41,4 +41,8 @@ public class PageSort {
         fieldNameSet.remove(fieldName);
     }
 
+    public void removeAllFields() {
+        fieldNameSet.clear();
+    }
+
 }

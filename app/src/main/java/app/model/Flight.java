@@ -2,16 +2,13 @@ package app.model;
 
 import app.model.types.FlightDelayReason;
 import app.model.types.FlightType;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import app.utils.LocalDateFormatter;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Getter @Setter
 public class Flight extends Entity {
@@ -34,6 +31,7 @@ public class Flight extends Entity {
     private String cityNameProperty;
     private String durationProperty;
     private String ticketPriceProperty;
+    private String wasDelayedProperty;
     private String flightDelayReasonProperty;
     private String statusProperty;
 
@@ -51,6 +49,8 @@ public class Flight extends Entity {
 
         ticketPriceProperty = String.format("%.2f", ticketPrice);
 
+        wasDelayedProperty = flightDelay == null ? "нет" : "да";
+
         flightDelayReasonProperty = flightDelay == null ?
                 "" : FlightDelayReason.toLocalizedString(flightDelay.getDelayReason());
 
@@ -58,14 +58,13 @@ public class Flight extends Entity {
             statusProperty = "Отменен";
         } else if (flightTime.before(Timestamp.from(Instant.now()))) {
             statusProperty = "Состоялся";
-        } else if (flightDelay != null) {
-            statusProperty = "Задержан";
         } else {
             statusProperty = "Ожидается";
         }
     }
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
+    private static final Map<String, String> sortPropertyNames = new LinkedHashMap<>();
 
     static {
         propertyNames.putAll(Entity.getPropertyNames());
@@ -76,11 +75,21 @@ public class Flight extends Entity {
         propertyNames.put("durationProperty", "Длительность");
         propertyNames.put("ticketPriceProperty", "Цена билета, р");
         propertyNames.put("statusProperty", "Статус");
+        propertyNames.put("wasDelayedProperty", "Был задержан");
         propertyNames.put("flightDelayReasonProperty", "Причина задержки");
+
+        sortPropertyNames.putAll(Entity.getSortPropertyNames());
+        sortPropertyNames.put("airplaneId", "№ самолета");
+        sortPropertyNames.put("cityName", "Название города");
+        sortPropertyNames.put("flightTime", "Время");
     }
 
     public static Map<String, String> getPropertyNames() {
-        return propertyNames;
+        return Collections.unmodifiableMap(propertyNames);
+    }
+
+    public static Map<String, String> getSortPropertyNames() {
+        return Collections.unmodifiableMap(sortPropertyNames);
     }
 
 }

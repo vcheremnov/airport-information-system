@@ -1,23 +1,20 @@
 package app.gui.controllers;
 
-import app.ServiceFactory;
+import app.utils.LocalDateFormatter;
+import app.utils.ServiceFactory;
 import app.model.*;
 import app.services.Service;
+import app.utils.RequestExecutor;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
 
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.time.Instant;
 import java.util.HashSet;
@@ -55,6 +52,7 @@ public class MainController {
         addTableTab(
                 "Модели самолетов",
                 AirplaneType.getPropertyNames(),
+                AirplaneType.getSortPropertyNames(),
                 ServiceFactory.getAirplaneTypeService()
         );
     }
@@ -64,6 +62,7 @@ public class MainController {
         addTableTab(
                 "Самолеты",
                 Airplane.getPropertyNames(),
+                Airplane.getSortPropertyNames(),
                 ServiceFactory.getAirplaneService()
         );
     }
@@ -73,6 +72,7 @@ public class MainController {
         addTableTab(
                 "Начальники",
                 Chief.getPropertyNames(),
+                Chief.getSortPropertyNames(),
                 ServiceFactory.getChiefService()
         );
     }
@@ -82,6 +82,7 @@ public class MainController {
         addTableTab(
                 "Города",
                 City.getPropertyNames(),
+                City.getSortPropertyNames(),
                 ServiceFactory.getCityService()
         );
     }
@@ -91,6 +92,7 @@ public class MainController {
         addTableTab(
                 "Отделы",
                 Department.getPropertyNames(),
+                Department.getSortPropertyNames(),
                 ServiceFactory.getDepartmentService()
         );
     }
@@ -100,6 +102,7 @@ public class MainController {
         addTableTab(
                 "Сотрудники",
                 Employee.getPropertyNames(),
+                Employee.getSortPropertyNames(),
                 ServiceFactory.getEmployeeService()
         );
     }
@@ -109,6 +112,7 @@ public class MainController {
         addTableTab(
                 "Рейсы",
                 Flight.getPropertyNames(),
+                Flight.getSortPropertyNames(),
                 ServiceFactory.getFlightService()
         );
     }
@@ -118,6 +122,7 @@ public class MainController {
         addTableTab(
                 "Мед. осмотры",
                 MedicalExamination.getPropertyNames(),
+                MedicalExamination.getSortPropertyNames(),
                 ServiceFactory.getMedicalExaminationService()
         );
     }
@@ -127,6 +132,7 @@ public class MainController {
         addTableTab(
                 "Пассажиры",
                 Passenger.getPropertyNames(),
+                Passenger.getSortPropertyNames(),
                 ServiceFactory.getPassengerService()
         );
     }
@@ -136,6 +142,7 @@ public class MainController {
         addTableTab(
                 "Ремонты",
                 Repair.getPropertyNames(),
+                Repair.getSortPropertyNames(),
                 ServiceFactory.getRepairService()
         );
     }
@@ -145,6 +152,7 @@ public class MainController {
         addTableTab(
                 "Бригады",
                 Team.getPropertyNames(),
+                Team.getSortPropertyNames(),
                 ServiceFactory.getTeamService()
         );
     }
@@ -154,6 +162,7 @@ public class MainController {
         addTableTab(
                 "Тех. осмотры",
                 TechInspection.getPropertyNames(),
+                TechInspection.getSortPropertyNames(),
                 ServiceFactory.getTechInspectionService()
         );
     }
@@ -163,6 +172,7 @@ public class MainController {
         addTableTab(
                 "Билеты",
                 Ticket.getPropertyNames(),
+                Ticket.getSortPropertyNames(),
                 ServiceFactory.getTicketService()
         );
     }
@@ -179,6 +189,7 @@ public class MainController {
     private <T extends Entity> void addTableTab(
             String tableName,
             Map<String, String> entityPropertyNames,
+            Map<String, String> entitySortPropertyNames,
             Service<T> entityService
     ) {
         FXMLLoader tableLoader = new FXMLLoader();
@@ -201,6 +212,7 @@ public class MainController {
         EntityTableController<T> controller = tableLoader.getController();
         controller.init(
                 entityPropertyNames,
+                entitySortPropertyNames,
                 requestExecutor,
                 entityService,
                 this::setStatusBarMessage

@@ -1,5 +1,6 @@
-package app;
+package app.utils;
 
+import app.AppProperties;
 import app.services.*;
 import app.services.impl.*;
 import lombok.experimental.UtilityClass;

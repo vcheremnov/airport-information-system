@@ -1,4 +1,4 @@
-package app.gui.controllers;
+package app.utils;
 
 import app.services.ServiceResponse;
 

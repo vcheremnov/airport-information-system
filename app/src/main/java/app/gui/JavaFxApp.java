@@ -1,14 +1,10 @@
 package app.gui;
 
-import app.ServiceFactory;
-import app.gui.controllers.EntityTableController;
 import app.gui.controllers.MainController;
-import app.gui.controllers.RequestExecutor;
-import app.model.*;
+import app.utils.RequestExecutor;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;

@@ -1,11 +1,11 @@
 package app.model;
 
+import app.utils.LocalDateFormatter;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Getter @Setter
 public class TechInspection extends Entity {
@@ -26,16 +26,25 @@ public class TechInspection extends Entity {
     }
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
+    private static final Map<String, String> sortPropertyNames = new LinkedHashMap<>();
 
     static {
         propertyNames.putAll(Entity.getPropertyNames());
         propertyNames.put("airplaneId", "№ самолета");
         propertyNames.put("inspectionTimeProperty", "Время проведения");
         propertyNames.put("resultProperty", "Результат");
+
+        sortPropertyNames.putAll(Entity.getSortPropertyNames());
+        sortPropertyNames.put("airplaneId", "№ самолета");
+        sortPropertyNames.put("inspectionTime", "Время проведения");
     }
 
     public static Map<String, String> getPropertyNames() {
-        return propertyNames;
+        return Collections.unmodifiableMap(propertyNames);
+    }
+
+    public static Map<String, String> getSortPropertyNames() {
+        return Collections.unmodifiableMap(sortPropertyNames);
     }
 
 }

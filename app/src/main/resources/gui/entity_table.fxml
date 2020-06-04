@@ -8,6 +8,7 @@
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -23,11 +24,14 @@
                         <HBox>
                            <children>
                               <Label text="Сортировать по: " />
-                              <ChoiceBox prefWidth="150.0" />
+                              <ChoiceBox fx:id="sortChoiceBox" prefWidth="150.0" />
                            </children>
                         </HBox>
-                        <RadioButton mnemonicParsing="false" text="По возрастанию" />
-                        <RadioButton mnemonicParsing="false" text="По убыванию" />
+                        <RadioButton fx:id="ascendingOrderButton" mnemonicParsing="false" onAction="#setAscendingSortOrder" selected="true" text="По возрастанию">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="sortOrderGroup" />
+                           </toggleGroup></RadioButton>
+                        <RadioButton fx:id="descendingOrderButton" mnemonicParsing="false" onAction="#setDescendingSortOrder" text="По убыванию" toggleGroup="$sortOrderGroup" />
                      </children>
                   </VBox>
                   <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
