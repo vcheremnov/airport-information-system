@@ -37,6 +37,9 @@ public class MainController {
     @FXML
     private Label statusBarLabel;
 
+    @FXML
+    private Tab defaultTab;
+
     @SneakyThrows
     public void init(
             Stage stage,
@@ -48,7 +51,7 @@ public class MainController {
     }
 
     @FXML
-    void openAirplaneTypes(ActionEvent event) {
+    void openAirplaneTypes() {
         addTableTab(
                 "Модели самолетов",
                 AirplaneType.getPropertyNames(),
@@ -57,7 +60,7 @@ public class MainController {
     }
 
     @FXML
-    void openAirplanes(ActionEvent event) {
+    void openAirplanes() {
         addTableTab(
                 "Самолеты",
                 Airplane.getPropertyNames(),
@@ -66,7 +69,7 @@ public class MainController {
     }
 
     @FXML
-    void openChiefs(ActionEvent event) {
+    void openChiefs() {
         addTableTab(
                 "Начальники",
                 Chief.getPropertyNames(),
@@ -75,7 +78,7 @@ public class MainController {
     }
 
     @FXML
-    void openCities(ActionEvent event) {
+    void openCities() {
         addTableTab(
                 "Города",
                 City.getPropertyNames(),
@@ -84,7 +87,7 @@ public class MainController {
     }
 
     @FXML
-    void openDepartments(ActionEvent event) {
+    void openDepartments() {
         addTableTab(
                 "Отделы",
                 Department.getPropertyNames(),
@@ -93,7 +96,7 @@ public class MainController {
     }
 
     @FXML
-    void openEmployees(ActionEvent event) {
+    void openEmployees() {
         addTableTab(
                 "Сотрудники",
                 Employee.getPropertyNames(),
@@ -102,7 +105,7 @@ public class MainController {
     }
 
     @FXML
-    void openFlights(ActionEvent event) {
+    void openFlights() {
         addTableTab(
                 "Рейсы",
                 Flight.getPropertyNames(),
@@ -111,7 +114,7 @@ public class MainController {
     }
 
     @FXML
-    void openMedExams(ActionEvent event) {
+    void openMedExams() {
         addTableTab(
                 "Мед. осмотры",
                 MedicalExamination.getPropertyNames(),
@@ -120,7 +123,7 @@ public class MainController {
     }
 
     @FXML
-    void openPassengers(ActionEvent event) {
+    void openPassengers() {
         addTableTab(
                 "Пассажиры",
                 Passenger.getPropertyNames(),
@@ -129,7 +132,7 @@ public class MainController {
     }
 
     @FXML
-    void openRepairs(ActionEvent event) {
+    void openRepairs() {
         addTableTab(
                 "Ремонты",
                 Repair.getPropertyNames(),
@@ -138,7 +141,7 @@ public class MainController {
     }
 
     @FXML
-    void openTeams(ActionEvent event) {
+    void openTeams() {
         addTableTab(
                 "Бригады",
                 Team.getPropertyNames(),
@@ -147,7 +150,7 @@ public class MainController {
     }
 
     @FXML
-    void openTechInspections(ActionEvent event) {
+    void openTechInspections() {
         addTableTab(
                 "Тех. осмотры",
                 TechInspection.getPropertyNames(),
@@ -156,7 +159,7 @@ public class MainController {
     }
 
     @FXML
-    void openTickets(ActionEvent event) {
+    void openTickets() {
         addTableTab(
                 "Билеты",
                 Ticket.getPropertyNames(),
@@ -185,7 +188,15 @@ public class MainController {
 
         Tab tableTab = new Tab(tableName);
         tableTab.setContent(table);
+        tableTab.setOnClosed(event -> {
+            if (contentTabPane.getTabs().isEmpty()) {
+                contentTabPane.getTabs().add(defaultTab);
+            }
+        });
+
+        contentTabPane.getTabs().remove(defaultTab);
         contentTabPane.getTabs().add(tableTab);
+        contentTabPane.getSelectionModel().select(tableTab);
 
         EntityTableController<T> controller = tableLoader.getController();
         controller.init(

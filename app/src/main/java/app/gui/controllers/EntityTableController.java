@@ -1,25 +1,20 @@
 package app.gui.controllers;
 
 import app.model.Entity;
-import app.model.LocalDateFormatter;
 import app.services.Service;
 import app.services.pagination.PageInfo;
 import app.services.pagination.PageSort;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class EntityTableController<T extends Entity> {
@@ -60,9 +55,14 @@ public class EntityTableController<T extends Entity> {
         pageSort = new PageSort();
         pageInfo = new PageInfo(0L, 23L, pageSort);
 
+        pagination.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> {
+            int newPageNumber = (int) newValue;
+            pageInfo.setPageNumber((long) newPageNumber);
+            refreshTableContents();
+        });
+
         Label tablePlaceholder = new Label("Нажмите \"Обновить\" для отображения данных");
         entityTable.placeholderProperty().setValue(tablePlaceholder);
-        pagination.setDisable(true);
 
         List<TableColumn<T, String>> columns = entityPropertyNames
                 .entrySet()
@@ -77,28 +77,36 @@ public class EntityTableController<T extends Entity> {
 
         entityTable.getColumns().addAll(columns);
         entityTable.setItems(entityObservableList);
+        refreshTableContents();
     }
 
     @FXML
-    void refreshTableContents(ActionEvent event) {
-        setDisable(true);
+    void refreshTableContents() {
+        disableComponent();
         requestExecutor
                 .makeRequest(() -> entityService.getAll(pageInfo))
-                .setOnSuccessAction(page -> Platform.runLater(() -> {
+                .setOnSuccessAction(page -> {
                     var entities = page.getElementList();
                     entities.forEach(Entity::calculateProperties);
 
-                    entityObservableList.clear();
-                    entityObservableList.addAll(entities);
-                    statusBarMessageSetter.accept("Данные успешно загружены");
-                }))
+                    Platform.runLater(() -> {
+                        entityObservableList.clear();
+                        entityObservableList.addAll(entities);
+                        statusBarMessageSetter.accept("Данные успешно загружены");
+                        pagination.pageCountProperty().setValue(page.getTotalPages());
+                    });
+                })
                 .setOnFailureAction(errorMsg -> statusBarMessageSetter.accept(errorMsg))
-                .setFinalAction(() -> Platform.runLater(() -> setDisable(false)))
+                .setFinalAction(() -> Platform.runLater(this::enableComponent))
                 .submit();
     }
 
-    private void setDisable(boolean value) {
-        rootVBox.setDisable(value);
+    private void disableComponent() {
+        rootVBox.setDisable(true);
+    }
+
+    private void enableComponent() {
+        rootVBox.setDisable(false);
     }
 
 }

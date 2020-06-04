@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 public class RequestExecutor {
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @FunctionalInterface
     public interface ResponseBodySupplier<T> {
@@ -71,7 +71,7 @@ public class RequestExecutor {
                         onSuccessAction.ifPresent(a -> a.run(responseBody));
                     }
                 } catch (Exception e) {
-                    onFailureAction.ifPresent(a -> a.run(e.getMessage()));
+                    onFailureAction.ifPresent(a -> a.run(e.getLocalizedMessage()));
                 } finally {
                     finalAction.ifPresent(Runnable::run);
                 }
