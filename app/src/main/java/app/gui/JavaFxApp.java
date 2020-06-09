@@ -1,5 +1,6 @@
 package app.gui;
 
+import app.gui.controllers.FxmlLoaderFactory;
 import app.gui.controllers.MainController;
 import app.utils.RequestExecutor;
 import javafx.application.Application;
@@ -21,13 +22,10 @@ public class JavaFxApp extends Application {
     public void start(Stage stage) throws Exception {
         RequestExecutor requestExecutor = new RequestExecutor();
 
-        FXMLLoader mainLoader = new FXMLLoader();
-        URL mainFxmlLocation = getClass().getClassLoader().getResource("gui/main_view.fxml");
-        mainLoader.setLocation(mainFxmlLocation);
-
+        FXMLLoader mainLoader = FxmlLoaderFactory.createMainViewLoader();
         Parent root = mainLoader.load();
         MainController mainController = mainLoader.getController();
-        mainController.init(stage, requestExecutor);
+        mainController.init(requestExecutor);
 
         Scene scene = new Scene(root);
         stage.setTitle("Airport information system");

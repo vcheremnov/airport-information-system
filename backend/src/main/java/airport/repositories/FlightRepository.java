@@ -1,6 +1,7 @@
 package airport.repositories;
 
 import airport.entities.Flight;
+import airport.entities.Ticket;
 import airport.entities.types.FlightType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,4 +62,5 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
 //            @Param("maxSoldSeatsPercentage") Double maxSoldSeatsPercentage,
             Pageable pageable
     );
+
 }

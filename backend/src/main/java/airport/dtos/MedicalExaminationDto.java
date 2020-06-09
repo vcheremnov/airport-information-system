@@ -8,7 +8,7 @@ import java.util.Date;
 @Getter @Setter
 public class MedicalExaminationDto extends AbstractDto<Long> {
 
-    private Long employeeId;
+    private EmployeeDto employee;
     private Date examDate;
     private Boolean isPassed;
 

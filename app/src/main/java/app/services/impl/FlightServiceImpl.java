@@ -1,10 +1,13 @@
 package app.services.impl;
 
 import app.model.Flight;
+import app.model.Ticket;
 import app.model.types.FlightDelayReason;
 import app.services.FlightService;
 import app.services.ServiceResponse;
 import app.services.impl.api.FlightServiceApi;
+import app.services.pagination.Page;
+import app.services.pagination.PageInfo;
 
 import java.sql.Timestamp;
 
@@ -21,6 +24,12 @@ public class FlightServiceImpl
             Long flightId, Timestamp newFlightTime, FlightDelayReason reason
     ) {
         var call = getServiceApi().delayFlight(flightId, newFlightTime, reason);
+        return getServerResponse(call);
+    }
+
+    @Override
+    public ServiceResponse<Page<Ticket>> getTickets(Long flightId, PageInfo pageInfo) {
+        var call = getServiceApi().getTickets(flightId, PageInfo.toMap(pageInfo));
         return getServerResponse(call);
     }
 

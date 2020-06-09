@@ -16,18 +16,18 @@ public class Airplane extends Entity {
     private Date commissioningDate;
     
     private String airplaneTypeProperty;
-    private Long pilotTeamIdProperty;
-    private Long techTeamIdProperty;
-    private Long serviceTeamIdProperty;
+    private String pilotTeamNameProperty;
+    private String techTeamNameProperty;
+    private String serviceTeamNameProperty;
     private String commissioningDateProperty;
 
     @Override
     public void calculateProperties() {
         super.calculateProperties();
         airplaneTypeProperty = airplaneType.getName();
-        pilotTeamIdProperty = pilotTeam.getId();
-        techTeamIdProperty = techTeam.getId();
-        serviceTeamIdProperty = serviceTeam.getId();
+        pilotTeamNameProperty = pilotTeam.getName();
+        techTeamNameProperty = techTeam.getName();
+        serviceTeamNameProperty = serviceTeam.getName();
         commissioningDateProperty = LocalDateFormatter.getFormattedDate(commissioningDate);
     }
     
@@ -37,16 +37,16 @@ public class Airplane extends Entity {
     static {
         propertyNames.putAll(Entity.getPropertyNames());
         propertyNames.put("airplaneTypeProperty", "Название модели");
-        propertyNames.put("pilotTeamIdProperty", "№ бригады пилотов");
-        propertyNames.put("techTeamIdProperty", "№ бригады техников");
-        propertyNames.put("serviceTeamIdProperty", "№ бригады обслуживания");
+        propertyNames.put("pilotTeamNameProperty", "Бригада пилотов");
+        propertyNames.put("techTeamNameProperty", "Бригада техников");
+        propertyNames.put("serviceTeamNameProperty", "Бригада обслуживания");
         propertyNames.put("commissioningDateProperty", "Введен в эксплуатацию");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
         sortPropertyNames.put("airplaneTypeName", "Название модели");
-        sortPropertyNames.put("pilotTeamId", "№ бригады пилотов");
-        sortPropertyNames.put("techTeamId", "№ бригады техников");
-        sortPropertyNames.put("serviceTeamId", "№ бригады обслуживания");
+        sortPropertyNames.put("pilotTeamName", "Бригада пилотов");
+        sortPropertyNames.put("techTeamName", "Бригада техников");
+        sortPropertyNames.put("serviceTeamName", "Бригада обслуживания");
         sortPropertyNames.put("commissioningDate", "Дата введения в эксплуатацию");
     }
 

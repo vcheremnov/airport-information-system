@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 @Getter @Setter
 public class TechInspectionDto extends AbstractDto<Long> {
 
-    private Long airplaneId;
+    private AirplaneDto airplane;
     private Timestamp inspectionTime;
     private Boolean isPassed;
 

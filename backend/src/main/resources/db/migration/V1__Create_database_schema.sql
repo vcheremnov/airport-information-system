@@ -22,15 +22,16 @@ CREATE TABLE chief
 CREATE TABLE department
 (
 	id 				bigserial 		PRIMARY KEY,
-	name         	varchar(100) 	NOT NULL,
+	name         	varchar(100) 	NOT NULL        UNIQUE,
 	chief_id      	bigint 			NOT NULL		REFERENCES chief
 );
 
 
 CREATE TABLE team
 (
-	id       		bigserial	PRIMARY KEY,
-	department_id 	bigint 	    NOT NULL		REFERENCES department   ON DELETE CASCADE
+	id       		bigserial	    PRIMARY KEY,
+	name            varchar(100)    NOT NULL        UNIQUE,
+	department_id 	bigint 	        NOT NULL		REFERENCES department   ON DELETE CASCADE
 );
 
 

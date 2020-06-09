@@ -11,7 +11,6 @@ public class EmployeeDto extends PersonDto {
 
     private Date employmentDate;
     private Integer salary;
-    private Long departmentId;
-    private Long teamId;
+    private TeamDto team;
 
 }

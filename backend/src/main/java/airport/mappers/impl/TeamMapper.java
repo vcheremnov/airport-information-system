@@ -1,36 +1,36 @@
 package airport.mappers.impl;
 
+import airport.dtos.DepartmentDto;
 import airport.dtos.TeamDto;
-import airport.entities.AbstractEntity;
 import airport.entities.Department;
 import airport.entities.Employee;
 import airport.entities.Team;
+import airport.mappers.Mapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Component
 public class TeamMapper extends AbstractMapper<Team, TeamDto, Long> {
 
     private final JpaRepository<Department, Long> departmentRepository;
+    private final Mapper<Department, DepartmentDto, Long> departmentMapper;
 
     @Autowired
     public TeamMapper(ModelMapper mapper,
-                      JpaRepository<Department, Long> departmentRepository) {
+                      JpaRepository<Department, Long> departmentRepository,
+                      Mapper<Department, DepartmentDto, Long> departmentMapper) {
         super(mapper, Team.class, TeamDto.class);
         this.departmentRepository = departmentRepository;
+        this.departmentMapper = departmentMapper;
     }
 
     @PostConstruct
     public void setupMapper() {
-        skipDtoField(TeamDto::setDepartmentId);
+        skipDtoField(TeamDto::setDepartment);
         skipDtoField(TeamDto::setAverageSalary);
 
         skipEntityField(Team::setDepartment);
@@ -39,7 +39,7 @@ public class TeamMapper extends AbstractMapper<Team, TeamDto, Long> {
 
     @Override
     protected void mapSpecificFields(Team sourceEntity, TeamDto destinationDto) {
-        destinationDto.setDepartmentId(sourceEntity.getDepartment().getId());
+        destinationDto.setDepartment(departmentMapper.toDto(sourceEntity.getDepartment()));
         destinationDto.setAverageSalary(
             sourceEntity
                 .getEmployees()
@@ -52,6 +52,8 @@ public class TeamMapper extends AbstractMapper<Team, TeamDto, Long> {
 
     @Override
     protected void mapSpecificFields(TeamDto sourceDto, Team destinationEntity) {
-        destinationEntity.setDepartment(departmentRepository.getOne(sourceDto.getDepartmentId()));
+        destinationEntity.setDepartment(
+                departmentRepository.getOne(sourceDto.getDepartment().getId())
+        );
     }
 }

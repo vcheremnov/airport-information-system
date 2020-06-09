@@ -19,4 +19,6 @@ public interface FlightService extends Service<FlightDto, Long> {
     Page<FlightDto> search(FlightFilter filter, Pageable pageable);
 
     FlightDto delayFlight(Long flightId, Timestamp newFlightTime, FlightDelayReason reason);
+
+    Page<TicketDto> getTickets(Long flightId, Pageable pageable);
 }

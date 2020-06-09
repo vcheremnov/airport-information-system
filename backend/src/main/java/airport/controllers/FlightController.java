@@ -35,6 +35,14 @@ public class FlightController extends AbstractController<FlightDto, Long> {
         return ResponseEntity.ok(flightService.search(filter, pageable));
     }
 
+    @GetMapping("/{id}/tickets")
+    public ResponseEntity<Page<TicketDto>> getTickets(
+            @PathVariable("id") Long flightId,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(flightService.getTickets(flightId, pageable));
+    }
+
     @PutMapping("/{id}/delay")
     public ResponseEntity<FlightDto> delayFlight(
             @PathVariable("id") Long flightId,

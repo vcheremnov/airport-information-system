@@ -52,4 +52,6 @@ public interface TicketRepository
     @Query(nativeQuery = true, value = "select get_average_tickets_sold_by_city_id(:cityId)")
     Double getAverageTicketsSoldByCityId(@Param ("cityId") Long cityId);
 
+    Page<Ticket> getAllByFlightId(Long flightId, Pageable pageable);
+
 }

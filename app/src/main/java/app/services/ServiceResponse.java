@@ -11,7 +11,23 @@ import lombok.Setter;
 public class ServiceResponse<T> {
 
     private T body;
-    private int httpStatusCode;
+    private boolean isSuccessful;
     private String errorMessage;
+
+    public boolean isSuccessful() {
+        return isSuccessful;
+    }
+
+    public interface ResponseBodyMapper<X, Y> {
+        Y map(X responseBody);
+    }
+
+    public <Y> ServiceResponse<Y> map(ResponseBodyMapper<T, Y> responseBodyMapper) {
+        return new ServiceResponse<>(
+                responseBodyMapper.map(body),
+                isSuccessful,
+                errorMessage
+        );
+    }
 
 }

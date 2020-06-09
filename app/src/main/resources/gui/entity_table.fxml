@@ -53,6 +53,11 @@
                </HBox.margin>
             </Pagination>
             <Region maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+            <Button fx:id="createButton" mnemonicParsing="false" onAction="#openCreateWindow" text="Добавить" visible="false">
+               <HBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </HBox.margin>
+            </Button>
             <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refreshTableContents" text="Обновить">
                <HBox.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

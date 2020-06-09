@@ -8,9 +8,11 @@ import java.util.*;
 @Getter @Setter
 public class Team extends Entity {
 
-    private Long departmentId;
+    private String name;
+    private Department department;
     private Double averageSalary;
 
+    private String departmentNameProperty;
     private String averageSalaryProperty;
 
     @Override
@@ -18,6 +20,7 @@ public class Team extends Entity {
         super.calculateProperties();
 
         averageSalaryProperty = String.format("%.2f", averageSalary);
+        departmentNameProperty = department.getName();
     }
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
@@ -25,11 +28,13 @@ public class Team extends Entity {
 
     static {
         propertyNames.putAll(Entity.getPropertyNames());
-        propertyNames.put("departmentId", "№ отдела");
+        propertyNames.put("name", "Название");
+        propertyNames.put("departmentNameProperty", "Отдел");
         propertyNames.put("averageSalaryProperty", "Средняя з/п");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
-        sortPropertyNames.put("departmentId", "№ отдела");
+        sortPropertyNames.put("name", "Название");
+        sortPropertyNames.put("departmentName", "Отдел");
     }
 
     public static Map<String, String> getPropertyNames() {

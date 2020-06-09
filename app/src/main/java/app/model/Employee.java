@@ -11,15 +11,18 @@ public class Employee extends Person {
 
     private Date employmentDate;
     private Integer salary;
-    private Long departmentId;
-    private Long teamId;
+    private Team team;
 
     private String employmentDateProperty;
+    private String departmentNameProperty;
+    private String teamNameProperty;
 
     @Override
     public void calculateProperties() {
         super.calculateProperties();
         employmentDateProperty = LocalDateFormatter.getFormattedDate(employmentDate);
+        teamNameProperty = team.getName();
+        departmentNameProperty = team.getDepartment().getName();
     }
     
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
@@ -27,15 +30,16 @@ public class Employee extends Person {
 
     static {
         propertyNames.putAll(Person.getPropertyNames());
-        propertyNames.put("departmentId", "№ отдела");
-        propertyNames.put("teamId", "№ бригады");
+        propertyNames.put("departmentNameProperty", "Отдел");
+        propertyNames.put("teamNameProperty", "Бригада");
         propertyNames.put("employmentDateProperty", "Дата найма");
         propertyNames.put("salary", "Зарплата");
 
         sortPropertyNames.putAll(Person.getSortPropertyNames());
-        sortPropertyNames.put("salary", "Зарплата");
-        sortPropertyNames.put("teamId", "№ бригады");
+        sortPropertyNames.put("teamDepartmentName", "Отдел");
+        sortPropertyNames.put("teamName", "Бригада");
         sortPropertyNames.put("employmentDate", "Дата найма");
+        sortPropertyNames.put("salary", "Зарплата");
     }
 
     public static Map<String, String> getPropertyNames() {

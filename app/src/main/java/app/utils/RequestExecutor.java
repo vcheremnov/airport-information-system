@@ -64,11 +64,10 @@ public class RequestExecutor {
             executorService.submit(() -> {
                 try {
                     ServiceResponse<T> serviceResponse = responseBodySupplier.getServiceResponse();
-                    T responseBody = serviceResponse.getBody();
-                    if (responseBody == null) {
-                        onFailureAction.ifPresent(a -> a.run(serviceResponse.getErrorMessage()));
+                    if (serviceResponse.isSuccessful()) {
+                        onSuccessAction.ifPresent(a -> a.run(serviceResponse.getBody()));
                     } else {
-                        onSuccessAction.ifPresent(a -> a.run(responseBody));
+                        onFailureAction.ifPresent(a -> a.run(serviceResponse.getErrorMessage()));
                     }
                 } catch (Exception e) {
                     onFailureAction.ifPresent(a -> a.run(e.getLocalizedMessage()));

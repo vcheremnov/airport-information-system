@@ -110,10 +110,10 @@ public abstract class AbstractCrudServiceImpl<T extends Entity> implements Servi
         Response<X> response = call.execute();
 
         if (response.isSuccessful()) {
-            return new ServiceResponse<>(response.body(), response.code(), null);
+            return new ServiceResponse<>(response.body(), true, null);
         }
 
-        return new ServiceResponse<>(null, response.code(), getErrorMessage(response));
+        return new ServiceResponse<>(null, false, getErrorMessage(response));
     }
 
     @SneakyThrows
@@ -123,10 +123,10 @@ public abstract class AbstractCrudServiceImpl<T extends Entity> implements Servi
 
         if (response.isSuccessful()) {
             X responseBody = gson.fromJson(jsonResponseBody, bodyType);
-            return new ServiceResponse<>(responseBody, response.code(), null);
+            return new ServiceResponse<>(responseBody, true, null);
         }
 
-        return new ServiceResponse<>(null, response.code(), getErrorMessage(response));
+        return new ServiceResponse<>(null, false, getErrorMessage(response));
     }
 
     @SneakyThrows

@@ -17,18 +17,20 @@ import javax.annotation.PostConstruct;
 public class EmployeeMapper extends AbstractMapper<Employee, EmployeeDto, Long> {
 
     private final JpaRepository<Team, Long> teamRepository;
+    private final Mapper<Team, TeamDto, Long> teamMapper;
 
     @Autowired
     public EmployeeMapper(ModelMapper mapper,
-                          JpaRepository<Team, Long> teamRepository) {
+                          JpaRepository<Team, Long> teamRepository,
+                          Mapper<Team, TeamDto, Long> teamMapper) {
         super(mapper, Employee.class, EmployeeDto.class);
         this.teamRepository = teamRepository;
+        this.teamMapper = teamMapper;
     }
 
     @PostConstruct
     public void setupMapper() {
-        skipDtoField(EmployeeDto::setTeamId);
-        skipDtoField(EmployeeDto::setDepartmentId);
+        skipDtoField(EmployeeDto::setTeam);
 
         skipEntityField(Employee::setTeam);
         skipEntityField(Employee::setMedicalExaminations);
@@ -36,14 +38,12 @@ public class EmployeeMapper extends AbstractMapper<Employee, EmployeeDto, Long> 
 
     @Override
     protected void mapSpecificFields(Employee sourceEntity, EmployeeDto destinationDto) {
-        Team team = sourceEntity.getTeam();
-        destinationDto.setTeamId(team.getId());
-        destinationDto.setDepartmentId(team.getDepartment().getId());
+        destinationDto.setTeam(teamMapper.toDto(sourceEntity.getTeam()));
     }
 
     @Override
     protected void mapSpecificFields(EmployeeDto sourceDto, Employee destinationEntity) {
-        destinationEntity.setTeam(teamRepository.getOne(sourceDto.getTeamId()));
+        destinationEntity.setTeam(teamRepository.getOne(sourceDto.getTeam().getId()));
     }
 
 }

@@ -17,12 +17,12 @@ public class AirplaneType extends Entity {
 
     static {
         propertyNames.putAll(Entity.getPropertyNames());
-        propertyNames.put("name", "Модель");
+        propertyNames.put("name", "Название");
         propertyNames.put("capacity", "Вместимость (чел.)");
         propertyNames.put("speed", "Скорость");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
-        sortPropertyNames.put("name", "Название модели");
+        sortPropertyNames.put("name", "Название");
         sortPropertyNames.put("capacity", "Вместимость");
         sortPropertyNames.put("speed", "Скорость");
     }

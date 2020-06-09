@@ -1,13 +1,15 @@
 package airport.services.impl;
 
-import airport.dtos.FlightDelayDto;
 import airport.dtos.FlightDto;
+import airport.dtos.TicketDto;
 import airport.entities.Flight;
 import airport.entities.FlightDelay;
+import airport.entities.Ticket;
 import airport.entities.types.FlightDelayReason;
 import airport.filters.FlightFilter;
 import airport.mappers.Mapper;
 import airport.repositories.FlightRepository;
+import airport.repositories.TicketRepository;
 import airport.services.FlightService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,13 +26,19 @@ public class FlightServiceImpl
         implements FlightService {
 
     private final FlightRepository repository;
+    private final TicketRepository ticketRepository;
     private final Mapper<Flight, FlightDto, Long> mapper;
+    private final Mapper<Ticket, TicketDto, Long> ticketMapper;
 
     @Autowired
     public FlightServiceImpl(FlightRepository repository,
-                             Mapper<Flight, FlightDto, Long> mapper) {
+                             TicketRepository ticketRepository,
+                             Mapper<Flight, FlightDto, Long> mapper,
+                             Mapper<Ticket, TicketDto, Long> ticketMapper) {
         this.repository = repository;
+        this.ticketRepository = ticketRepository;
         this.mapper = mapper;
+        this.ticketMapper = ticketMapper;
     }
 
     @Override
@@ -69,6 +77,13 @@ public class FlightServiceImpl
 
         flight = repository.save(flight);
         return mapper.toDto(flight);
+    }
+
+    @Override
+    public Page<TicketDto> getTickets(Long flightId, Pageable pageable) {
+        return ticketRepository
+                .getAllByFlightId(flightId, pageable)
+                .map(ticketMapper::toDto);
     }
 
     @Override

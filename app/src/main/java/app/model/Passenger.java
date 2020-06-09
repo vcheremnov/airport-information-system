@@ -4,4 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-public class Passenger extends Person { }
+public class Passenger extends Person {
+
+}

@@ -49,4 +49,5 @@ public class Ticket extends Entity {
     public static Map<String, String> getSortPropertyNames() {
         return Collections.unmodifiableMap(sortPropertyNames);
     }
+
 }

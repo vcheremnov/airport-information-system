@@ -12,6 +12,9 @@ import java.util.List;
 @Getter @Setter
 public class Team extends AbstractEntity<Long> {
 
+    @Column(name = "name")
+    private String name;
+
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;

@@ -10,10 +10,12 @@ import java.util.*;
 @Getter @Setter
 public class Repair extends Entity {
 
-    private Long airplaneId;
+    private Airplane airplane;
     private Timestamp startTime;
     private Timestamp finishTime;
 
+    private Long airplaneIdProperty;
+    private String airplaneTypeNameProperty;
     private String startTimeProperty;
     private String finishTimeProperty;
 
@@ -21,6 +23,8 @@ public class Repair extends Entity {
     public void calculateProperties() {
         super.calculateProperties();
 
+        airplaneIdProperty = airplane.getId();
+        airplaneTypeNameProperty = airplane.getAirplaneType().getName();
         startTimeProperty = LocalDateFormatter.getFormattedTimestamp(startTime);
         finishTimeProperty = LocalDateFormatter.getFormattedTimestamp(finishTime);
     }
@@ -30,12 +34,14 @@ public class Repair extends Entity {
 
     static {
         propertyNames.putAll(Entity.getPropertyNames());
-        propertyNames.put("airplaneId", "№ самолета");
+        propertyNames.put("airplaneIdProperty", "№ самолета");
+        propertyNames.put("airplaneTypeNameProperty", "Название модели");
         propertyNames.put("startTimeProperty", "Время начала");
         propertyNames.put("finishTimeProperty", "Время окончания");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
         sortPropertyNames.put("airplaneId", "№ самолета");
+        sortPropertyNames.put("airplaneAirplaneTypeName", "Название модели");
         sortPropertyNames.put("startTime", "Время начала");
         sortPropertyNames.put("finishTime", "Время окончания");
     }

@@ -8,7 +8,8 @@ import java.util.List;
 @Getter @Setter
 public class TeamDto extends AbstractDto<Long> {
 
-    private Long departmentId;
+    private String name;
+    private DepartmentDto department;
     private Double averageSalary;
 
 }
