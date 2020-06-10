@@ -1,27 +1,33 @@
 package app.gui.controllers;
 
+import app.gui.custom.ChoiceBoxItem;
+import app.gui.custom.DateTimePicker;
+import app.model.types.Sex;
 import app.services.*;
 import app.utils.LocalDateFormatter;
 import app.utils.ServiceFactory;
 import app.model.*;
 import app.utils.RequestExecutor;
+import com.google.gson.GsonBuilder;
+import com.sun.javafx.scene.control.IntegerField;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
 import lombok.SneakyThrows;
 
 import java.time.Instant;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 public class MainController {
 
@@ -93,10 +99,11 @@ public class MainController {
                             .map(page -> page.map(Entity.class::cast))
             );
 
-            TabPane tabPane = new TabPane();
-            addNodeToTabPane(tabPane, techInspectionsTable, "Тех. осмотры");
-            addNodeToTabPane(tabPane, repairTable, "Ремонты");
-            return createWindow(String.format("Самолёт №%d", airplane.getId()), tabPane);
+            return EntityInfoWindowBuilder
+                    .newInfoWindow(String.format("Самолёт №%d", airplane.getId()))
+                    .addTab(techInspectionsTable, "Тех. осмотры")
+                    .addTab(repairTable, "Ремонты")
+                    .build();
         };
 
         createEntityTable(
@@ -121,12 +128,34 @@ public class MainController {
 
     @FXML
     void openCities() {
+        TicketService ticketService = ServiceFactory.getTicketService();
+        EntityTableController.InfoWindowBuilder<City> infoWindowBuilder = city -> {
+            FXMLLoader entityInfoLoader = FxmlLoaderFactory.createEntityInfoLoader();
+            Parent entityInfoRoot = entityInfoLoader.load();
+            EntityInfoController controller = entityInfoLoader.getController();
+
+            requestExecutor
+                    .makeRequest(() -> ticketService.getAverageSoldByCity(city.getId()))
+                    .setOnSuccessAction(averageSold -> Platform.runLater(() -> {
+                        controller.addLine(String.format(
+                                "Среднее число проданных билетов на рейс: %.2f", averageSold
+                        ));
+                    }))
+                    .setOnFailureAction(this::setStatusBarMessage)
+                    .submit();
+
+            return EntityInfoWindowBuilder
+                    .newInfoWindow(city.getName())
+                    .addTab(entityInfoRoot, "Доп. информация")
+                    .build();
+        };
+
         createEntityTable(
                 "Города",
                 City.getPropertyNames(),
                 City.getSortPropertyNames(),
                 ServiceFactory.getCityService(),
-                null
+                infoWindowBuilder
         );
     }
 
@@ -148,9 +177,11 @@ public class MainController {
                             .map(page -> page.map(Entity.class::cast))
             );
 
-            TabPane tabPane = new TabPane();
-            addNodeToTabPane(tabPane, teamsTable, "Бригады");
-            return createWindow(department.getName(), tabPane);
+
+            return EntityInfoWindowBuilder
+                    .newInfoWindow(department.getName())
+                    .addTab(teamsTable, "Бригады")
+                    .build();
         };
 
         createEntityTable(
@@ -180,9 +211,11 @@ public class MainController {
                             .map(page -> page.map(Entity.class::cast))
             );
 
-            TabPane tabPane = new TabPane();
-            addNodeToTabPane(tabPane, medExamTable, "Мед. осмотры");
-            return createWindow(String.format("Работник %s", employee.getName()), tabPane);
+
+            return EntityInfoWindowBuilder
+                    .newInfoWindow(String.format("Работник %s", employee.getName()))
+                    .addTab(medExamTable, "Мед. осмотры")
+                    .build();
         };
 
         createEntityTable(
@@ -212,9 +245,10 @@ public class MainController {
                             .map(page -> page.map(Entity.class::cast))
             );
 
-            TabPane tabPane = new TabPane();
-            addNodeToTabPane(tabPane, ticketsTable, "Билеты");
-            return createWindow(String.format("Рейс №%d", flight.getId()), tabPane);
+            return EntityInfoWindowBuilder
+                    .newInfoWindow(String.format("Рейс №%d", flight.getId()))
+                    .addTab(ticketsTable, "Билеты")
+                    .build();
         };
 
         createEntityTable(
@@ -239,6 +273,33 @@ public class MainController {
 
     @FXML
     void openPassengers() {
+//        var fxmlLoader = FxmlLoaderFactory.createEntityCreationWindowLoader();
+//        Parent rootNode = fxmlLoader.load();
+//        EntityCreationController<Passenger> controller = fxmlLoader.getController();
+//
+//        Passenger passenger = new Passenger();
+//        PassengerService passengerService = ServiceFactory.getPassengerService();
+//
+//        controller.addTextField("ФИО пассажира", Passenger::setName);
+//        controller.addChoiceBox("Пол", Passenger::setSex,
+//                () -> Arrays.stream(Sex.values())
+//                        .map(s -> new ChoiceBoxItem<>(s, Sex.toLocalizedString(s)))
+//                        .collect(Collectors.toList())
+//        );
+//        controller.addDateTimeField("Дата рождения", Passenger::setBirthDate);
+//
+//        controller.init(
+//                passenger,
+//                passengerService::create,
+//                requestExecutor
+//        );
+//
+//        return EntityInfoWindowBuilder
+//                .newInfoWindow("TEST TEST TEST")
+//                .addTab(rootNode, "TEST")
+//                .build();
+
+
         createEntityTable(
                 "Пассажиры",
                 Passenger.getPropertyNames(),
@@ -279,9 +340,10 @@ public class MainController {
                             .map(page -> page.map(Entity.class::cast))
             );
 
-            var tabPane = new TabPane();
-            addNodeToTabPane(tabPane, employeeTable, "Работники");
-            return createWindow(String.format("Бригада %s", team.getName()), tabPane);
+            return EntityInfoWindowBuilder
+                    .newInfoWindow(String.format("Бригада %s", team.getName()))
+                    .addTab(employeeTable, "Работники")
+                    .build();
         };
 
         createEntityTable(
@@ -383,21 +445,6 @@ public class MainController {
         );
 
         return table;
-    }
-
-    private static Stage createWindow(String windowName, Parent parentNode) {
-        Stage stage = new Stage();
-        stage.setTitle(windowName);
-        Scene scene = new Scene(parentNode);
-        stage.setScene(scene);
-        return stage;
-    }
-
-    private static void addNodeToTabPane(TabPane tabPane, Node contentNode, String name) {
-        Tab tab = new Tab(name);
-        tab.setContent(contentNode);
-        tab.setClosable(false);
-        tabPane.getTabs().add(tab);
     }
 
 }

@@ -70,6 +70,7 @@ public class RequestExecutor {
                         onFailureAction.ifPresent(a -> a.run(serviceResponse.getErrorMessage()));
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     onFailureAction.ifPresent(a -> a.run(e.getLocalizedMessage()));
                 } finally {
                     finalAction.ifPresent(Runnable::run);

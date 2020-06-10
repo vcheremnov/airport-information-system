@@ -20,7 +20,7 @@ public class FxmlLoaderFactory {
         return createFxmlLoader("gui/entity_creation.fxml");
     }
 
-    public FXMLLoader createEntityInfoWindowLoader() {
+    public FXMLLoader createEntityInfoLoader() {
         return createFxmlLoader("gui/entity_info.fxml");
     }
 

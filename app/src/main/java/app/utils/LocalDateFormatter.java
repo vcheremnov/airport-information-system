@@ -32,4 +32,13 @@ public class LocalDateFormatter {
     public static String getFormattedTimestamp(long timeMillis) {
         return timestampFormatter.format(new Date(timeMillis));
     }
+
+    public String getDateFormat() {
+        return dateFormatter.toPattern();
+    }
+
+    public String getDateTimeFormat() {
+        return timestampFormatter.toPattern();
+    }
+
 }

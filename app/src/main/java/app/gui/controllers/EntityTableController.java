@@ -223,7 +223,7 @@ public class EntityTableController<T extends Entity> {
                         pagination.pageCountProperty().setValue(page.getTotalPages());
                     });
                 })
-                .setOnFailureAction(errorMsg -> statusBarMessageSetter.accept(errorMsg))
+                .setOnFailureAction(statusBarMessageSetter::accept)
                 .setFinalAction(() -> Platform.runLater(this::enableComponent))
                 .submit();
     }
@@ -241,9 +241,6 @@ public class EntityTableController<T extends Entity> {
     @FXML
     @SneakyThrows
     private void openCreateWindow() {
-        FXMLLoader entityCreationWindowLoader = FxmlLoaderFactory.createEntityCreationWindowLoader();
-        VBox creationWindow = entityCreationWindowLoader.load();
-        createWindow("Создать...", creationWindow);
     }
 
     @SneakyThrows
@@ -265,7 +262,7 @@ public class EntityTableController<T extends Entity> {
                 .setOnSuccessAction(createdEntity -> Platform.runLater(() -> {
                     statusBarMessageSetter.accept("Успешно добавлено");
                 }))
-                .setOnFailureAction(errorMsg -> statusBarMessageSetter.accept(errorMsg))
+                .setOnFailureAction(statusBarMessageSetter::accept)
                 .setFinalAction(() -> Platform.runLater(this::enableComponent))
                 .submit();
     }
@@ -280,7 +277,7 @@ public class EntityTableController<T extends Entity> {
                     entityObservableList.set(entityIndex, editedEntity);
                     statusBarMessageSetter.accept("Успешно изменено");
                 }))
-                .setOnFailureAction(errorMsg -> statusBarMessageSetter.accept(errorMsg))
+                .setOnFailureAction(statusBarMessageSetter::accept)
                 .setFinalAction(() -> Platform.runLater(this::enableComponent))
                 .submit();
     }
@@ -293,18 +290,10 @@ public class EntityTableController<T extends Entity> {
                     entityObservableList.remove(entity);
                     statusBarMessageSetter.accept("Успешно удалено");
                 }))
-                .setOnFailureAction(errorMsg -> statusBarMessageSetter.accept(errorMsg))
+                .setOnFailureAction(statusBarMessageSetter::accept)
                 .setFinalAction(() -> Platform.runLater(this::enableComponent))
                 .submit();
 
-    }
-
-    private void createWindow(String windowName, Parent parentNode) {
-        Stage stage = new Stage();
-        stage.setTitle(windowName);
-        Scene scene = new Scene(parentNode);
-        stage.setScene(scene);
-        stage.show();
     }
 
     private void disableComponent() {
