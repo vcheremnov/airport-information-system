@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,12 +33,12 @@ public class Airplane extends AbstractEntity<Long> {
     private Date commissioningDate;
 
     @OneToMany(mappedBy = "airplane", fetch = FetchType.LAZY)
-    private List<Repair> repairs;
+    private List<Repair> repairs = new ArrayList<>();
 
     @OneToMany(mappedBy = "airplane", fetch = FetchType.LAZY)
-    private List<TechInspection> techInspections;
+    private List<TechInspection> techInspections = new ArrayList<>();
 
     @OneToMany(mappedBy = "airplane", fetch = FetchType.LAZY)
-    private List<Flight> flights;
+    private List<Flight> flights = new ArrayList<>();
 
 }

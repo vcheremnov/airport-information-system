@@ -1,5 +1,7 @@
 package app.gui.controllers;
 
+import app.gui.controllers.interfaces.EntityWindowBuilder;
+import app.gui.custom.ChoiceItem;
 import app.model.Entity;
 import app.services.ServiceResponse;
 import app.services.filters.Filter;
@@ -11,18 +13,17 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class EntityTableController<T extends Entity> {
@@ -44,10 +45,25 @@ public class EntityTableController<T extends Entity> {
     }
 
     private EntitySource<T> entitySource;
-    private EntityCreator<T> entityCreator;
     private EntitySaver<T> entitySaver;
     private EntityRemover<T> entityRemover;
     private RequestExecutor requestExecutor;
+    private EntityWindowBuilder<T> infoWindowBuilder;
+    private EntityWindowBuilder<T> creationWindowBuilder;
+    private EntityWindowBuilder<T> editWindowBuilder;
+    private Map<String, EntityWindowBuilder<T>> contextWindowBuilders = new LinkedHashMap<>();
+
+    public void setInfoWindowBuilder(EntityWindowBuilder<T> infoWindowBuilder) {
+        this.infoWindowBuilder = infoWindowBuilder;
+    }
+
+    public void setCreationWindowBuilder(EntityWindowBuilder<T> creationWindowBuilder) {
+        this.creationWindowBuilder = creationWindowBuilder;
+    }
+
+    public void setEditWindowBuilder(EntityWindowBuilder<T> editWindowBuilder) {
+        this.editWindowBuilder = editWindowBuilder;
+    }
 
     public void setRequestExecutor(RequestExecutor requestExecutor) {
         this.requestExecutor = requestExecutor;
@@ -55,10 +71,6 @@ public class EntityTableController<T extends Entity> {
 
     public void setEntitySource(EntitySource<T> entitySource) {
         this.entitySource = entitySource;
-    }
-
-    public void setEntityCreator(EntityCreator<T> entityCreator) {
-        this.entityCreator = entityCreator;
     }
 
     public void setEntitySaver(EntitySaver<T> entitySaver) {
@@ -69,12 +81,29 @@ public class EntityTableController<T extends Entity> {
         this.entityRemover = entityRemover;
     }
 
-    public void enableCreation() {
-        createButton.setVisible(true);
+    public void addContextWindowBuilder(
+            String contextMenuItemName,
+            EntityWindowBuilder<T> contextWindowBuilder
+    ) {
+        contextWindowBuilders.put(contextMenuItemName, contextWindowBuilder);
     }
 
     public void enableContextMenu() {
         ContextMenu contextMenu = new ContextMenu();
+
+        for (var contextMenuItemName: contextWindowBuilders.keySet()) {
+            var contextWindowBuilder = contextWindowBuilders.get(contextMenuItemName);
+            MenuItem menuItem = new MenuItem(contextMenuItemName);
+            menuItem.setOnAction(event -> {
+                T entity = entityTable.getSelectionModel().getSelectedItem();
+                if (entity != null) {
+                    openContextWindow(entity, contextWindowBuilder);
+                }
+            });
+
+            contextMenu.getItems().add(menuItem);
+        }
+
         MenuItem infoItem = new MenuItem("Подробнее");
         MenuItem changeItem = new MenuItem("Изменить");
         MenuItem deleteItem = new MenuItem("Удалить");
@@ -82,14 +111,14 @@ public class EntityTableController<T extends Entity> {
         infoItem.setOnAction(event -> {
             T entity = entityTable.getSelectionModel().getSelectedItem();
             if (entity != null) {
-                openInfoWindow(entity);
+                openContextWindow(entity, infoWindowBuilder);
             }
         });
 
         changeItem.setOnAction(event -> {
             T entity = entityTable.getSelectionModel().getSelectedItem();
             if (entity != null) {
-                openEditWindow(entity);
+                openContextWindow(entity, editWindowBuilder);
             }
         });
 
@@ -108,16 +137,6 @@ public class EntityTableController<T extends Entity> {
         entityTable.setContextMenu(contextMenu);
     }
 
-    interface InfoWindowBuilder<E extends Entity> {
-        Stage buildInfoWindow(E entity) throws Exception;
-    }
-
-    private InfoWindowBuilder<T> infoWindowBuilder;
-
-    public void setInfoWindowBuilder(InfoWindowBuilder<T> infoWindowBuilder) {
-        this.infoWindowBuilder = infoWindowBuilder;
-    }
-
     @FXML
     private VBox rootVBox;
 
@@ -128,7 +147,7 @@ public class EntityTableController<T extends Entity> {
     private TableView<T> entityTable;
 
     @FXML
-    private ChoiceBox<SortField> sortChoiceBox;
+    private ChoiceBox<ChoiceItem<String>> sortChoiceBox;
 
     @FXML
     private VBox filteringVBox;
@@ -143,18 +162,6 @@ public class EntityTableController<T extends Entity> {
     private PageInfo pageInfo;
     private PageSort pageSort;
 
-    @AllArgsConstructor
-    private static class SortField {
-
-        private final String key;
-        private final String value;
-        @Override
-        public String toString() {
-            return value;
-        }
-
-    }
-
     public void init(
             Map<String, String> entityPropertyNames,
             Map<String, String> entitySortPropertyNames,
@@ -165,29 +172,29 @@ public class EntityTableController<T extends Entity> {
         pageSort = new PageSort();
         pageInfo = new PageInfo(0L, 23L, pageSort);
 
+        pagination.pageCountProperty().setValue(1);
         pagination.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> {
             int newPageNumber = (int) newValue;
             pageInfo.setPageNumber((long) newPageNumber);
             refreshTableContents();
         });
 
-        Label tablePlaceholder = new Label("Нажмите \"Обновить\" для отображения данных");
-        entityTable.placeholderProperty().setValue(tablePlaceholder);
+        entityTable.placeholderProperty().setValue(new Label());
 
-        List<SortField> sortFieldList = entitySortPropertyNames
+        List<ChoiceItem<String>> sortFieldList = entitySortPropertyNames
                 .entrySet()
                 .stream()
-                .map(e -> new SortField(e.getKey(), e.getValue()))
+                .map(e -> new ChoiceItem<>(e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
 
-        SortField defaultSortField = new SortField(null, "Не указано");
+        ChoiceItem<String> defaultSortField = new ChoiceItem<>(null, "Не указано");
         sortFieldList.add(defaultSortField);
         sortChoiceBox.setValue(defaultSortField);
         sortChoiceBox.getItems().addAll(sortFieldList);
         sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             pageSort.removeAllFields();
-            if (newValue.key != null) {
-                pageSort.addField(newValue.key);
+            if (newValue.getItem() != null) {
+                pageSort.addField(newValue.getItem());
             }
         });
 
@@ -204,7 +211,27 @@ public class EntityTableController<T extends Entity> {
         entityTable.getColumns().addAll(columns);
         entityTable.setItems(entityObservableList);
 
+
+        if (creationWindowBuilder == null) {
+            createButton.setVisible(false);
+        }
+
         refreshTableContents();
+    }
+
+    @FXML
+    private void setAscendingSortOrder() {
+        pageSort.setOrder(PageSort.Order.ASC);
+    }
+
+    @FXML
+    private void setDescendingSortOrder() {
+        pageSort.setOrder(PageSort.Order.DESC);
+    }
+
+    @FXML
+    private void openCreateWindow() {
+        openContextWindow(null, creationWindowBuilder);
     }
 
     @FXML
@@ -228,43 +255,16 @@ public class EntityTableController<T extends Entity> {
                 .submit();
     }
 
-    @FXML
-    private void setAscendingSortOrder() {
-        pageSort.setOrder(PageSort.Order.ASC);
-    }
-
-    @FXML
-    private void setDescendingSortOrder() {
-        pageSort.setOrder(PageSort.Order.DESC);
-    }
-
-    @FXML
-    @SneakyThrows
-    private void openCreateWindow() {
-    }
-
-    @SneakyThrows
-    private void openInfoWindow(T entity) {
-        if (infoWindowBuilder != null) {
-            Stage infoWindow = infoWindowBuilder.buildInfoWindow(entity);
-            infoWindow.show();
+    private void openContextWindow(T entity, EntityWindowBuilder<T> windowBuilder) {
+        try {
+            if (windowBuilder != null) {
+                Stage contextWindow = windowBuilder.buildWindow(entity);
+                contextWindow.show();
+            }
+        } catch (Exception e) {
+            // TODO: show pop-up window with an error message
+            e.printStackTrace();
         }
-    }
-
-    private void openEditWindow(T entity) {
-
-    }
-
-    private void createEntity(T entity) {
-        disableComponent();
-        requestExecutor
-                .makeRequest(() -> entityCreator.createEntity(entity))
-                .setOnSuccessAction(createdEntity -> Platform.runLater(() -> {
-                    statusBarMessageSetter.accept("Успешно добавлено");
-                }))
-                .setOnFailureAction(statusBarMessageSetter::accept)
-                .setFinalAction(() -> Platform.runLater(this::enableComponent))
-                .submit();
     }
 
     private void updateEntity(T entity) {
@@ -290,6 +290,7 @@ public class EntityTableController<T extends Entity> {
                     entityObservableList.remove(entity);
                     statusBarMessageSetter.accept("Успешно удалено");
                 }))
+                // TODO: всплывающее окно при ошибке
                 .setOnFailureAction(statusBarMessageSetter::accept)
                 .setFinalAction(() -> Platform.runLater(this::enableComponent))
                 .submit();

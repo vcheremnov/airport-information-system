@@ -9,6 +9,7 @@ import app.services.impl.api.CrudServiceApi;
 import app.services.pagination.Page;
 import app.services.pagination.PageInfo;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import lombok.SneakyThrows;
 import retrofit2.Call;
@@ -17,16 +18,23 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.lang.reflect.Type;
+import java.text.DateFormat;
 import java.util.Collection;
 import java.util.List;
 
 public abstract class AbstractCrudServiceImpl<T extends Entity> implements Service<T> {
 
-    private static final Gson gson = new Gson();
+    private static final Gson gson;
 
     private final String urlRoot;
     private final CrudServiceApi crudServiceApi;
     private final Class<T> entityClass;
+
+    static {
+        gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+                .create();
+    }
 
     protected AbstractCrudServiceImpl(
             Class<? extends CrudServiceApi> serviceApiClass,

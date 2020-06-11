@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -21,6 +22,6 @@ public class AirplaneType extends AbstractEntity<Long> {
     private Integer speed;
 
     @OneToMany(mappedBy = "airplaneType", fetch = FetchType.LAZY)
-    private List<Airplane> airplanes;
+    private List<Airplane> airplanes = new ArrayList<>();
 
 }

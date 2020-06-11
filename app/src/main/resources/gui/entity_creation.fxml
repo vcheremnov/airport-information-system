@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -10,27 +9,26 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.gui.controllers.EntityCreationController">
+<AnchorPane prefWidth="480.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.gui.controllers.EntityCreationController">
    <children>
-      <VBox fx:id="contentBox" alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox fx:id="contentBox" alignment="CENTER" prefHeight="66.0" prefWidth="360.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <GridPane fx:id="grid" alignment="CENTER" hgap="10.0" vgap="10.0" VBox.vgrow="ALWAYS">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
                <VBox.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                  <Insets bottom="20.0" top="10.0" />
                </VBox.margin>
-               <padding>
-                  <Insets top="5.0" />
-               </padding>
             </GridPane>
             <HBox spacing="10.0" VBox.vgrow="NEVER">
                <children>
                   <Region HBox.hgrow="ALWAYS" />
-                  <Button fx:id="createButton" mnemonicParsing="false" onAction="#createEntity" text="Принять">
+                  <Button fx:id="createButton" mnemonicParsing="false" onAction="#createEntity" text="Создать">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
@@ -38,8 +36,10 @@
                   <Button mnemonicParsing="false" onAction="#clearFields" text="Сбросить" />
                </children>
             </HBox>
-            <Label fx:id="statusBarLabel" maxWidth="1.7976931348623157E308" VBox.vgrow="NEVER" />
          </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
       </VBox>
    </children>
 </AnchorPane>

@@ -37,6 +37,8 @@ public class FlightDelayMapper extends AbstractMapper<FlightDelay, FlightDelayDt
 
     @Override
     protected void mapSpecificFields(FlightDelayDto sourceDto, FlightDelay destinationEntity) {
-        destinationEntity.setFlight(flightRepository.getOne(sourceDto.getId()));
+        destinationEntity.setFlight(
+                getEntityByIdOrThrow(flightRepository, sourceDto.getId())
+        );
     }
 }

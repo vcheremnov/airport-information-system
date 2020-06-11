@@ -6,6 +6,8 @@ import airport.dtos.FlightDto;
 import airport.entities.*;
 import airport.entities.types.TicketStatus;
 import airport.mappers.Mapper;
+import airport.repositories.CityRepository;
+import airport.repositories.FlightDelayRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -24,16 +25,22 @@ public class FlightMapper extends AbstractMapper<Flight, FlightDto, Long> {
     private final Mapper<City, CityDto, Long> cityMapper;
 
     private final JpaRepository<Airplane, Long> airplaneRepository;
+    private final FlightDelayRepository flightDelayRepository;
+    private final CityRepository cityRepository;
 
     @Autowired
     public FlightMapper(ModelMapper mapper,
                         Mapper<FlightDelay, FlightDelayDto, Long> flightDelayMapper,
                         Mapper<City, CityDto, Long> cityMapper,
-                        JpaRepository<Airplane, Long> airplaneRepository) {
+                        JpaRepository<Airplane, Long> airplaneRepository,
+                        FlightDelayRepository flightDelayRepository,
+                        CityRepository cityRepository) {
         super(mapper, Flight.class, FlightDto.class);
         this.flightDelayMapper = flightDelayMapper;
         this.cityMapper = cityMapper;
         this.airplaneRepository = airplaneRepository;
+        this.flightDelayRepository = flightDelayRepository;
+        this.cityRepository = cityRepository;
     }
 
     @PostConstruct
@@ -57,15 +64,24 @@ public class FlightMapper extends AbstractMapper<Flight, FlightDto, Long> {
         Map<TicketStatus, Long> statusToCount = tickets.stream()
                 .collect(Collectors.groupingBy(Ticket::getStatus, Collectors.counting()));
 
-        destinationDto.setTicketsSold(statusToCount.get(TicketStatus.SOLD));
-        destinationDto.setTicketsBooked(statusToCount.get(TicketStatus.BOOKED));
-        destinationDto.setTicketsReturned(statusToCount.get(TicketStatus.RETURNED));
+        destinationDto.setTicketsSold(statusToCount.getOrDefault(TicketStatus.SOLD, 0L));
+        destinationDto.setTicketsBooked(statusToCount.getOrDefault(TicketStatus.BOOKED, 0L));
+        destinationDto.setTicketsReturned(statusToCount.getOrDefault(TicketStatus.RETURNED, 0L));
     }
 
     @Override
     protected void mapSpecificFields(FlightDto sourceDto, Flight destinationEntity) {
-        destinationEntity.setAirplane(airplaneRepository.getOne(sourceDto.getAirplaneId()));
-        destinationEntity.setCity(cityMapper.toEntity(sourceDto.getCity()));
-        destinationEntity.setFlightDelay(flightDelayMapper.toEntity(sourceDto.getFlightDelay()));
+        destinationEntity.setAirplane(
+                getEntityByIdOrThrow(airplaneRepository, sourceDto.getAirplaneId())
+        );
+        destinationEntity.setCity(
+                getEntityByIdOrThrow(cityRepository, sourceDto.getCity().getId())
+        );
+
+        if (sourceDto.getFlightDelay() != null) {
+            destinationEntity.setFlightDelay(
+                    getEntityByIdOrThrow(flightDelayRepository, sourceDto.getFlightDelay().getId())
+            );
+        }
     }
 }

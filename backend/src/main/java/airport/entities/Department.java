@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,7 +20,7 @@ public class Department extends AbstractEntity<Long> {
     private Chief chief;
 
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
-    private List<Team> teams;
+    private List<Team> teams = new ArrayList<>();
 
 }
 

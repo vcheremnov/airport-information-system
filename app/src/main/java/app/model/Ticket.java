@@ -10,7 +10,7 @@ import java.util.*;
 public class Ticket extends Entity {
 
     private Long flightId;
-    private Passenger passenger;
+    private Passenger passenger = new Passenger();
     private TicketStatus status;
     private Double price;
 

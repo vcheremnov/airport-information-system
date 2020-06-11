@@ -45,7 +45,7 @@ public class MedicalExaminationMapper
     protected void mapSpecificFields(MedicalExaminationDto sourceDto,
                                      MedicalExamination destinationEntity) {
         destinationEntity.setEmployee(
-                employeeRepository.getOne(sourceDto.getEmployee().getId())
+                getEntityByIdOrThrow(employeeRepository, sourceDto.getEmployee().getId())
         );
     }
 }

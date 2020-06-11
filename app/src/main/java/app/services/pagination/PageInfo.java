@@ -28,5 +28,8 @@ public class PageInfo {
         return pageInfoMap;
     }
 
+    public static PageInfo getUnlimitedPageInfo() {
+        return new PageInfo(0L, (long) Integer.MAX_VALUE, new PageSort());
+    }
 
 }

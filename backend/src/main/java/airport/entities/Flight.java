@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,7 +36,7 @@ public class Flight extends AbstractEntity<Long> {
     private FlightDelay flightDelay;
 
     @OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
-    private List<Ticket> tickets;
+    private List<Ticket> tickets = new ArrayList<>();
 
     @Transient
     private Double ticketPrice;

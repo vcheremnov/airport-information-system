@@ -49,7 +49,11 @@ public class TicketMapper extends AbstractMapper<Ticket, TicketDto, Long> {
 
     @Override
     protected void mapSpecificFields(TicketDto sourceDto, Ticket destinationEntity) {
-        destinationEntity.setFlight(flightRepository.getOne(sourceDto.getFlightId()));
-        destinationEntity.setPassenger(passengerRepository.getOne(sourceDto.getPassenger().getId()));
+        destinationEntity.setFlight(
+                getEntityByIdOrThrow(flightRepository, sourceDto.getFlightId())
+        );
+        destinationEntity.setPassenger(
+                getEntityByIdOrThrow(passengerRepository, sourceDto.getPassenger().getId())
+        );
     }
 }

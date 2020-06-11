@@ -20,8 +20,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.Date;
 
 @Service
 public class AirplaneServiceImpl
@@ -49,6 +49,12 @@ public class AirplaneServiceImpl
         this.mapper = mapper;
         this.techInspectionMapper = techInspectionMapper;
         this.repairMapper = repairMapper;
+    }
+
+    @Override
+    public AirplaneDto create(AirplaneDto airplaneDto) {
+        airplaneDto.setCommissioningDate(new Date(System.currentTimeMillis()));
+        return super.create(airplaneDto);
     }
 
     @Override

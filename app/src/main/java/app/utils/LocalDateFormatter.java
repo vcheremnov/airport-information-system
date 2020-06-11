@@ -2,19 +2,17 @@ package app.utils;
 
 import lombok.experimental.UtilityClass;
 
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 @UtilityClass
 public class LocalDateFormatter {
     private static final SimpleDateFormat dateFormatter;
-    private static final SimpleDateFormat timestampFormatter;
+    private static final SimpleDateFormat dateTimeFormatter;
 
     static {
         dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
-        timestampFormatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        dateTimeFormatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
     }
 
     public static String getFormattedDate(Date date) {
@@ -25,12 +23,12 @@ public class LocalDateFormatter {
         return dateFormatter.format(new Date(timeMillis));
     }
 
-    public static String getFormattedTimestamp(Timestamp timestamp) {
-        return timestampFormatter.format(timestamp);
+    public static String getFormattedDateTime(Date timestamp) {
+        return dateTimeFormatter.format(timestamp);
     }
 
-    public static String getFormattedTimestamp(long timeMillis) {
-        return timestampFormatter.format(new Date(timeMillis));
+    public static String getFormattedDateTime(long timeMillis) {
+        return dateTimeFormatter.format(new Date(timeMillis));
     }
 
     public String getDateFormat() {
@@ -38,7 +36,7 @@ public class LocalDateFormatter {
     }
 
     public String getDateTimeFormat() {
-        return timestampFormatter.toPattern();
+        return dateTimeFormatter.toPattern();
     }
 
 }

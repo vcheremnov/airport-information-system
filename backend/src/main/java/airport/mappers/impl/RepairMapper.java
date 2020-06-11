@@ -42,7 +42,7 @@ public class RepairMapper extends AbstractMapper<Repair, RepairDto, Long> {
     @Override
     protected void mapSpecificFields(RepairDto sourceDto, Repair destinationEntity) {
         destinationEntity.setAirplane(
-                airplaneRepository.getOne(sourceDto.getAirplane().getId())
+                getEntityByIdOrThrow(airplaneRepository, sourceDto.getAirplane().getId())
         );
     }
 }

@@ -9,10 +9,10 @@ import java.util.*;
 @Getter @Setter
 public class Airplane extends Entity {
 
-    private AirplaneType airplaneType;
-    private Team pilotTeam;
-    private Team techTeam;
-    private Team serviceTeam;
+    private AirplaneType airplaneType = new AirplaneType();
+    private Team pilotTeam = new Team();
+    private Team techTeam = new Team();
+    private Team serviceTeam = new Team();
     private Date commissioningDate;
     
     private String airplaneTypeProperty;

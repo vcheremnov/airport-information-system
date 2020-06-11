@@ -80,6 +80,12 @@ public class FlightServiceImpl
     }
 
     @Override
+    public FlightDto create(FlightDto flightDto) {
+        flightDto.setIsCancelled(false);
+        return super.create(flightDto);
+    }
+
+    @Override
     public Page<TicketDto> getTickets(Long flightId, Pageable pageable) {
         return ticketRepository
                 .getAllByFlightId(flightId, pageable)

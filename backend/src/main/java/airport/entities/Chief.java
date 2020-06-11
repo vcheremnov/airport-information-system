@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,6 +16,6 @@ import java.util.List;
 public class Chief extends Person {
 
     @OneToMany(mappedBy = "chief", fetch = FetchType.LAZY)
-    private List<Department> departments;
+    private List<Department> departments = new ArrayList<>();
 
 }

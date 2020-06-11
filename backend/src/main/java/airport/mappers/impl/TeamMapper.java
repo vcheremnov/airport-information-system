@@ -53,7 +53,7 @@ public class TeamMapper extends AbstractMapper<Team, TeamDto, Long> {
     @Override
     protected void mapSpecificFields(TeamDto sourceDto, Team destinationEntity) {
         destinationEntity.setDepartment(
-                departmentRepository.getOne(sourceDto.getDepartment().getId())
+                getEntityByIdOrThrow(departmentRepository, sourceDto.getDepartment().getId())
         );
     }
 }

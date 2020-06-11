@@ -1,6 +1,5 @@
 package app.model;
 
-import app.model.types.FlightDelayReason;
 import app.model.types.FlightType;
 import app.utils.LocalDateFormatter;
 import lombok.Getter;
@@ -15,11 +14,11 @@ public class Flight extends Entity {
 
     private Long airplaneId;
     private FlightType flightType;
-    private Timestamp flightTime;
+    private Date flightTime;
     private Boolean isCancelled;
     private Double duration;
     private Double ticketPrice;
-    private City city;
+    private City city = new City();
     private FlightDelay flightDelay;
 
     private Long ticketsSold;
@@ -32,7 +31,6 @@ public class Flight extends Entity {
     private String durationProperty;
     private String ticketPriceProperty;
     private String wasDelayedProperty;
-    private String flightDelayReasonProperty;
     private String statusProperty;
 
     @Override
@@ -40,19 +38,14 @@ public class Flight extends Entity {
         super.calculateProperties();
 
         flightTypeProperty = FlightType.toLocalizedString(flightType);
-        flightTimeProperty = LocalDateFormatter.getFormattedTimestamp(flightTime);
+        flightTimeProperty = LocalDateFormatter.getFormattedDateTime(flightTime);
         cityNameProperty = city.getName();
 
         int hoursDuration = duration.intValue();
         int minutesDuration = ((Double) ((duration - hoursDuration) * 60.0)).intValue();
         durationProperty = String.format("%d ч. %d мин.", hoursDuration, minutesDuration);
 
-        ticketPriceProperty = String.format("%.2f", ticketPrice);
-
         wasDelayedProperty = flightDelay == null ? "нет" : "да";
-
-        flightDelayReasonProperty = flightDelay == null ?
-                "" : FlightDelayReason.toLocalizedString(flightDelay.getDelayReason());
 
         if (isCancelled) {
             statusProperty = "Отменен";
@@ -73,10 +66,8 @@ public class Flight extends Entity {
         propertyNames.put("cityNameProperty", "Город");
         propertyNames.put("flightTimeProperty", "Время");
         propertyNames.put("durationProperty", "Длительность");
-        propertyNames.put("ticketPriceProperty", "Цена билета, р");
         propertyNames.put("statusProperty", "Статус");
         propertyNames.put("wasDelayedProperty", "Был задержан");
-        propertyNames.put("flightDelayReasonProperty", "Причина задержки");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
         sortPropertyNames.put("airplaneId", "№ самолета");

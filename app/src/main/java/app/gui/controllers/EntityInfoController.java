@@ -10,7 +10,7 @@ public class EntityInfoController {
     @FXML
     private ListView<String> listView;
 
-    public void addLine(String line) {
+    public void addInfoLine(String line) {
         Platform.runLater(() -> listView.getItems().add(line));
     }
 

@@ -9,7 +9,10 @@ import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.modelmapper.spi.DestinationSetter;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -99,4 +102,13 @@ public abstract class AbstractMapper
 
     protected void mapSpecificFields(DTO sourceDto, E destinationEntity) {
     }
+
+    protected <X, I> X getEntityByIdOrThrow(JpaRepository<X, I> repository, I id) {
+        return repository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException(
+                        String.format("Entity with id '%s' was not found", id)
+                )
+        );
+    }
+
 }

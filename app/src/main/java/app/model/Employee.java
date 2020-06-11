@@ -11,7 +11,7 @@ public class Employee extends Person {
 
     private Date employmentDate;
     private Integer salary;
-    private Team team;
+    private Team team = new Team();
 
     private String employmentDateProperty;
     private String departmentNameProperty;

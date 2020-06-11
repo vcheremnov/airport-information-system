@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,6 +21,6 @@ public class Team extends AbstractEntity<Long> {
     private Department department;
 
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
-    private List<Employee> employees;
+    private List<Employee> employees = new ArrayList<>();
 
 }

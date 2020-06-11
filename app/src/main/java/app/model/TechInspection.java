@@ -10,7 +10,7 @@ import java.util.*;
 @Getter @Setter
 public class TechInspection extends Entity {
 
-    private Airplane airplane;
+    private Airplane airplane = new Airplane();
     private Timestamp inspectionTime;
     private Boolean isPassed;
 
@@ -25,7 +25,7 @@ public class TechInspection extends Entity {
 
         airplaneIdProperty = airplane.getId();
         airplaneTypeNameProperty = airplane.getAirplaneType().getName();
-        inspectionTimeProperty = LocalDateFormatter.getFormattedTimestamp(inspectionTime);
+        inspectionTimeProperty = LocalDateFormatter.getFormattedDateTime(inspectionTime);
         resultProperty = isPassed ? "Пройден" : "Не пройден";
     }
 

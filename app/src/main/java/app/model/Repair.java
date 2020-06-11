@@ -10,7 +10,7 @@ import java.util.*;
 @Getter @Setter
 public class Repair extends Entity {
 
-    private Airplane airplane;
+    private Airplane airplane = new Airplane();
     private Timestamp startTime;
     private Timestamp finishTime;
 
@@ -25,8 +25,8 @@ public class Repair extends Entity {
 
         airplaneIdProperty = airplane.getId();
         airplaneTypeNameProperty = airplane.getAirplaneType().getName();
-        startTimeProperty = LocalDateFormatter.getFormattedTimestamp(startTime);
-        finishTimeProperty = LocalDateFormatter.getFormattedTimestamp(finishTime);
+        startTimeProperty = LocalDateFormatter.getFormattedDateTime(startTime);
+        finishTimeProperty = LocalDateFormatter.getFormattedDateTime(finishTime);
     }
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();

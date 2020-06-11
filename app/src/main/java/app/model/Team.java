@@ -9,7 +9,7 @@ import java.util.*;
 public class Team extends Entity {
 
     private String name;
-    private Department department;
+    private Department department = new Department();
     private Double averageSalary;
 
     private String departmentNameProperty;

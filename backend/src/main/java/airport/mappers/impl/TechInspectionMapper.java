@@ -42,7 +42,7 @@ public class TechInspectionMapper extends AbstractMapper<TechInspection, TechIns
     @Override
     protected void mapSpecificFields(TechInspectionDto sourceDto, TechInspection destinationEntity) {
         destinationEntity.setAirplane(
-                airplaneRepository.getOne(sourceDto.getAirplane().getId())
+                getEntityByIdOrThrow(airplaneRepository, sourceDto.getAirplane().getId())
         );
     }
 

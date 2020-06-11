@@ -43,7 +43,9 @@ public class EmployeeMapper extends AbstractMapper<Employee, EmployeeDto, Long> 
 
     @Override
     protected void mapSpecificFields(EmployeeDto sourceDto, Employee destinationEntity) {
-        destinationEntity.setTeam(teamRepository.getOne(sourceDto.getTeam().getId()));
+        destinationEntity.setTeam(
+                getEntityByIdOrThrow(teamRepository, sourceDto.getTeam().getId())
+        );
     }
 
 }

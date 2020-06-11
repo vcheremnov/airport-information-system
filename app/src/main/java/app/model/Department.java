@@ -9,7 +9,7 @@ import java.util.*;
 public class Department extends Entity {
 
     private String name;
-    private Chief chief;
+    private Chief chief = new Chief();
 
     private String chiefNameProperty;
     

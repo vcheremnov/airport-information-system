@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+
 @Service
 public class EmployeeServiceImpl
         extends AbstractService<Employee, EmployeeDto, Long>
@@ -34,6 +36,12 @@ public class EmployeeServiceImpl
         this.mapper = mapper;
         this.medicalExaminationRepository = medicalExaminationRepository;
         this.medExamMapper = medExamMapper;
+    }
+
+    @Override
+    public EmployeeDto create(EmployeeDto employeeDto) {
+        employeeDto.setEmploymentDate(new Date(System.currentTimeMillis()));
+        return super.create(employeeDto);
     }
 
     @Override

@@ -5,28 +5,32 @@ import airport.dtos.AirplaneTypeDto;
 import airport.dtos.TeamDto;
 import airport.entities.*;
 import airport.mappers.Mapper;
+import airport.repositories.AirplaneTypeRepository;
+import airport.repositories.TeamRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Component
 public class AirplaneMapper extends AbstractMapper<Airplane, AirplaneDto, Long> {
 
     private final Mapper<Team, TeamDto, Long> teamMapper;
+    private final TeamRepository teamRepository;
+    private final AirplaneTypeRepository airplaneTypeRepository;
     private final Mapper<AirplaneType, AirplaneTypeDto, Long> airplaneTypeMapper;
 
     @Autowired
     public AirplaneMapper(ModelMapper mapper,
                           Mapper<Team, TeamDto, Long> teamMapper,
+                          TeamRepository teamRepository,
+                          AirplaneTypeRepository airplaneTypeRepository,
                           Mapper<AirplaneType, AirplaneTypeDto, Long> airplaneTypeMapper) {
         super(mapper, Airplane.class, AirplaneDto.class);
         this.teamMapper = teamMapper;
+        this.teamRepository = teamRepository;
+        this.airplaneTypeRepository = airplaneTypeRepository;
         this.airplaneTypeMapper = airplaneTypeMapper;
     }
 
@@ -56,9 +60,17 @@ public class AirplaneMapper extends AbstractMapper<Airplane, AirplaneDto, Long> 
 
     @Override
     protected void mapSpecificFields(AirplaneDto sourceDto, Airplane destinationEntity) {
-        destinationEntity.setAirplaneType(airplaneTypeMapper.toEntity(sourceDto.getAirplaneType()));
-        destinationEntity.setPilotTeam(teamMapper.toEntity(sourceDto.getPilotTeam()));
-        destinationEntity.setTechTeam(teamMapper.toEntity(sourceDto.getTechTeam()));
-        destinationEntity.setServiceTeam(teamMapper.toEntity(sourceDto.getServiceTeam()));
+        destinationEntity.setAirplaneType(
+                getEntityByIdOrThrow(airplaneTypeRepository, sourceDto.getAirplaneType().getId())
+        );
+        destinationEntity.setPilotTeam(
+                getEntityByIdOrThrow(teamRepository, sourceDto.getPilotTeam().getId())
+        );
+        destinationEntity.setTechTeam(
+                getEntityByIdOrThrow(teamRepository, sourceDto.getTechTeam().getId())
+        );
+        destinationEntity.setServiceTeam(
+                getEntityByIdOrThrow(teamRepository, sourceDto.getServiceTeam().getId())
+        );
     }
 }
