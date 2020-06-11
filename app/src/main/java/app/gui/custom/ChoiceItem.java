@@ -7,7 +7,7 @@ import lombok.Getter;
 public class ChoiceItem<X> {
 
     @Getter
-    private final X item;
+    private final X value;
     private final String stringValue;
 
     @Override

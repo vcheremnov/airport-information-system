@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefWidth="480.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.gui.controllers.EntityCreationController">
+<AnchorPane prefWidth="480.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.gui.controllers.EntityInputFormController">
    <children>
       <VBox fx:id="contentBox" alignment="CENTER" prefHeight="66.0" prefWidth="360.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -28,7 +28,7 @@
             <HBox spacing="10.0" VBox.vgrow="NEVER">
                <children>
                   <Region HBox.hgrow="ALWAYS" />
-                  <Button fx:id="createButton" mnemonicParsing="false" onAction="#createEntity" text="Создать">
+                  <Button fx:id="submitButton" mnemonicParsing="false" onAction="#submit" text="Принять">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>

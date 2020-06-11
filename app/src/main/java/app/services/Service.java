@@ -22,7 +22,7 @@ public interface Service<E extends Entity> {
 
     ServiceResponse<E> create(E entity);
 
-    ServiceResponse<E> save(Long id, E entity);
+    ServiceResponse<E> save(E entity);
 
     ServiceResponse<List<E>> saveAll(Collection<E> entityCollection);
 

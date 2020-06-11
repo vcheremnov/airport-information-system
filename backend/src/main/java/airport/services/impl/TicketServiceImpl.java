@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class TicketServiceImpl
         extends AbstractService<Ticket, TicketDto, Long>
@@ -55,6 +57,8 @@ public class TicketServiceImpl
 
     @Override
     public Double getAverageTicketsSoldByCity(Long cityId) {
-        return repository.getAverageTicketsSoldByCityId(cityId);
+        return Objects.requireNonNullElse(
+                repository.getAverageTicketsSoldByCityId(cityId), 0.0
+        );
     }
 }

@@ -4,14 +4,13 @@ import app.utils.LocalDateFormatter;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
 import java.util.*;
 
 @Getter @Setter
 public class TechInspection extends Entity {
 
     private Airplane airplane = new Airplane();
-    private Timestamp inspectionTime;
+    private Date inspectionTime;
     private Boolean isPassed;
 
     private Long airplaneIdProperty;

@@ -3,6 +3,8 @@ package app.gui.controllers;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
 import app.gui.controllers.interfaces.EntityWindowBuilder;
 import app.gui.custom.ChoiceItem;
+import app.gui.forms.EntityInputFormBuilder;
+import app.gui.forms.impl.*;
 import app.model.types.FlightDelayReason;
 import app.model.types.FlightType;
 import app.model.types.Sex;
@@ -24,7 +26,6 @@ import lombok.SneakyThrows;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class MainController {
@@ -50,41 +51,12 @@ public class MainController {
 
     @FXML
     void openAirplaneTypes() {
-        AirplaneTypeService airplaneTypeService = ServiceFactory.getAirplaneTypeService();
-
-        EntityWindowBuilder<AirplaneType> creationWindowBuilder = e -> {
-
-            var fxmlLoader = FxmlLoaderFactory.createEntityCreationWindowLoader();
-            Parent rootNode = fxmlLoader.load();
-            EntityCreationController<AirplaneType> controller = fxmlLoader.getController();
-            controller.init(new AirplaneType(), airplaneTypeService::create, requestExecutor);
-
-            controller.addTextField(
-                    "Название",
-                    AirplaneType::setName
-            );
-
-            controller.addIntegerField(
-                "Вместимость (чел.)",
-                    AirplaneType::setCapacity
-            );
-
-            controller.addIntegerField(
-                    "Скорость",
-                    AirplaneType::setSpeed
-            );
-
-            return createStage(rootNode, "Новая модель самолёта");
-
-        };
-
         createEntityTable(
                 "Модели самолетов",
                 AirplaneType.getPropertyNames(),
                 AirplaneType.getSortPropertyNames(),
                 ServiceFactory.getAirplaneTypeService(),
-                creationWindowBuilder,
-                null,
+                new AirplaneTypeInputFormBuilder(requestExecutor),
                 null,
                 null
         );
@@ -94,8 +66,6 @@ public class MainController {
     @SneakyThrows
     void openAirplanes() {
         AirplaneService airplaneService = ServiceFactory.getAirplaneService();
-        AirplaneTypeService airplaneTypeService = ServiceFactory.getAirplaneTypeService();
-        TeamService teamService = ServiceFactory.getTeamService();
 
         EntityWindowBuilder<Airplane> infoWindowBuilder = airplane -> {
 
@@ -138,80 +108,12 @@ public class MainController {
                     .build();
         };
 
-        EntityWindowBuilder<Airplane> creationWindowBuilder = e -> {
-
-            var fxmlLoader = FxmlLoaderFactory.createEntityCreationWindowLoader();
-            Parent rootNode = fxmlLoader.load();
-            EntityCreationController<Airplane> controller = fxmlLoader.getController();
-            controller.init(new Airplane(), airplaneService::create, requestExecutor);
-
-            ChoiceItemSupplier<Long> airplaneTypeIdSupplier = () -> {
-                var page = airplaneTypeService.getAll(PageInfo.getUnlimitedPageInfo()).getBody();
-                Objects.requireNonNull(page, "Не удалось загрузить список моделей самолетов");
-                return page.getElementList().stream()
-                        .map(m -> new ChoiceItem<>(m.getId(), m.getName()))
-                        .collect(Collectors.toList());
-            };
-
-
-            List<Team> teamList = new ArrayList<>();
-
-            ChoiceItemSupplier<Long> pilotTeamIdSupplier = () -> {
-                var page = teamService.getAll(PageInfo.getUnlimitedPageInfo()).getBody();
-                Objects.requireNonNull(page, "Не удалось загрузить список бригад");
-                teamList.addAll(page.getElementList());
-
-                return teamList.stream()
-                        .filter(t -> t.getDepartment().getName().equals("Лётный отдел"))
-                        .map(t -> new ChoiceItem<>(t.getId(), t.getName()))
-                        .collect(Collectors.toList());
-            };
-
-            ChoiceItemSupplier<Long> techTeamIdSupplier = () -> teamList.stream()
-                    .filter(t -> t.getDepartment().getName().equals("Технический отдел"))
-                    .map(t -> new ChoiceItem<>(t.getId(), t.getName()))
-                    .collect(Collectors.toList());
-
-            ChoiceItemSupplier<Long> serviceTeamIdSupplier = () -> teamList.stream()
-                    .filter(t -> t.getDepartment().getName().equals("Отдел обслуживания"))
-                    .map(t -> new ChoiceItem<>(t.getId(), t.getName()))
-                    .collect(Collectors.toList());
-
-            controller.addChoiceBox(
-                    "Модель",
-                    (entity, fieldValue) -> entity.getAirplaneType().setId(fieldValue),
-                    airplaneTypeIdSupplier
-            );
-
-            controller.addChoiceBox(
-                    "Бригада пилотов",
-                    (entity, fieldValue) -> entity.getPilotTeam().setId(fieldValue),
-                    pilotTeamIdSupplier
-            );
-
-            controller.addChoiceBox(
-                    "Бригада техников",
-                    (entity, fieldValue) -> entity.getTechTeam().setId(fieldValue),
-                    techTeamIdSupplier
-            );
-
-            controller.addChoiceBox(
-                    "Бригада обслуживания",
-                    (entity, fieldValue) -> entity.getServiceTeam().setId(fieldValue),
-                    serviceTeamIdSupplier
-            );
-
-            return createStage(rootNode, "Новый самолёт");
-
-        };
-
         createEntityTable(
                 "Самолеты",
                 Airplane.getPropertyNames(),
                 Airplane.getSortPropertyNames(),
                 ServiceFactory.getAirplaneService(),
-                creationWindowBuilder,
-                null,
+                new AirplaneInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
                 null
         );
@@ -219,32 +121,12 @@ public class MainController {
 
     @FXML
     void openChiefs() {
-        ChiefService chiefService = ServiceFactory.getChiefService();
-
-        EntityWindowBuilder<Chief> creationWindowBuilder = e -> {
-            var fxmlLoader = FxmlLoaderFactory.createEntityCreationWindowLoader();
-            Parent rootNode = fxmlLoader.load();
-            EntityCreationController<Chief> controller = fxmlLoader.getController();
-            controller.init(new Chief(), chiefService::create, requestExecutor);
-
-            controller.addTextField("ФИО начальника", Chief::setName);
-            controller.addChoiceBox("Пол", Chief::setSex,
-                    () -> Arrays.stream(Sex.values())
-                            .map(s -> new ChoiceItem<>(s, Sex.toLocalizedString(s)))
-                            .collect(Collectors.toList())
-            );
-            controller.addDateTimeField("Дата рождения", Chief::setBirthDate);
-
-            return createStage(rootNode, "Новый начальник");
-        };
-
         createEntityTable(
                 "Начальники",
                 Chief.getPropertyNames(),
                 Chief.getSortPropertyNames(),
                 ServiceFactory.getChiefService(),
-                creationWindowBuilder,
-                null,
+                new ChiefInputFormBuilder(requestExecutor),
                 null,
                 null
         );
@@ -253,7 +135,6 @@ public class MainController {
     @FXML
     void openCities() {
         TicketService ticketService = ServiceFactory.getTicketService();
-        CityService cityService = ServiceFactory.getCityService();
 
         EntityWindowBuilder<City> infoWindowBuilder = city -> {
             FXMLLoader entityInfoLoader = FxmlLoaderFactory.createEntityInfoLoader();
@@ -264,7 +145,7 @@ public class MainController {
                     .makeRequest(() -> ticketService.getAverageSoldByCity(city.getId()))
                     .setOnSuccessAction(averageSold -> Platform.runLater(() -> {
                         controller.addInfoLine(String.format(
-                                "Среднее число проданных билетов на рейс: %.2f", averageSold
+                                "Среднее число проданных билетов на рейсы до города: %.2f", averageSold
                         ));
                     }))
                     .setOnFailureAction(this::setStatusBarMessage)
@@ -276,32 +157,12 @@ public class MainController {
                     .build();
         };
 
-        EntityWindowBuilder<City> creationWindowBuilder = e -> {
-            var fxmlLoader = FxmlLoaderFactory.createEntityCreationWindowLoader();
-            Parent rootNode = fxmlLoader.load();
-            EntityCreationController<City> controller = fxmlLoader.getController();
-            controller.init(new City(), cityService::create, requestExecutor);
-
-            controller.addTextField(
-                    "Название",
-                     City::setName
-            );
-
-            controller.addIntegerField(
-                    "Расстояние (км)",
-                    City::setDistance
-            );
-
-            return createStage(rootNode, "Новый город");
-        };
-
         createEntityTable(
                 "Города",
                 City.getPropertyNames(),
                 City.getSortPropertyNames(),
                 ServiceFactory.getCityService(),
-                creationWindowBuilder,
-                null,
+                new CityInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
                 null
         );
@@ -311,7 +172,6 @@ public class MainController {
     @SneakyThrows
     void openDepartments() {
         DepartmentService departmentService = ServiceFactory.getDepartmentService();
-        ChiefService chiefService = ServiceFactory.getChiefService();
 
         EntityWindowBuilder<Department> infoWindowBuilder = department -> {
             var teamPropertyNames = new LinkedHashMap<>(Team.getPropertyNames());
@@ -334,43 +194,12 @@ public class MainController {
                     .build();
         };
 
-        EntityWindowBuilder<Department> creationWindowBuilder = e -> {
-            var fxmlLoader = FxmlLoaderFactory.createEntityCreationWindowLoader();
-            Parent rootNode = fxmlLoader.load();
-            EntityCreationController<Department> controller = fxmlLoader.getController();
-
-            controller.init(new Department(), departmentService::create, requestExecutor);
-
-            controller.addTextField(
-                    "Название",
-                    Department::setName
-            );
-
-            ChoiceItemSupplier<Long> chiefIdSupplier = () -> {
-                var page = chiefService.getAll(PageInfo.getUnlimitedPageInfo()).getBody();
-                Objects.requireNonNull(page, "Не удалось загрузить список начальников");
-
-                return page.getElementList().stream()
-                        .map(c -> new ChoiceItem<>(c.getId(), c.getName()))
-                        .collect(Collectors.toList());
-            };
-
-            controller.addChoiceBox(
-                    "Начальник",
-                    (entity, fieldValue) -> entity.getChief().setId(fieldValue),
-                    chiefIdSupplier
-            );
-
-            return createStage(rootNode, "Новый отдел");
-        };
-
         createEntityTable(
                 "Отделы",
                 Department.getPropertyNames(),
                 Department.getSortPropertyNames(),
                 ServiceFactory.getDepartmentService(),
-                creationWindowBuilder,
-                null,
+                new DepartmentInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
                 null
         );
@@ -380,7 +209,6 @@ public class MainController {
     @SneakyThrows
     void openEmployees() {
         EmployeeService employeeService = ServiceFactory.getEmployeeService();
-        TeamService teamService = ServiceFactory.getTeamService();
 
         EntityWindowBuilder<Employee> infoWindowBuilder = employee -> {
             var medExamPropertyNames = new LinkedHashMap<>(MedicalExamination.getPropertyNames());
@@ -403,59 +231,12 @@ public class MainController {
                     .build();
         };
 
-        EntityWindowBuilder<Employee> creationWindowBuilder = e -> {
-            var fxmlLoader = FxmlLoaderFactory.createEntityCreationWindowLoader();
-            Parent rootNode = fxmlLoader.load();
-            EntityCreationController<Employee> controller = fxmlLoader.getController();
-
-            controller.init(new Employee(), employeeService::create, requestExecutor);
-
-            controller.addTextField(
-                    "ФИО сотрудника",
-                    Employee::setName
-            );
-
-            controller.addChoiceBox("Пол", Employee::setSex,
-                    () -> Arrays.stream(Sex.values())
-                            .map(s -> new ChoiceItem<>(s, Sex.toLocalizedString(s)))
-                            .collect(Collectors.toList())
-            );
-
-            controller.addDateTimeField(
-                    "Дата рождения",
-                    Employee::setBirthDate
-            );
-
-            ChoiceItemSupplier<Long> teamIdSupplier = () -> {
-                var page = teamService.getAll(PageInfo.getUnlimitedPageInfo()).getBody();
-                Objects.requireNonNull(page, "Не удалось загрузить список бригад");
-
-                return page.getElementList().stream()
-                        .map(t -> new ChoiceItem<>(t.getId(), t.getName()))
-                        .collect(Collectors.toList());
-            };
-
-            controller.addChoiceBox(
-                    "Бригада",
-                    (entity, fieldValue) -> entity.getTeam().setId(fieldValue),
-                    teamIdSupplier
-            );
-
-            controller.addIntegerField(
-                    "Зарплата",
-                    Employee::setSalary
-            );
-
-            return createStage(rootNode, "Новый сотрудник");
-        };
-
         createEntityTable(
                 "Сотрудники",
                 Employee.getPropertyNames(),
                 Employee.getSortPropertyNames(),
                 ServiceFactory.getEmployeeService(),
-                creationWindowBuilder,
-                null,
+                new EmployeeInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
                 null
         );
@@ -464,8 +245,6 @@ public class MainController {
     @FXML
     void openFlights() {
         FlightService flightService = ServiceFactory.getFlightService();
-        AirplaneService airplaneService = ServiceFactory.getAirplaneService();
-        CityService cityService = ServiceFactory.getCityService();
 
         EntityWindowBuilder<Flight> infoWindowBuilder = flight -> {
             var ticketPropertyNames = new LinkedHashMap<>(Ticket.getPropertyNames());
@@ -515,70 +294,12 @@ public class MainController {
                     .build();
         };
 
-        EntityWindowBuilder<Flight> creationWindowBuilder = e -> {
-            var fxmlLoader = FxmlLoaderFactory.createEntityCreationWindowLoader();
-            Parent rootNode = fxmlLoader.load();
-            EntityCreationController<Flight> controller = fxmlLoader.getController();
-
-            controller.init(new Flight(), flightService::create, requestExecutor);
-
-            ChoiceItemSupplier<Long> airplaneIdSupplier = () -> {
-                var page = airplaneService.getAll(PageInfo.getUnlimitedPageInfo()).getBody();
-                Objects.requireNonNull(page, "Не удалось загрузить список самолетов");
-
-                return page.getElementList().stream()
-                        .map(a -> new ChoiceItem<>(a.getId(),
-                                String.format("№%d (%s)", a.getId(), a.getAirplaneType().getName())
-                        )).collect(Collectors.toList());
-            };
-
-            ChoiceItemSupplier<Long> cityIdSupplier = () -> {
-                var page = cityService.getAll(PageInfo.getUnlimitedPageInfo()).getBody();
-                Objects.requireNonNull(page, "Не удалось загрузить список бригад");
-
-                return page.getElementList().stream()
-                        .map(c -> new ChoiceItem<>(c.getId(), c.getName()))
-                        .collect(Collectors.toList());
-            };
-
-            ChoiceItemSupplier<FlightType> flightTypeSupplier = () ->
-                    Arrays.stream(FlightType.values())
-                    .map(t -> new ChoiceItem<>(t, FlightType.toLocalizedString(t)))
-                    .collect(Collectors.toList());
-
-            controller.addChoiceBox(
-                    "Самолёт",
-                    Flight::setAirplaneId,
-                    airplaneIdSupplier
-            );
-
-            controller.addChoiceBox(
-                    "Город",
-                    (entity, fieldValue) -> entity.getCity().setId(fieldValue),
-                    cityIdSupplier
-            );
-
-            controller.addChoiceBox(
-                    "Тип рейса",
-                    Flight::setFlightType,
-                    flightTypeSupplier
-            );
-
-            controller.addDateTimeField(
-                    "Время",
-                    Flight::setFlightTime
-            );
-
-            return createStage(rootNode, "Новый рейс");
-        };
-
         createEntityTable(
                 "Рейсы",
                 Flight.getPropertyNames(),
                 Flight.getSortPropertyNames(),
                 ServiceFactory.getFlightService(),
-                creationWindowBuilder,
-                null,
+                new FlightInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
                 null
         );
@@ -591,8 +312,7 @@ public class MainController {
                 MedicalExamination.getPropertyNames(),
                 MedicalExamination.getSortPropertyNames(),
                 ServiceFactory.getMedicalExaminationService(),
-                null,
-                null,
+                new MedicalExaminationInputFormBuilder(requestExecutor),
                 null,
                 null
         );
@@ -605,8 +325,7 @@ public class MainController {
                 Passenger.getPropertyNames(),
                 Passenger.getSortPropertyNames(),
                 ServiceFactory.getPassengerService(),
-                null,
-                null,
+                new PassengerInputFormBuilder(requestExecutor),
                 null,
                 null
         );
@@ -619,8 +338,7 @@ public class MainController {
                 Repair.getPropertyNames(),
                 Repair.getSortPropertyNames(),
                 ServiceFactory.getRepairService(),
-                null,
-                null,
+                new RepairInputFormBuilder(requestExecutor),
                 null,
                 null
         );
@@ -630,7 +348,6 @@ public class MainController {
     @SneakyThrows
     void openTeams() {
         TeamService teamService = ServiceFactory.getTeamService();
-        DepartmentService departmentService = ServiceFactory.getDepartmentService();
 
         EntityWindowBuilder<Team> infoWindowBuilder = team -> {
             var employeePropertyNames = new LinkedHashMap<>(Employee.getPropertyNames());
@@ -654,43 +371,12 @@ public class MainController {
                     .build();
         };
 
-        EntityWindowBuilder<Team> creationWindowBuilder = e -> {
-            var fxmlLoader = FxmlLoaderFactory.createEntityCreationWindowLoader();
-            Parent rootNode = fxmlLoader.load();
-            EntityCreationController<Team> controller = fxmlLoader.getController();
-
-            controller.init(new Team(), teamService::create,requestExecutor);
-
-            controller.addTextField(
-                    "Название",
-                    Team::setName
-            );
-
-            ChoiceItemSupplier<Long> departmentIdSupplier = () -> {
-                var page = departmentService.getAll(PageInfo.getUnlimitedPageInfo()).getBody();
-                Objects.requireNonNull(page, "Не удалось загрузить список отделов");
-
-                return page.getElementList().stream()
-                        .map(d -> new ChoiceItem<>(d.getId(), d.getName()))
-                        .collect(Collectors.toList());
-            };
-
-            controller.addChoiceBox(
-                    "Отдел",
-                    (entity, fieldValue) -> entity.getDepartment().setId(fieldValue),
-                    departmentIdSupplier
-            );
-
-            return createStage(rootNode, "Новая бригада");
-        };
-
         createEntityTable(
                 "Бригады",
                 Team.getPropertyNames(),
                 Team.getSortPropertyNames(),
                 ServiceFactory.getTeamService(),
-                creationWindowBuilder,
-                null,
+                new TeamInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
                 null
         );
@@ -703,8 +389,7 @@ public class MainController {
                 TechInspection.getPropertyNames(),
                 TechInspection.getSortPropertyNames(),
                 ServiceFactory.getTechInspectionService(),
-                null,
-                null,
+                new TechInspectionInputFormBuilder(requestExecutor),
                 null,
                 null
         );
@@ -717,8 +402,7 @@ public class MainController {
                 Ticket.getPropertyNames(),
                 Ticket.getSortPropertyNames(),
                 ServiceFactory.getTicketService(),
-                null,
-                null,
+                new TicketInputFormBuilder(requestExecutor),
                 null,
                 null
         );
@@ -738,8 +422,7 @@ public class MainController {
             Map<String, String> entityPropertyNames,
             Map<String, String> entitySortPropertyNames,
             Service<T> entityService,
-            EntityWindowBuilder<T> creationWindowBuilder,
-            EntityWindowBuilder<T> editWindowBuilder,
+            EntityInputFormBuilder<T> inputFormBuilder,
             EntityWindowBuilder<T> infoWindowBuilder,
             Map<String, EntityWindowBuilder<T>> contextWindowBuilders
     ) {
@@ -759,13 +442,10 @@ public class MainController {
         contentTabPane.getSelectionModel().select(tableTab);
 
         EntityTableController<T> controller = tableLoader.getController();
-        controller.setCreationWindowBuilder(creationWindowBuilder);
         controller.setInfoWindowBuilder(infoWindowBuilder);
-        controller.setEditWindowBuilder(editWindowBuilder);
 
         controller.setEntityRemover(entityService::deleteById);
         controller.setEntitySource((pageInfo, filter) -> entityService.getAll(pageInfo));
-        controller.setEntitySaver(entity -> entityService.save(entity.getId(), entity));
         controller.setRequestExecutor(requestExecutor);
 
         if (contextWindowBuilders != null) {
@@ -776,6 +456,7 @@ public class MainController {
         controller.init(
                 entityPropertyNames,
                 entitySortPropertyNames,
+                inputFormBuilder,
                 this::setStatusBarMessage
         );
     }
@@ -793,22 +474,15 @@ public class MainController {
         EntityTableController<T> entityTableController = tableLoader.getController();
         entityTableController.setEntitySource(entitySource);
         entityTableController.setRequestExecutor(requestExecutor);
+        entityTableController.disableCreation();
         entityTableController.init(
                 entityPropertyNames,
                 entitySortPropertyNames,
+                null,
                 this::setStatusBarMessage
         );
 
         return table;
-    }
-
-    private static Stage createStage(Parent rootNode, String title) {
-        Stage stage = new Stage();
-        stage.setTitle(title);
-        Scene scene = new Scene(rootNode);
-        stage.setScene(scene);
-        stage.sizeToScene();
-        return stage;
     }
 
 }

@@ -9,7 +9,7 @@ import java.util.*;
 @Getter @Setter
 public class MedicalExamination extends Entity {
 
-    private Employee employee;
+    private Employee employee = new Employee();
     private Date examDate;
     private Boolean isPassed;
 

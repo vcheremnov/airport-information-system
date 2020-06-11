@@ -16,8 +16,8 @@ public class FxmlLoaderFactory {
         return createFxmlLoader("/gui/entity_table.fxml");
     }
 
-    public FXMLLoader createEntityCreationWindowLoader() {
-        return createFxmlLoader("/gui/entity_creation.fxml");
+    public FXMLLoader createEntityInputFormLoader() {
+        return createFxmlLoader("/gui/entity_input_form.fxml");
     }
 
     public FXMLLoader createEntityInfoLoader() {

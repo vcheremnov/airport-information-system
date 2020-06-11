@@ -2,6 +2,7 @@ package app.gui.controllers;
 
 import app.gui.controllers.interfaces.EntityWindowBuilder;
 import app.gui.custom.ChoiceItem;
+import app.gui.forms.EntityInputFormBuilder;
 import app.model.Entity;
 import app.services.ServiceResponse;
 import app.services.filters.Filter;
@@ -17,13 +18,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import lombok.*;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class EntityTableController<T extends Entity> {
@@ -36,33 +35,15 @@ public class EntityTableController<T extends Entity> {
         ServiceResponse<Void> deleteEntity(Long id) throws Exception;
     }
 
-    interface EntitySaver<E extends Entity> {
-        ServiceResponse<E> saveEntity(E entity) throws Exception;
-    }
-
-    interface EntityCreator<E extends Entity> {
-        ServiceResponse<E> createEntity(E entity) throws Exception;
-    }
-
     private EntitySource<T> entitySource;
-    private EntitySaver<T> entitySaver;
     private EntityRemover<T> entityRemover;
     private RequestExecutor requestExecutor;
     private EntityWindowBuilder<T> infoWindowBuilder;
-    private EntityWindowBuilder<T> creationWindowBuilder;
-    private EntityWindowBuilder<T> editWindowBuilder;
+    private EntityInputFormBuilder<T> entityInputFormBuilder;
     private Map<String, EntityWindowBuilder<T>> contextWindowBuilders = new LinkedHashMap<>();
 
     public void setInfoWindowBuilder(EntityWindowBuilder<T> infoWindowBuilder) {
         this.infoWindowBuilder = infoWindowBuilder;
-    }
-
-    public void setCreationWindowBuilder(EntityWindowBuilder<T> creationWindowBuilder) {
-        this.creationWindowBuilder = creationWindowBuilder;
-    }
-
-    public void setEditWindowBuilder(EntityWindowBuilder<T> editWindowBuilder) {
-        this.editWindowBuilder = editWindowBuilder;
     }
 
     public void setRequestExecutor(RequestExecutor requestExecutor) {
@@ -71,10 +52,6 @@ public class EntityTableController<T extends Entity> {
 
     public void setEntitySource(EntitySource<T> entitySource) {
         this.entitySource = entitySource;
-    }
-
-    public void setEntitySaver(EntitySaver<T> entitySaver) {
-        this.entitySaver = entitySaver;
     }
 
     public void setEntityRemover(EntityRemover<T> entityRemover) {
@@ -118,7 +95,7 @@ public class EntityTableController<T extends Entity> {
         changeItem.setOnAction(event -> {
             T entity = entityTable.getSelectionModel().getSelectedItem();
             if (entity != null) {
-                openContextWindow(entity, editWindowBuilder);
+                openContextWindow(entity, entityInputFormBuilder::buildEditFormWindow);
             }
         });
 
@@ -147,7 +124,7 @@ public class EntityTableController<T extends Entity> {
     private TableView<T> entityTable;
 
     @FXML
-    private ChoiceBox<ChoiceItem<String>> sortChoiceBox;
+    private ComboBox<ChoiceItem<String>> sortChoiceBox;
 
     @FXML
     private VBox filteringVBox;
@@ -162,11 +139,17 @@ public class EntityTableController<T extends Entity> {
     private PageInfo pageInfo;
     private PageSort pageSort;
 
+    public void disableCreation() {
+        createButton.setVisible(false);
+    }
+
     public void init(
             Map<String, String> entityPropertyNames,
             Map<String, String> entitySortPropertyNames,
+            EntityInputFormBuilder<T> entityInputFormBuilder,
             Consumer<String> statusBarMessageSetter
     ) {
+        this.entityInputFormBuilder = entityInputFormBuilder;
         this.statusBarMessageSetter = statusBarMessageSetter;
 
         pageSort = new PageSort();
@@ -193,8 +176,8 @@ public class EntityTableController<T extends Entity> {
         sortChoiceBox.getItems().addAll(sortFieldList);
         sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             pageSort.removeAllFields();
-            if (newValue.getItem() != null) {
-                pageSort.addField(newValue.getItem());
+            if (newValue.getValue() != null) {
+                pageSort.addField(newValue.getValue());
             }
         });
 
@@ -211,11 +194,6 @@ public class EntityTableController<T extends Entity> {
         entityTable.getColumns().addAll(columns);
         entityTable.setItems(entityObservableList);
 
-
-        if (creationWindowBuilder == null) {
-            createButton.setVisible(false);
-        }
-
         refreshTableContents();
     }
 
@@ -231,7 +209,7 @@ public class EntityTableController<T extends Entity> {
 
     @FXML
     private void openCreateWindow() {
-        openContextWindow(null, creationWindowBuilder);
+        openContextWindow(null, e -> entityInputFormBuilder.buildCreationFormWindow());
     }
 
     @FXML
@@ -267,20 +245,20 @@ public class EntityTableController<T extends Entity> {
         }
     }
 
-    private void updateEntity(T entity) {
-        disableComponent();
-        requestExecutor
-                .makeRequest(() -> entitySaver.saveEntity(entity))
-                .setOnSuccessAction(editedEntity -> Platform.runLater(() -> {
-                    editedEntity.calculateProperties();
-                    int entityIndex = entityObservableList.indexOf(entity);
-                    entityObservableList.set(entityIndex, editedEntity);
-                    statusBarMessageSetter.accept("Успешно изменено");
-                }))
-                .setOnFailureAction(statusBarMessageSetter::accept)
-                .setFinalAction(() -> Platform.runLater(this::enableComponent))
-                .submit();
-    }
+//    private void updateEntity(T entity) {
+//        disableComponent();
+//        requestExecutor
+//                .makeRequest(() -> entitySaver.saveEntity(entity))
+//                .setOnSuccessAction(editedEntity -> Platform.runLater(() -> {
+//                    editedEntity.calculateProperties();
+//                    int entityIndex = entityObservableList.indexOf(entity);
+//                    entityObservableList.set(entityIndex, editedEntity);
+//                    statusBarMessageSetter.accept("Успешно изменено");
+//                }))
+//                .setOnFailureAction(statusBarMessageSetter::accept)
+//                .setFinalAction(() -> Platform.runLater(this::enableComponent))
+//                .submit();
+//    }
 
     private void deleteEntity(T entity) {
         disableComponent();

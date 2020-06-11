@@ -4,15 +4,14 @@ import app.utils.LocalDateFormatter;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
 import java.util.*;
 
 @Getter @Setter
 public class Repair extends Entity {
 
     private Airplane airplane = new Airplane();
-    private Timestamp startTime;
-    private Timestamp finishTime;
+    private Date startTime;
+    private Date finishTime;
 
     private Long airplaneIdProperty;
     private String airplaneTypeNameProperty;

@@ -14,36 +14,37 @@ import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.List;
 
-public class EntityCreationController<T extends Entity> {
+public class EntityInputFormController<T extends Entity> {
 
-    interface EntityCreator<E extends Entity> {
-        ServiceResponse<E> createEntity(E entity) throws Exception;
+    public interface SubmitAction<E extends Entity> {
+        ServiceResponse<E> submit(E entity) throws Exception;
     }
 
-    interface EntityFieldSetter<E extends Entity, X> {
-        void setField(E entity, X fieldValue);
+    public interface EntityFieldSetter<X> {
+        void setField(X value);
     }
 
-    private EntityCreator<T> entityCreator;
+    private SubmitAction<T> submitAction;
     private RequestExecutor requestExecutor;
 
     private final List<TextField> textFields = new ArrayList<>();
     private final List<IntegerField> integerFields = new ArrayList<>();
     private final List<DateTimePicker> dateTimePickers = new ArrayList<>();
-
+    private final List<CheckBox> checkBoxes = new ArrayList<>();
     private final Map<ComboBox, ChoiceItem> choiceBoxes = new LinkedHashMap<>();
 
     @FXML
@@ -56,44 +57,63 @@ public class EntityCreationController<T extends Entity> {
 
     public void init(
             T entity,
-            EntityCreator<T> entityCreator,
+            SubmitAction<T> submitAction,
             RequestExecutor requestExecutor
     ) {
         this.entity = entity;
-        this.entityCreator = entityCreator;
+        this.submitAction = submitAction;
         this.requestExecutor = requestExecutor;
     }
 
     public void addTextField(
             String name,
-            EntityFieldSetter<T, String> stringFieldSetter
+            String initFieldValue,
+            EntityFieldSetter<String> fieldSetter
     ) {
         TextField textField = new TextField();
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
-            stringFieldSetter.setField(entity, newValue.trim());
+            fieldSetter.setField(newValue.trim());
         });
+
+        initFieldValue = Objects.requireNonNullElse(initFieldValue, "");
+        fieldSetter.setField(initFieldValue);
+        textField.setText(initFieldValue);
 
         addField(name, textField);
         textFields.add(textField);
     }
 
-    public void addIntegerField(
+    public void addCheckBox(
             String name,
-            EntityFieldSetter<T, Integer> integerFieldSetter
+            Boolean initFieldValue,
+            EntityFieldSetter<Boolean> fieldSetter
     ) {
-        addIntegerField(name, integerFieldSetter, Integer.MAX_VALUE);
+        CheckBox checkBox = new CheckBox();
+        checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            fieldSetter.setField(newValue);
+        });
+
+        initFieldValue = Objects.requireNonNullElse(initFieldValue, false);
+        fieldSetter.setField(initFieldValue);
+        checkBox.setSelected(initFieldValue);
+
+        addField(name, checkBox);
+        checkBoxes.add(checkBox);
     }
 
     public void addIntegerField(
             String name,
-            EntityFieldSetter<T, Integer> integerFieldSetter,
-            int maxValue
+            Integer initFieldValue,
+            EntityFieldSetter<Integer> fieldSetter
     ) {
-        IntegerField integerField = new IntegerField(maxValue);
-        integerField.valueProperty().setValue(null);
+        IntegerField integerField = new IntegerField(Integer.MAX_VALUE);
         integerField.valueProperty().addListener((observable, oldValue, newValue) -> {
-            integerFieldSetter.setField(entity, (Integer) newValue);
+            fieldSetter.setField(newValue.intValue());
         });
+
+        initFieldValue = Objects.requireNonNullElse(initFieldValue, 0);
+        fieldSetter.setField(initFieldValue);
+        integerField.setValue(initFieldValue);
 
         addField(name, integerField);
         integerFields.add(integerField);
@@ -101,21 +121,34 @@ public class EntityCreationController<T extends Entity> {
 
     public void addDateField(
             String name,
-            EntityFieldSetter<T, Date> dateFieldSetter
+            Date initFieldValue,
+            EntityFieldSetter<Date> fieldSetter
     ) {
-        addDateTimePicker(name, dateFieldSetter, LocalDateFormatter.getDateFormat());
+        addDateTimePicker(
+                name,
+                initFieldValue,
+                fieldSetter,
+                LocalDateFormatter.getDateFormat()
+        );
     }
 
     public void addDateTimeField(
             String name,
-            EntityFieldSetter<T, Date> dateFieldSetter
+            Date initFieldValue,
+            EntityFieldSetter<Date> fieldSetter
     ) {
-        addDateTimePicker(name, dateFieldSetter, LocalDateFormatter.getDateTimeFormat());
+        addDateTimePicker(
+                name,
+                initFieldValue,
+                fieldSetter,
+                LocalDateFormatter.getDateTimeFormat()
+        );
     }
 
     private void addDateTimePicker(
             String name,
-            EntityFieldSetter<T, Date> dateFieldSetter,
+            Date initFieldValue,
+            EntityFieldSetter<Date> fieldSetter,
             String timeFormat
     ) {
         DateTimePicker dateTimePicker = new DateTimePicker();
@@ -124,8 +157,19 @@ public class EntityCreationController<T extends Entity> {
             LocalDateTime localDateTime = dateTimePicker.getDateTimeValue();
             Date date = localDateTime == null ?
                     null : Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-            dateFieldSetter.setField(entity, date);
+            fieldSetter.setField(date);
         });
+
+        LocalDateTime initDateTimeValue = null;
+        if (initFieldValue != null) {
+            initDateTimeValue = LocalDateTime.ofInstant(
+                    initFieldValue.toInstant(), ZoneId.systemDefault()
+            );
+        }
+
+        fieldSetter.setField(initFieldValue);
+        dateTimePicker.setDateTimeValue(initDateTimeValue);
+
 
         addField(name, dateTimePicker);
         dateTimePickers.add(dateTimePicker);
@@ -134,7 +178,8 @@ public class EntityCreationController<T extends Entity> {
     @SneakyThrows
     public <X> void addChoiceBox(
             String name,
-            EntityFieldSetter<T, X> fieldSetter,
+            X initFieldValue,
+            EntityFieldSetter<X> fieldSetter,
             ChoiceItemSupplier<X> itemSupplier
 
     ) {
@@ -142,11 +187,17 @@ public class EntityCreationController<T extends Entity> {
         var items = itemSupplier.getItems();
         items.add(defaultItem);
 
+        ChoiceItem<X> selectedItem = items.stream()
+                .filter(item -> item.getValue() != null &&
+                        item.getValue().equals(initFieldValue))
+                .findAny()
+                .orElse(defaultItem);
+
         ComboBox<ChoiceItem<X>> choiceBox = new ComboBox<>();
-        choiceBox.setValue(defaultItem);
+        choiceBox.setValue(selectedItem);
         choiceBox.getItems().addAll(items);
         choiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            fieldSetter.setField(entity, newValue.getItem());
+            fieldSetter.setField(newValue.getValue());
         });
 
         choiceBoxes.put(choiceBox, defaultItem);
@@ -199,33 +250,13 @@ public class EntityCreationController<T extends Entity> {
         for (var rawChoiceBox: choiceBoxes.keySet()) {
             ComboBox<ChoiceItem<?>> choiceBox = rawChoiceBox;
             ChoiceItem<?> choiceItem = choiceBox.valueProperty().getValue();
-            if (choiceItem.getItem() == null) {
+            if (choiceItem.getValue() == null) {
                 choiceBox.requestFocus();
                 return false;
             }
         }
 
         return true;
-    }
-
-    @FXML
-    private void createEntity(ActionEvent event) {
-        boolean fieldsAreValid = validateFields();
-        if (!fieldsAreValid) {
-            return;
-        }
-
-        disableComponent();
-        requestExecutor
-                .makeRequest(() -> entityCreator.createEntity(entity))
-                .setOnSuccessAction(createdEntity -> Platform.runLater(() -> {
-                    Node sourceNode = (Node) event.getSource();
-                    Stage stage = (Stage) sourceNode.getScene().getWindow();
-                    stage.close();
-                }))
-//                .setOnFailureAction(this::setStatusBarMessage)
-                .setFinalAction(this::enableComponent)
-                .submit();
     }
 
     @FXML
@@ -247,6 +278,30 @@ public class EntityCreationController<T extends Entity> {
             ChoiceItem<?> defaultItem = choiceBoxes.get(rawChoiceBox);
             choiceBox.setValue(defaultItem);
         }
+
+        for (var checkBox: checkBoxes) {
+            checkBox.setSelected(false);
+        }
+    }
+
+    @FXML
+    private void submit(ActionEvent event) {
+        boolean fieldsAreValid = validateFields();
+        if (!fieldsAreValid) {
+            return;
+        }
+
+        disableComponent();
+        requestExecutor
+                .makeRequest(() -> submitAction.submit(entity))
+                .setOnSuccessAction(createdEntity -> Platform.runLater(() -> {
+                    Node sourceNode = (Node) event.getSource();
+                    Stage stage = (Stage) sourceNode.getScene().getWindow();
+                    stage.close();
+                }))
+//                .setOnFailureAction(this::setStatusBarMessage)
+                .setFinalAction(this::enableComponent)
+                .submit();
     }
 
     private void enableComponent() {
