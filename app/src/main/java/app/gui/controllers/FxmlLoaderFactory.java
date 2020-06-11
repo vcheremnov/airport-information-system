@@ -9,24 +9,24 @@ import java.net.URL;
 public class FxmlLoaderFactory {
 
     public FXMLLoader createMainViewLoader() {
-        return createFxmlLoader("gui/main_view.fxml");
+        return createFxmlLoader("/gui/main_view.fxml");
     }
 
     public FXMLLoader createEntityTableLoader() {
-        return createFxmlLoader("gui/entity_table.fxml");
+        return createFxmlLoader("/gui/entity_table.fxml");
     }
 
     public FXMLLoader createEntityCreationWindowLoader() {
-        return createFxmlLoader("gui/entity_creation.fxml");
+        return createFxmlLoader("/gui/entity_creation.fxml");
     }
 
     public FXMLLoader createEntityInfoLoader() {
-        return createFxmlLoader("gui/entity_info.fxml");
+        return createFxmlLoader("/gui/entity_info.fxml");
     }
 
     private FXMLLoader createFxmlLoader(String fxmlName) {
         FXMLLoader createLoader = new FXMLLoader();
-        URL fxmlLocation = FxmlLoaderFactory.class.getClassLoader().getResource(fxmlName);
+        URL fxmlLocation = FxmlLoaderFactory.class.getResource(fxmlName);
         createLoader.setLocation(fxmlLocation);
         return createLoader;
     }
