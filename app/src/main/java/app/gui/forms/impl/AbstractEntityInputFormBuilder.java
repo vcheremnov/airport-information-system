@@ -29,14 +29,6 @@ public abstract class AbstractEntityInputFormBuilder<E extends Entity>
     private final Supplier<E> newEntitySupplier;
     private final Service<E> entityService;
 
-    @AllArgsConstructor
-    private static class EntityInputForm<T extends Entity> {
-
-        private Parent rootNode;
-        private EntityInputFormController<T> controller;
-
-    }
-
     protected enum FormType {
         EDIT_FORM,
         CREATION_FORM
@@ -55,16 +47,17 @@ public abstract class AbstractEntityInputFormBuilder<E extends Entity>
     @Override
     public Stage buildCreationFormWindow() {
         E entity = newEntitySupplier.get();
-        var entityInputForm = createFormController(entity, FormType.CREATION_FORM);
-        fillInputForm(entity, FormType.CREATION_FORM, entityInputForm.controller);
-        return createStage(entityInputForm.rootNode, getCreationFormWindowTitle());
+        return buildInputFormWindow(entity, FormType.CREATION_FORM);
+    }
+
+    @Override
+    public Stage buildCreationFormWindow(E entity) {
+        return buildInputFormWindow(entity, FormType.CREATION_FORM);
     }
 
     @Override
     public Stage buildEditFormWindow(E entity) {
-        var entityInputForm = createFormController(entity, FormType.EDIT_FORM);
-        fillInputForm(entity, FormType.EDIT_FORM, entityInputForm.controller);
-        return createStage(entityInputForm.rootNode, getEditFormWindowTitle(entity));
+        return buildInputFormWindow(entity, FormType.EDIT_FORM);
     }
 
     protected <X extends Entity, Y> ChoiceItemSupplier<Y> makeChoiceItemSupplierFromEntities(
@@ -110,7 +103,7 @@ public abstract class AbstractEntityInputFormBuilder<E extends Entity>
     protected abstract String getEditFormWindowTitle(E entity);
 
     @SneakyThrows
-    private EntityInputForm<E> createFormController(E entity, FormType formType) {
+    private Stage buildInputFormWindow(E entity, FormType formType) {
         var fxmlLoader = FxmlLoaderFactory.createEntityInputFormLoader();
         Parent rootNode = fxmlLoader.load();
         EntityInputFormController<E> controller = fxmlLoader.getController();
@@ -124,7 +117,11 @@ public abstract class AbstractEntityInputFormBuilder<E extends Entity>
                 break;
         }
 
-        return new EntityInputForm<>(rootNode, controller);
+        fillInputForm(entity, formType, controller);
+        String windowTitle = (formType == FormType.CREATION_FORM) ?
+                getCreationFormWindowTitle() : getEditFormWindowTitle(entity);
+
+        return createStage(rootNode, windowTitle);
     }
 
     private static Stage createStage(Parent rootNode, String title) {

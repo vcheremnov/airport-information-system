@@ -7,6 +7,8 @@ public interface EntityInputFormBuilder<E extends Entity> {
 
     Stage buildCreationFormWindow();
 
+    Stage buildCreationFormWindow(E entity);
+
     Stage buildEditFormWindow(E entity);
 
 }

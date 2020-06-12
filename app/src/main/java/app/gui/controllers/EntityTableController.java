@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 
 public class EntityTableController<T extends Entity> {
 
-    interface EntitySource<E extends Entity> {
+    public interface EntitySource<E extends Entity> {
         ServiceResponse<Page<E>> getEntities(PageInfo pageInfo, Filter<E> filter) throws Exception;
     }
 
-    interface EntityRemover<E extends Entity> {
+    public interface EntityRemover<E extends Entity> {
         ServiceResponse<Void> deleteEntity(Long id) throws Exception;
     }
 
@@ -65,7 +65,7 @@ public class EntityTableController<T extends Entity> {
         contextWindowBuilders.put(contextMenuItemName, contextWindowBuilder);
     }
 
-    public void enableContextMenu() {
+    public void fillContextMenu() {
         ContextMenu contextMenu = new ContextMenu();
 
         for (var contextMenuItemName: contextWindowBuilders.keySet()) {
@@ -194,6 +194,8 @@ public class EntityTableController<T extends Entity> {
         entityTable.getColumns().addAll(columns);
         entityTable.setItems(entityObservableList);
 
+        fillContextMenu();
+
         refreshTableContents();
     }
 
@@ -244,21 +246,6 @@ public class EntityTableController<T extends Entity> {
             e.printStackTrace();
         }
     }
-
-//    private void updateEntity(T entity) {
-//        disableComponent();
-//        requestExecutor
-//                .makeRequest(() -> entitySaver.saveEntity(entity))
-//                .setOnSuccessAction(editedEntity -> Platform.runLater(() -> {
-//                    editedEntity.calculateProperties();
-//                    int entityIndex = entityObservableList.indexOf(entity);
-//                    entityObservableList.set(entityIndex, editedEntity);
-//                    statusBarMessageSetter.accept("Успешно изменено");
-//                }))
-//                .setOnFailureAction(statusBarMessageSetter::accept)
-//                .setFinalAction(() -> Platform.runLater(this::enableComponent))
-//                .submit();
-//    }
 
     private void deleteEntity(T entity) {
         disableComponent();

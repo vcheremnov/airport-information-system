@@ -1,15 +1,11 @@
 package app.gui.controllers;
 
-import app.gui.controllers.interfaces.ChoiceItemSupplier;
 import app.gui.controllers.interfaces.EntityWindowBuilder;
-import app.gui.custom.ChoiceItem;
 import app.gui.forms.EntityInputFormBuilder;
 import app.gui.forms.impl.*;
 import app.model.types.FlightDelayReason;
-import app.model.types.FlightType;
-import app.model.types.Sex;
+import app.model.types.TicketStatus;
 import app.services.*;
-import app.services.pagination.PageInfo;
 import app.utils.LocalDateFormatter;
 import app.utils.ServiceFactory;
 import app.model.*;
@@ -19,14 +15,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 import lombok.SneakyThrows;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MainController {
 
@@ -66,6 +59,8 @@ public class MainController {
     @SneakyThrows
     void openAirplanes() {
         AirplaneService airplaneService = ServiceFactory.getAirplaneService();
+        TechInspectionService techInspectionService = ServiceFactory.getTechInspectionService();
+        RepairService repairService = ServiceFactory.getRepairService();
 
         EntityWindowBuilder<Airplane> infoWindowBuilder = airplane -> {
 
@@ -77,12 +72,12 @@ public class MainController {
             techInspectionSortPropertyNames.remove("airplaneId");
             techInspectionSortPropertyNames.remove("airplaneAirplaneTypeName");
 
-            Node techInspectionsTable = createReadOnlyEntityTable(
+            Node techInspectionsTable = createInfoWindowEntityTable(
                     techInspectionPropertyNames,
                     techInspectionSortPropertyNames,
-                    (pageInfo, filter) -> airplaneService
-                        .getTechInspections(airplane.getId(), pageInfo)
-                        .map(page -> page.map(Entity.class::cast))
+                    (pageInfo, filter) -> airplaneService.getTechInspections(airplane.getId(), pageInfo),
+                    techInspectionService::deleteById,
+                    new TechInspectionInputFormBuilder(requestExecutor)
             );
 
             var repairPropertyNames = new LinkedHashMap<>(Repair.getPropertyNames());
@@ -93,12 +88,12 @@ public class MainController {
             repairSortPropertyNames.remove("airplaneId");
             repairSortPropertyNames.remove("airplaneAirplaneTypeName");
 
-            Node repairTable = createReadOnlyEntityTable(
+            Node repairTable = createInfoWindowEntityTable(
                     repairPropertyNames,
                     repairSortPropertyNames,
-                    (pageInfo, filter) -> airplaneService
-                            .getRepairs(airplane.getId(), pageInfo)
-                            .map(page -> page.map(Entity.class::cast))
+                    (pageInfo, filter) -> airplaneService.getRepairs(airplane.getId(), pageInfo),
+                    repairService::deleteById,
+                    new RepairInputFormBuilder(requestExecutor)
             );
 
             return EntityInfoWindowBuilder
@@ -108,6 +103,20 @@ public class MainController {
                     .build();
         };
 
+        Map<String, EntityWindowBuilder<Airplane>> contextWindowBuilders = new LinkedHashMap<>();
+        var techInspectionInputFormBuilder = new TechInspectionInputFormBuilder(requestExecutor);
+        var repairInputFormBuilder = new RepairInputFormBuilder(requestExecutor);
+        contextWindowBuilders.put("Добавить тех. осмотр", airplane -> {
+            TechInspection techInspection = new TechInspection();
+            techInspection.getAirplane().setId(airplane.getId());
+            return techInspectionInputFormBuilder.buildCreationFormWindow(techInspection);
+        });
+        contextWindowBuilders.put("Добавить ремонт", airplane -> {
+            Repair repair = new Repair();
+            repair.getAirplane().setId(airplane.getId());
+            return repairInputFormBuilder.buildCreationFormWindow(repair);
+        });
+
         createEntityTable(
                 "Самолеты",
                 Airplane.getPropertyNames(),
@@ -115,7 +124,7 @@ public class MainController {
                 ServiceFactory.getAirplaneService(),
                 new AirplaneInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                null
+                contextWindowBuilders
         );
     }
 
@@ -172,6 +181,7 @@ public class MainController {
     @SneakyThrows
     void openDepartments() {
         DepartmentService departmentService = ServiceFactory.getDepartmentService();
+        TeamService teamService = ServiceFactory.getTeamService();
 
         EntityWindowBuilder<Department> infoWindowBuilder = department -> {
             var teamPropertyNames = new LinkedHashMap<>(Team.getPropertyNames());
@@ -179,20 +189,27 @@ public class MainController {
             var teamSortPropertyNames = new LinkedHashMap<>(Team.getSortPropertyNames());
             teamSortPropertyNames.remove("departmentName");
 
-            Node teamsTable = createReadOnlyEntityTable(
+            Node teamsTable = createInfoWindowEntityTable(
                     teamPropertyNames,
                     teamSortPropertyNames,
-                    (pageInfo, filter) -> departmentService
-                            .getTeams(department.getId(), pageInfo)
-                            .map(page -> page.map(Entity.class::cast))
+                    (pageInfo, filter) -> departmentService.getTeams(department.getId(), pageInfo),
+                    teamService::deleteById,
+                    new TeamInputFormBuilder(requestExecutor)
             );
-
 
             return EntityInfoWindowBuilder
                     .newInfoWindow(department.getName())
                     .addTab(teamsTable, "Бригады")
                     .build();
         };
+
+        Map<String, EntityWindowBuilder<Department>> contextWindowBuilders = new LinkedHashMap<>();
+        TeamInputFormBuilder teamInputFormBuilder = new TeamInputFormBuilder(requestExecutor);
+        contextWindowBuilders.put("Добавить бригаду", department -> {
+            Team team = new Team();
+            team.getDepartment().setId(department.getId());
+            return teamInputFormBuilder.buildCreationFormWindow(team);
+        });
 
         createEntityTable(
                 "Отделы",
@@ -201,7 +218,7 @@ public class MainController {
                 ServiceFactory.getDepartmentService(),
                 new DepartmentInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                null
+                contextWindowBuilders
         );
     }
 
@@ -209,6 +226,7 @@ public class MainController {
     @SneakyThrows
     void openEmployees() {
         EmployeeService employeeService = ServiceFactory.getEmployeeService();
+        var medicalExaminationService = ServiceFactory.getMedicalExaminationService();
 
         EntityWindowBuilder<Employee> infoWindowBuilder = employee -> {
             var medExamPropertyNames = new LinkedHashMap<>(MedicalExamination.getPropertyNames());
@@ -216,20 +234,27 @@ public class MainController {
             var medExamSortPropertyNames = new LinkedHashMap<>(MedicalExamination.getSortPropertyNames());
             medExamSortPropertyNames.remove("employeeName");
 
-            Node medExamTable = createReadOnlyEntityTable(
+            Node medExamTable = createInfoWindowEntityTable(
                     medExamPropertyNames,
                     medExamSortPropertyNames,
-                    (pageInfo, filter) -> employeeService
-                            .getMedicalExaminations(employee.getId(), pageInfo)
-                            .map(page -> page.map(Entity.class::cast))
+                    (pageInfo, filter) -> employeeService.getMedicalExaminations(employee.getId(), pageInfo),
+                    medicalExaminationService::deleteById,
+                    new MedicalExaminationInputFormBuilder(requestExecutor)
             );
-
 
             return EntityInfoWindowBuilder
                     .newInfoWindow(String.format("Работник %s", employee.getName()))
                     .addTab(medExamTable, "Мед. осмотры")
                     .build();
         };
+
+        Map<String, EntityWindowBuilder<Employee>> contextWindowBuilders = new LinkedHashMap<>();
+        var medicalExaminationInputFormBuilder = new MedicalExaminationInputFormBuilder(requestExecutor);
+        contextWindowBuilders.put("Добавить мед. осмотр", employee -> {
+            MedicalExamination medicalExamination = new MedicalExamination();
+            medicalExamination.getEmployee().setId(employee.getId());
+            return medicalExaminationInputFormBuilder.buildCreationFormWindow(medicalExamination);
+        });
 
         createEntityTable(
                 "Сотрудники",
@@ -238,13 +263,14 @@ public class MainController {
                 ServiceFactory.getEmployeeService(),
                 new EmployeeInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                null
+                contextWindowBuilders
         );
     }
 
     @FXML
     void openFlights() {
         FlightService flightService = ServiceFactory.getFlightService();
+        TicketService ticketService = ServiceFactory.getTicketService();
 
         EntityWindowBuilder<Flight> infoWindowBuilder = flight -> {
             var ticketPropertyNames = new LinkedHashMap<>(Ticket.getPropertyNames());
@@ -253,12 +279,12 @@ public class MainController {
             var ticketSortPropertyNames = new LinkedHashMap<>(Ticket.getSortPropertyNames());
             ticketSortPropertyNames.remove("flightId");
 
-            Node ticketsTable = createReadOnlyEntityTable(
+            Node ticketsTable = createInfoWindowEntityTable(
                     ticketPropertyNames,
                     ticketSortPropertyNames,
-                    (pageInfo, filter) -> flightService
-                            .getTickets(flight.getId(), pageInfo)
-                            .map(page -> page.map(Entity.class::cast))
+                    (pageInfo, filter) -> flightService.getTickets(flight.getId(), pageInfo),
+                    ticketService::deleteById,
+                    new TicketInputFormBuilder(requestExecutor)
             );
 
             var entityInfoLoader = FxmlLoaderFactory.createEntityInfoLoader();
@@ -348,6 +374,7 @@ public class MainController {
     @SneakyThrows
     void openTeams() {
         TeamService teamService = ServiceFactory.getTeamService();
+        EmployeeService employeeService = ServiceFactory.getEmployeeService();
 
         EntityWindowBuilder<Team> infoWindowBuilder = team -> {
             var employeePropertyNames = new LinkedHashMap<>(Employee.getPropertyNames());
@@ -357,12 +384,12 @@ public class MainController {
             employeeSortPropertyNames.remove("teamDepartmentName");
             employeeSortPropertyNames.remove("teamName");
 
-            Node employeeTable = createReadOnlyEntityTable(
+            Node employeeTable = createInfoWindowEntityTable(
                     employeePropertyNames,
                     employeeSortPropertyNames,
-                    (pageInfo, filter) -> teamService
-                            .getEmployees(team.getId(), pageInfo)
-                            .map(page -> page.map(Entity.class::cast))
+                    (pageInfo, filter) -> teamService.getEmployees(team.getId(), pageInfo),
+                    employeeService::deleteById,
+                    new EmployeeInputFormBuilder(requestExecutor)
             );
 
             return EntityInfoWindowBuilder
@@ -371,6 +398,14 @@ public class MainController {
                     .build();
         };
 
+        Map<String, EntityWindowBuilder<Team>> contextWindowBuilders = new LinkedHashMap<>();
+        EmployeeInputFormBuilder employeeInputFormBuilder = new EmployeeInputFormBuilder(requestExecutor);
+        contextWindowBuilders.put("Добавить сотрудника", team -> {
+            Employee employee = new Employee();
+            employee.getTeam().setId(team.getId());
+            return employeeInputFormBuilder.buildCreationFormWindow(employee);
+        });
+
         createEntityTable(
                 "Бригады",
                 Team.getPropertyNames(),
@@ -378,7 +413,7 @@ public class MainController {
                 ServiceFactory.getTeamService(),
                 new TeamInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                null
+                contextWindowBuilders
         );
     }
 
@@ -451,7 +486,6 @@ public class MainController {
         if (contextWindowBuilders != null) {
             contextWindowBuilders.forEach(controller::addContextWindowBuilder);
         }
-        controller.enableContextMenu();
 
         controller.init(
                 entityPropertyNames,
@@ -462,10 +496,12 @@ public class MainController {
     }
 
     @SneakyThrows
-    private <T extends Entity> Node createReadOnlyEntityTable(
+    private <T extends Entity> Node createInfoWindowEntityTable(
             Map<String, String> entityPropertyNames,
             Map<String, String> entitySortPropertyNames,
-            EntityTableController.EntitySource<T> entitySource
+            EntityTableController.EntitySource<T> entitySource,
+            EntityTableController.EntityRemover<T> entityRemover,
+            EntityInputFormBuilder<T> inputFormBuilder
     ) {
 
         FXMLLoader tableLoader = FxmlLoaderFactory.createEntityTableLoader();
@@ -473,12 +509,13 @@ public class MainController {
 
         EntityTableController<T> entityTableController = tableLoader.getController();
         entityTableController.setEntitySource(entitySource);
+        entityTableController.setEntityRemover(entityRemover);
         entityTableController.setRequestExecutor(requestExecutor);
         entityTableController.disableCreation();
         entityTableController.init(
                 entityPropertyNames,
                 entitySortPropertyNames,
-                null,
+                inputFormBuilder,
                 this::setStatusBarMessage
         );
 
