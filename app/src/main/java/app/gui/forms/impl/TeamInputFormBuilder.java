@@ -2,16 +2,15 @@ package app.gui.forms.impl;
 
 import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
+import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
+import app.model.Airplane;
+import app.model.Department;
+import app.model.Repair;
 import app.model.Team;
-import app.model.Team;
-import app.services.pagination.PageInfo;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
 import javafx.stage.Stage;
-
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class TeamInputFormBuilder extends AbstractEntityInputFormBuilder<Team> {
 
@@ -23,6 +22,7 @@ public class TeamInputFormBuilder extends AbstractEntityInputFormBuilder<Team> {
     protected void fillInputForm(
             Team team,
             FormType formType,
+            boolean isContextWindow,
             EntityInputFormController<Team> controller
     ) {
 
@@ -38,12 +38,14 @@ public class TeamInputFormBuilder extends AbstractEntityInputFormBuilder<Team> {
                 team::setName
         );
 
-        controller.addChoiceBox(
-                "Отдел",
-                team.getDepartment().getId(),
-                value -> team.getDepartment().setId(value),
-                departmentIdSupplier
-        );
+        if (!isContextWindow) {
+            controller.addChoiceBox(
+                    "Отдел",
+                    team.getDepartment().getId(),
+                    value -> team.getDepartment().setId(value),
+                    departmentIdSupplier
+            );
+        }
 
     }
 

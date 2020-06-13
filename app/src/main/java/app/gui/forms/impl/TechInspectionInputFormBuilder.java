@@ -2,8 +2,10 @@ package app.gui.forms.impl;
 
 import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
+import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
-import app.model.TechInspection;
+import app.model.Airplane;
+import app.model.Repair;
 import app.model.TechInspection;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
@@ -20,6 +22,7 @@ public class TechInspectionInputFormBuilder
     protected void fillInputForm(
             TechInspection techInspection,
             FormType formType,
+            boolean isContextWindow,
             EntityInputFormController<TechInspection> controller
     ) {
 
@@ -31,7 +34,7 @@ public class TechInspectionInputFormBuilder
                 "Не удалось загрузить список самолётов"
         );
 
-        if (formType == FormType.CREATION_FORM) {
+        if (formType == FormType.CREATION_FORM && !isContextWindow) {
             controller.addChoiceBox(
                     "Самолёт",
                     techInspection.getAirplane().getId(),

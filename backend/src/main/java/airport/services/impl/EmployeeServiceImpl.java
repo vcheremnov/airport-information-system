@@ -46,9 +46,14 @@ public class EmployeeServiceImpl
 
     @Override
     public Page<EmployeeDto> search(EmployeeFilter filter, Pageable pageable) {
+        filter.setName(prepareStringToLikeStatement(filter.getName()));
+        filter.setTeamName(prepareStringToLikeStatement(filter.getTeamName()));
+        filter.setDepartmentName(prepareStringToLikeStatement(filter.getDepartmentName()));
         return repository.searchByFilter(
                 filter.getSex(),
-                filter.getDepartmentId(),
+                filter.getName(),
+                filter.getTeamName(),
+                filter.getDepartmentName(),
                 filter.getMinBirthDate(),
                 filter.getMaxBirthDate(),
                 filter.getMinEmploymentDate(),
@@ -57,20 +62,10 @@ public class EmployeeServiceImpl
                 filter.getMaxSalary(),
                 filter.getMinTeamAverageSalary(),
                 filter.getMaxTeamAverageSalary(),
+                filter.getMedExamYear(),
+                filter.getMedExamIsPassed(),
                 pageable
         ).map(getMapper()::toDto);
-    }
-
-    @Override
-    public Page<EmployeeDto> getByMedExamResult(
-            Integer year, Boolean isPassed, Pageable pageable
-    ) {
-        return repository
-                .findEmployeesByMedExamResult(
-                        year,
-                        isPassed,
-                        pageable
-                ).map(getMapper()::toDto);
     }
 
     @Override
@@ -88,6 +83,11 @@ public class EmployeeServiceImpl
     @Override
     protected Mapper<Employee, EmployeeDto, Long> getMapper() {
         return mapper;
+    }
+
+    private String prepareStringToLikeStatement(String stringValue) {
+        return stringValue == null ?
+                null : String.format("%%%s%%", stringValue.toLowerCase());
     }
 }
 

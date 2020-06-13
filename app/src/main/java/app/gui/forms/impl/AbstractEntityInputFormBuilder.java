@@ -1,8 +1,10 @@
 package app.gui.forms.impl;
 
+import app.gui.controllers.AlertDialogFactory;
 import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.FxmlLoaderFactory;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
+import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
 import app.gui.forms.EntityInputFormBuilder;
 import app.model.Entity;
@@ -13,7 +15,6 @@ import app.utils.RequestExecutor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 
 import java.util.Objects;
@@ -45,19 +46,30 @@ public abstract class AbstractEntityInputFormBuilder<E extends Entity>
     }
 
     @Override
-    public Stage buildCreationFormWindow() {
+    public Stage buildCreationFormWindow(SuccessAction onSuccessAction) {
         E entity = newEntitySupplier.get();
-        return buildInputFormWindow(entity, FormType.CREATION_FORM);
+        return buildInputFormWindow(
+                entity, FormType.CREATION_FORM, false, onSuccessAction
+        );
     }
 
     @Override
-    public Stage buildCreationFormWindow(E entity) {
-        return buildInputFormWindow(entity, FormType.CREATION_FORM);
+    public Stage buildEditFormWindow(E entity, SuccessAction onSuccessAction) {
+        return buildInputFormWindow(
+                entity, FormType.EDIT_FORM, false, onSuccessAction
+        );
     }
 
-    @Override
-    public Stage buildEditFormWindow(E entity) {
-        return buildInputFormWindow(entity, FormType.EDIT_FORM);
+    public Stage buildContextCreationFormWindow(E entity, SuccessAction onSuccessAction) {
+        return buildInputFormWindow(
+                entity, FormType.CREATION_FORM, true, onSuccessAction
+        );
+    }
+
+    public Stage buildContextEditFormWindow(E entity, SuccessAction onSuccessAction) {
+        return buildInputFormWindow(
+                entity, FormType.EDIT_FORM, true, onSuccessAction
+        );
     }
 
     protected <X extends Entity, Y> ChoiceItemSupplier<Y> makeChoiceItemSupplierFromEntities(
@@ -81,13 +93,17 @@ public abstract class AbstractEntityInputFormBuilder<E extends Entity>
     ) {
         return () -> {
 
-            Page<X> page = entityService.getAll(PageInfo.getUnlimitedPageInfo()).getBody();
-            Objects.requireNonNull(page, errorMessage);
+            try {
+                Page<X> page = entityService.getAll(PageInfo.getUnlimitedPageInfo()).getBody();
+                Objects.requireNonNull(page, errorMessage);
 
-            return page.getElementList().stream()
-                    .filter(entityFilterPredicate)
-                    .map(entityToChoiceItemMapper)
-                    .collect(Collectors.toList());
+                return page.getElementList().stream()
+                        .filter(entityFilterPredicate)
+                        .map(entityToChoiceItemMapper)
+                        .collect(Collectors.toList());
+            } catch (Exception e) {
+                throw new RuntimeException(errorMessage, e);
+            }
 
         };
     }
@@ -95,7 +111,7 @@ public abstract class AbstractEntityInputFormBuilder<E extends Entity>
     protected abstract void fillInputForm(
             E entity,
             FormType formType,
-            EntityInputFormController<E> controller
+            boolean isContextWindow, EntityInputFormController<E> controller
     );
 
     protected abstract String getCreationFormWindowTitle();
@@ -103,23 +119,43 @@ public abstract class AbstractEntityInputFormBuilder<E extends Entity>
     protected abstract String getEditFormWindowTitle(E entity);
 
     @SneakyThrows
-    private Stage buildInputFormWindow(E entity, FormType formType) {
+    private Stage buildInputFormWindow(
+            E entity, FormType formType, boolean isContextWindow, SuccessAction onSuccessAction
+    ) {
         var fxmlLoader = FxmlLoaderFactory.createEntityInputFormLoader();
         Parent rootNode = fxmlLoader.load();
         EntityInputFormController<E> controller = fxmlLoader.getController();
 
         switch (formType) {
             case CREATION_FORM:
-                controller.init(entity, entityService::create, requestExecutor);
+                controller.init(
+                        entity,
+                        entityService::create,
+                        onSuccessAction,
+                        errorMessage -> AlertDialogFactory.showErrorAlertDialog(
+                    "Произошла ошибка при добавлении новой сущности!",
+                                errorMessage
+                        ),
+                        requestExecutor
+                );
                 break;
             case EDIT_FORM:
-                controller.init(entity, entityService::save, requestExecutor);
+                controller.init(
+                        entity,
+                        entityService::save,
+                        onSuccessAction,
+                        errorMessage -> AlertDialogFactory.showErrorAlertDialog(
+                                String.format("Произошла ошибка при изменении сущности %d!", entity.getId()),
+                                errorMessage
+                        ),
+                        requestExecutor
+                );
                 break;
         }
 
-        fillInputForm(entity, formType, controller);
-        String windowTitle = (formType == FormType.CREATION_FORM) ?
-                getCreationFormWindowTitle() : getEditFormWindowTitle(entity);
+        fillInputForm(entity, formType, isContextWindow, controller);
+        String windowTitle = (formType == FormType.EDIT_FORM) ?
+                getEditFormWindowTitle(entity) : getCreationFormWindowTitle();
 
         return createStage(rootNode, windowTitle);
     }

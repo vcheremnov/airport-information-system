@@ -17,6 +17,7 @@ public class DepartmentInputFormBuilder extends AbstractEntityInputFormBuilder<D
     protected void fillInputForm(
             Department department,
             FormType formType,
+            boolean isContextWindow,
             EntityInputFormController<Department> controller
     ) {
 
@@ -26,11 +27,13 @@ public class DepartmentInputFormBuilder extends AbstractEntityInputFormBuilder<D
                 "Не удалось загрузить список начальников"
         );
 
-        controller.addTextField(
-                "Название",
-                department.getName(),
-                department::setName
-        );
+        if (formType == FormType.CREATION_FORM) {
+            controller.addTextField(
+                    "Название",
+                    department.getName(),
+                    department::setName
+            );
+        }
 
         controller.addChoiceBox(
                 "Начальник",

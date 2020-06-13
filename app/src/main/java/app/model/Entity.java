@@ -15,7 +15,6 @@ public abstract class Entity {
 
     static {
         propertyNames.put("id", "№");
-        sortPropertyNames.put("id", "№");
     }
 
     public static Map<String, String> getPropertyNames() {

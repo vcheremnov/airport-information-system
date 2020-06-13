@@ -1,11 +1,9 @@
 package app.gui.forms.impl;
 
 import app.gui.controllers.EntityInputFormController;
-import app.model.Airplane;
 import app.model.AirplaneType;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
-import javafx.stage.Stage;
 
 public class AirplaneTypeInputFormBuilder
         extends AbstractEntityInputFormBuilder<AirplaneType> {
@@ -18,6 +16,7 @@ public class AirplaneTypeInputFormBuilder
     protected void fillInputForm(
             AirplaneType airplaneType,
             FormType formType,
+            boolean isContextWindow,
             EntityInputFormController<AirplaneType> controller
     ) {
 

@@ -10,14 +10,24 @@ import java.util.Date;
 public class EmployeeFilter {
 
     private Sex sex;
-    private Long departmentId;
+
+    private String name;
+    private String teamName;
+    private String departmentName;
+
     private Date minBirthDate;
     private Date maxBirthDate;
+
     private Date minEmploymentDate;
     private Date maxEmploymentDate;
+
     private Integer minSalary;
     private Integer maxSalary;
+
     private Double minTeamAverageSalary;
     private Double maxTeamAverageSalary;
+
+    private Integer medExamYear;
+    private Boolean medExamIsPassed;
 
 }

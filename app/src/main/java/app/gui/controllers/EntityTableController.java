@@ -1,6 +1,7 @@
 package app.gui.controllers;
 
-import app.gui.controllers.interfaces.EntityWindowBuilder;
+import app.gui.controllers.interfaces.ContextWindowBuilder;
+import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
 import app.gui.forms.EntityInputFormBuilder;
 import app.model.Entity;
@@ -23,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class EntityTableController<T extends Entity> {
@@ -38,11 +40,14 @@ public class EntityTableController<T extends Entity> {
     private EntitySource<T> entitySource;
     private EntityRemover<T> entityRemover;
     private RequestExecutor requestExecutor;
-    private EntityWindowBuilder<T> infoWindowBuilder;
-    private EntityInputFormBuilder<T> entityInputFormBuilder;
-    private Map<String, EntityWindowBuilder<T>> contextWindowBuilders = new LinkedHashMap<>();
+    private ContextWindowBuilder<T> infoWindowBuilder;
+    private Supplier<T> newEntitySupplier;
+    private EntityInputFormBuilder<T> inputFormBuilder;
+    private Map<String, ContextWindowBuilder<T>> contextWindowBuilders = new LinkedHashMap<>();
+    private Consumer<String> statusBarMessageAcceptor;
+    private boolean isContextWindow;
 
-    public void setInfoWindowBuilder(EntityWindowBuilder<T> infoWindowBuilder) {
+    public void setInfoWindowBuilder(ContextWindowBuilder<T> infoWindowBuilder) {
         this.infoWindowBuilder = infoWindowBuilder;
     }
 
@@ -60,7 +65,7 @@ public class EntityTableController<T extends Entity> {
 
     public void addContextWindowBuilder(
             String contextMenuItemName,
-            EntityWindowBuilder<T> contextWindowBuilder
+            ContextWindowBuilder<T> contextWindowBuilder
     ) {
         contextWindowBuilders.put(contextMenuItemName, contextWindowBuilder);
     }
@@ -74,7 +79,10 @@ public class EntityTableController<T extends Entity> {
             menuItem.setOnAction(event -> {
                 T entity = entityTable.getSelectionModel().getSelectedItem();
                 if (entity != null) {
-                    openContextWindow(entity, contextWindowBuilder);
+                    openWindow(
+                            () -> contextWindowBuilder.buildWindow(entity),
+                            String.format("Не удалось выполнить действие \"%s\"", contextMenuItemName)
+                    );
                 }
             });
 
@@ -88,14 +96,27 @@ public class EntityTableController<T extends Entity> {
         infoItem.setOnAction(event -> {
             T entity = entityTable.getSelectionModel().getSelectedItem();
             if (entity != null) {
-                openContextWindow(entity, infoWindowBuilder);
+                openWindow(
+                        () -> infoWindowBuilder.buildWindow(entity),
+                        String.format("Не удалось открыть информацию о сущности №%d", entity.getId())
+                );
             }
         });
 
         changeItem.setOnAction(event -> {
             T entity = entityTable.getSelectionModel().getSelectedItem();
             if (entity != null) {
-                openContextWindow(entity, entityInputFormBuilder::buildEditFormWindow);
+                SuccessAction successAction = () -> refreshTableContents("Успешно изменено");
+                Supplier<Stage> windowBuilder = () -> {
+                    if (isContextWindow) {
+                        return inputFormBuilder.buildContextEditFormWindow(entity, successAction);
+                    }
+                    return inputFormBuilder.buildEditFormWindow(entity, successAction);
+                };
+                openWindow(
+                        windowBuilder,
+                        String.format("Не удалось открыть форму изменения сущности №%d", entity.getId())
+                );
             }
         });
 
@@ -130,27 +151,29 @@ public class EntityTableController<T extends Entity> {
     private VBox filteringVBox;
 
     @FXML
-    private Button createButton;
+    private Label pageSizeLabel;
+
+    @FXML
+    private Label totalSizeLabel;
 
     private final ObservableList<T> entityObservableList = FXCollections.observableArrayList();
-    private Consumer<String> statusBarMessageSetter;
 
     private Filter<T> filter;
     private PageInfo pageInfo;
     private PageSort pageSort;
 
-    public void disableCreation() {
-        createButton.setVisible(false);
-    }
-
     public void init(
             Map<String, String> entityPropertyNames,
             Map<String, String> entitySortPropertyNames,
             EntityInputFormBuilder<T> entityInputFormBuilder,
-            Consumer<String> statusBarMessageSetter
+            Supplier<T> newEntitySupplier,
+            boolean isContextWindow,
+            Consumer<String> statusBarMessageAcceptor
     ) {
-        this.entityInputFormBuilder = entityInputFormBuilder;
-        this.statusBarMessageSetter = statusBarMessageSetter;
+        this.inputFormBuilder = entityInputFormBuilder;
+        this.newEntitySupplier = newEntitySupplier;
+        this.isContextWindow = isContextWindow;
+        this.statusBarMessageAcceptor = statusBarMessageAcceptor;
 
         pageSort = new PageSort();
         pageInfo = new PageInfo(0L, 23L, pageSort);
@@ -170,16 +193,16 @@ public class EntityTableController<T extends Entity> {
                 .map(e -> new ChoiceItem<>(e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
 
-        ChoiceItem<String> defaultSortField = new ChoiceItem<>(null, "Не указано");
-        sortFieldList.add(defaultSortField);
-        sortChoiceBox.setValue(defaultSortField);
-        sortChoiceBox.getItems().addAll(sortFieldList);
+        ChoiceItem<String> defaultSortField = new ChoiceItem<>("id", "№");
         sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             pageSort.removeAllFields();
             if (newValue.getValue() != null) {
                 pageSort.addField(newValue.getValue());
             }
         });
+        sortFieldList.add(defaultSortField);
+        sortChoiceBox.setValue(defaultSortField);
+        sortChoiceBox.getItems().addAll(sortFieldList);
 
         List<TableColumn<T, String>> columns = entityPropertyNames
                 .entrySet()
@@ -211,11 +234,27 @@ public class EntityTableController<T extends Entity> {
 
     @FXML
     private void openCreateWindow() {
-        openContextWindow(null, e -> entityInputFormBuilder.buildCreationFormWindow());
+        SuccessAction successAction = () -> refreshTableContents("Успешно изменено");
+        Supplier<Stage> windowBuilder = () -> {
+            if (isContextWindow) {
+                return inputFormBuilder.buildContextCreationFormWindow(
+                        newEntitySupplier.get(), successAction
+                );
+            }
+            return inputFormBuilder.buildCreationFormWindow(successAction);
+        };
+        openWindow(
+                windowBuilder,
+                "Не удалось открыть форму добавления"
+        );
     }
 
     @FXML
     private void refreshTableContents() {
+        refreshTableContents("Данные успешно загружены");
+    }
+
+    private void refreshTableContents(String successMessage) {
         disableComponent();
         requestExecutor
                 .makeRequest(() -> entitySource.getEntities(pageInfo, filter))
@@ -224,25 +263,43 @@ public class EntityTableController<T extends Entity> {
                     entities.forEach(Entity::calculateProperties);
 
                     Platform.runLater(() -> {
+                        pageSizeLabel.setText(String.format(
+                                "На странице: %d", page.getNumberOfElements()
+                        ));
+
+                        totalSizeLabel.setText(String.format(
+                                "Всего: %d", page.getTotalElements()
+                        ));
+
                         entityObservableList.clear();
                         entityObservableList.addAll(entities);
-                        statusBarMessageSetter.accept("Данные успешно загружены");
                         pagination.pageCountProperty().setValue(page.getTotalPages());
+                        statusBarMessageAcceptor.accept(successMessage);
                     });
                 })
-                .setOnFailureAction(statusBarMessageSetter::accept)
+                .setOnFailureAction(errorMessage -> Platform.runLater(() ->
+                        AlertDialogFactory.showErrorAlertDialog(
+                                "Не удалось загрузить информацию",
+                                errorMessage
+                        )
+                ))
                 .setFinalAction(() -> Platform.runLater(this::enableComponent))
                 .submit();
     }
 
-    private void openContextWindow(T entity, EntityWindowBuilder<T> windowBuilder) {
+    private void openWindow(Supplier<Stage> windowBuilder, String errorDialogHeader) {
         try {
             if (windowBuilder != null) {
-                Stage contextWindow = windowBuilder.buildWindow(entity);
+                Stage contextWindow = windowBuilder.get();
                 contextWindow.show();
             }
         } catch (Exception e) {
-            // TODO: show pop-up window with an error message
+            Platform.runLater(() ->
+                    AlertDialogFactory.showErrorAlertDialog(
+                            errorDialogHeader,
+                            e.getLocalizedMessage()
+                    )
+            );
             e.printStackTrace();
         }
     }
@@ -251,15 +308,19 @@ public class EntityTableController<T extends Entity> {
         disableComponent();
         requestExecutor
                 .makeRequest(() -> entityRemover.deleteEntity(entity.getId()))
-                .setOnSuccessAction(responseBody -> Platform.runLater(() -> {
-                    entityObservableList.remove(entity);
-                    statusBarMessageSetter.accept("Успешно удалено");
-                }))
-                // TODO: всплывающее окно при ошибке
-                .setOnFailureAction(statusBarMessageSetter::accept)
-                .setFinalAction(() -> Platform.runLater(this::enableComponent))
+                .setOnSuccessAction(responseBody -> Platform.runLater(
+                        () -> refreshTableContents("Успешно удалено")
+                ))
+                .setOnFailureAction(errorMessage -> {
+                    Platform.runLater(() -> {
+                        enableComponent();
+                        AlertDialogFactory.showErrorAlertDialog(
+                                String.format("Не удалось удалить сущность № %d!", entity.getId()),
+                                errorMessage
+                        );
+                    });
+                })
                 .submit();
-
     }
 
     private void disableComponent() {

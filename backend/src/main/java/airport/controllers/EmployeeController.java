@@ -30,17 +30,6 @@ public class EmployeeController extends AbstractController<EmployeeDto, Long> {
         return ResponseEntity.ok(employeeService.search(filter, pageable));
     }
 
-    @GetMapping("/by-med-exam-result")
-    public ResponseEntity<Page<EmployeeDto>> getByMedExamResult(
-            @RequestParam Integer year,
-            @RequestParam Boolean isPassed,
-            Pageable pageable
-    ) {
-        return ResponseEntity.ok(
-                employeeService.getByMedExamResult(year, isPassed, pageable)
-        );
-    }
-
     @GetMapping("/{id}/med-exams")
     public ResponseEntity<Page<MedicalExaminationDto>> getMedExams(
             @PathVariable Long id,

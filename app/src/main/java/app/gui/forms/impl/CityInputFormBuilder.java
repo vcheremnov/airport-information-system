@@ -2,10 +2,8 @@ package app.gui.forms.impl;
 
 import app.gui.controllers.EntityInputFormController;
 import app.model.City;
-import app.model.City;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
-import javafx.stage.Stage;
 
 public class CityInputFormBuilder extends AbstractEntityInputFormBuilder<City> {
 
@@ -17,6 +15,7 @@ public class CityInputFormBuilder extends AbstractEntityInputFormBuilder<City> {
     protected void fillInputForm(
             City city,
             FormType formType,
+            boolean isContextWindow,
             EntityInputFormController<City> controller
     ) {
 

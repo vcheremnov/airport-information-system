@@ -5,12 +5,10 @@ import app.gui.controllers.interfaces.ChoiceItemSupplier;
 import app.gui.custom.ChoiceItem;
 import app.model.Flight;
 import app.model.types.FlightType;
-import app.services.pagination.PageInfo;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class FlightInputFormBuilder extends AbstractEntityInputFormBuilder<Flight> {
@@ -23,6 +21,7 @@ public class FlightInputFormBuilder extends AbstractEntityInputFormBuilder<Fligh
     protected void fillInputForm(
             Flight flight,
             FormType formType,
+            boolean isContextWindow,
             EntityInputFormController<Flight> controller
     ) {
 

@@ -1,12 +1,9 @@
 package app.gui.forms.impl;
 
 import app.gui.controllers.EntityInputFormController;
-import app.gui.controllers.interfaces.ChoiceItemSupplier;
-import app.gui.custom.ChoiceItem;
+import app.gui.controllers.interfaces.SuccessAction;
+import app.model.Employee;
 import app.model.MedicalExamination;
-import app.model.MedicalExamination;
-import app.services.Service;
-import app.utils.LocalDateFormatter;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
 import javafx.stage.Stage;
@@ -26,10 +23,10 @@ public class MedicalExaminationInputFormBuilder
     protected void fillInputForm(
             MedicalExamination medicalExamination,
             FormType formType,
-            EntityInputFormController<MedicalExamination> controller
+            boolean isContextWindow, EntityInputFormController<MedicalExamination> controller
     ) {
 
-        if (formType == FormType.CREATION_FORM) {
+        if (formType == FormType.CREATION_FORM && !isContextWindow) {
             Long employeeId = medicalExamination.getEmployee().getId();
             controller.addIntegerField(
                     "№ сотрудника",

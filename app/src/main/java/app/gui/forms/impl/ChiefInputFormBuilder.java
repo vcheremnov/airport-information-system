@@ -4,11 +4,9 @@ import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
 import app.gui.custom.ChoiceItem;
 import app.model.Chief;
-import app.model.Chief;
 import app.model.types.Sex;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
-import javafx.stage.Stage;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -23,6 +21,7 @@ public class ChiefInputFormBuilder extends AbstractEntityInputFormBuilder<Chief>
     protected void fillInputForm(
             Chief chief,
             FormType formType,
+            boolean isContextWindow,
             EntityInputFormController<Chief> controller
     ) {
 

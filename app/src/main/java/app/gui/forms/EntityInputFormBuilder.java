@@ -1,14 +1,17 @@
 package app.gui.forms;
 
+import app.gui.controllers.interfaces.SuccessAction;
 import app.model.Entity;
 import javafx.stage.Stage;
 
 public interface EntityInputFormBuilder<E extends Entity> {
 
-    Stage buildCreationFormWindow();
+    Stage buildCreationFormWindow(SuccessAction onSuccessAction);
 
-    Stage buildCreationFormWindow(E entity);
+    Stage buildEditFormWindow(E entity, SuccessAction onSuccessAction);
 
-    Stage buildEditFormWindow(E entity);
+    Stage buildContextCreationFormWindow(E entity, SuccessAction onSuccessAction);
+
+    Stage buildContextEditFormWindow(E entity, SuccessAction onSuccessAction);
 
 }

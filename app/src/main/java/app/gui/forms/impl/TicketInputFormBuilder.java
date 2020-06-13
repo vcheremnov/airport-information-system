@@ -2,10 +2,12 @@ package app.gui.forms.impl;
 
 import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
+import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
+import app.model.Employee;
+import app.model.Flight;
+import app.model.Team;
 import app.model.Ticket;
-import app.model.Ticket;
-import app.model.types.Sex;
 import app.model.types.TicketStatus;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
@@ -24,16 +26,19 @@ public class TicketInputFormBuilder extends AbstractEntityInputFormBuilder<Ticke
     protected void fillInputForm(
             Ticket ticket,
             FormType formType,
+            boolean isContextWindow,
             EntityInputFormController<Ticket> controller
     ) {
 
         if (formType == FormType.CREATION_FORM) {
-            Long flightId = ticket.getFlightId();
-            controller.addIntegerField(
-                    "№ рейса",
-                    flightId == null ? 0 : flightId.intValue(),
-                    value -> ticket.setFlightId(value.longValue())
-            );
+            if (!isContextWindow) {
+                Long flightId = ticket.getFlightId();
+                controller.addIntegerField(
+                        "№ рейса",
+                        flightId == null ? 0 : flightId.intValue(),
+                        value -> ticket.setFlightId(value.longValue())
+                );
+            }
 
             Long passengerId = ticket.getPassenger().getId();
             controller.addIntegerField(

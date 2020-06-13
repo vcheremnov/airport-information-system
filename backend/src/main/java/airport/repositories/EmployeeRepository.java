@@ -18,12 +18,15 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
         "select distinct e " +
         "from Employee e " +
         "join e.team t " +
-        "where (:sex is null or e.sex = :sex)" +
-        "and (:departmentId is null or e.team.department.id = :departmentId)" +
+        "join e.medicalExaminations m " +
+        "where (:sex is null or e.sex = :sex) " +
+        "and (:name is null or lower(e.name) like :name) " +
+        "and (:teamName is null or lower(e.team.name) like :teamName) " +
+        "and (:departmentName is null or lower(e.team.department.name) like :departmentName) " +
         "and (coalesce(:minBirthDate, :minBirthDate) is null or e.birthDate >= :minBirthDate)" +
         "and (coalesce(:maxBirthDate, :maxBirthDate) is null or e.birthDate <= :maxBirthDate)" +
         "and (coalesce(:minEmploymentDate, :minEmploymentDate) is null or e.employmentDate >= :minEmploymentDate)" +
-        "and (coalesce(:maxEmploymentDate, :maxEmploymentDate) is null or e.employmentDate >= :maxEmploymentDate)" +
+        "and (coalesce(:maxEmploymentDate, :maxEmploymentDate) is null or e.employmentDate <= :maxEmploymentDate)" +
         "and (:minSalary is null or e.salary >= :minSalary)" +
         "and (:maxSalary is null or e.salary <= :maxSalary)" +
         "and (:minTeamAverageSalary is null or :minTeamAverageSalary <= " +
@@ -31,11 +34,15 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             ")" +
         "and (:maxTeamAverageSalary is null or :maxTeamAverageSalary >= " +
                 "(select avg(e.salary) from Employee e join e.team et group by et having et.id = t.id)" +
-            ")"
+            ") " +
+        "and ((:medExamYear is null or :medExamIsPassed is null) " +
+                "or (function('year', m.examDate) = :medExamYear and m.isPassed = :medExamIsPassed))"
     )
     Page<Employee> searchByFilter(
             @Param("sex") Sex sex,
-            @Param("departmentId") Long departmentId,
+            @Param("name") String name,
+            @Param("teamName") String teamName,
+            @Param("departmentName") String departmentName,
             @Param("minBirthDate") Date minBirthDate,
             @Param("maxBirthDate") Date maxBirthDate,
             @Param("minEmploymentDate") Date minEmploymentDate,
@@ -44,17 +51,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             @Param("maxSalary") Integer maxSalary,
             @Param("minTeamAverageSalary") Double minTeamAverageSalary,
             @Param("maxTeamAverageSalary") Double maxTeamAverageSalary,
-            Pageable pageable
-    );
-
-    @Query(
-        "select distinct e from Employee e join e.medicalExaminations m " +
-        "where function('year', m.examDate) = :year " +
-        "and m.isPassed = :isPassed"
-    )
-    Page<Employee> findEmployeesByMedExamResult(
-            @Param("year") Integer year,
-            @Param("isPassed") Boolean isPassed,
+            @Param("medExamYear") Integer medExamYear,
+            @Param("medExamIsPassed") Boolean medExamIsPassed,
             Pageable pageable
     );
 

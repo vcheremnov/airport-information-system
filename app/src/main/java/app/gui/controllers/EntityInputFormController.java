@@ -1,6 +1,8 @@
 package app.gui.controllers;
 
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
+import app.gui.controllers.interfaces.ErrorAction;
+import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
 import app.gui.custom.DateTimePicker;
 import app.model.Entity;
@@ -38,7 +40,10 @@ public class EntityInputFormController<T extends Entity> {
         void setField(X value);
     }
 
+
     private SubmitAction<T> submitAction;
+    private SuccessAction onSuccessAction;
+    private ErrorAction onErrorAction;
     private RequestExecutor requestExecutor;
 
     private final List<TextField> textFields = new ArrayList<>();
@@ -58,11 +63,15 @@ public class EntityInputFormController<T extends Entity> {
     public void init(
             T entity,
             SubmitAction<T> submitAction,
+            SuccessAction onSuccessAction,
+            ErrorAction onErrorAction,
             RequestExecutor requestExecutor
     ) {
         this.entity = entity;
         this.submitAction = submitAction;
         this.requestExecutor = requestExecutor;
+        this.onSuccessAction = onSuccessAction;
+        this.onErrorAction = onErrorAction;
     }
 
     public void addTextField(
@@ -294,21 +303,30 @@ public class EntityInputFormController<T extends Entity> {
         disableComponent();
         requestExecutor
                 .makeRequest(() -> submitAction.submit(entity))
-                .setOnSuccessAction(createdEntity -> Platform.runLater(() -> {
-                    Node sourceNode = (Node) event.getSource();
-                    Stage stage = (Stage) sourceNode.getScene().getWindow();
-                    stage.close();
-                }))
-//                .setOnFailureAction(this::setStatusBarMessage)
+                .setOnSuccessAction(createdEntity -> {
+                    Platform.runLater(() -> {
+                        Node sourceNode = (Node) event.getSource();
+                        Stage stage = (Stage) sourceNode.getScene().getWindow();
+                        stage.close();
+                    });
+                    if (onSuccessAction != null) {
+                        onSuccessAction.run();
+                    }
+                })
+                .setOnFailureAction(errorMessage -> {
+                    if (onErrorAction != null) {
+                        onErrorAction.run(errorMessage);
+                    }
+                })
                 .setFinalAction(this::enableComponent)
                 .submit();
     }
 
-    private void enableComponent() {
+    public void enableComponent() {
         contentBox.setDisable(false);
     }
 
-    private void disableComponent() {
+    public void disableComponent() {
         contentBox.setDisable(true);
     }
 

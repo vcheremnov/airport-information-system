@@ -1,10 +1,9 @@
 package app.gui.controllers;
 
-import app.gui.controllers.interfaces.EntityWindowBuilder;
+import app.gui.controllers.interfaces.ContextWindowBuilder;
 import app.gui.forms.EntityInputFormBuilder;
 import app.gui.forms.impl.*;
 import app.model.types.FlightDelayReason;
-import app.model.types.TicketStatus;
 import app.services.*;
 import app.utils.LocalDateFormatter;
 import app.utils.ServiceFactory;
@@ -20,6 +19,7 @@ import lombok.SneakyThrows;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class MainController {
 
@@ -62,7 +62,7 @@ public class MainController {
         TechInspectionService techInspectionService = ServiceFactory.getTechInspectionService();
         RepairService repairService = ServiceFactory.getRepairService();
 
-        EntityWindowBuilder<Airplane> infoWindowBuilder = airplane -> {
+        ContextWindowBuilder<Airplane> infoWindowBuilder = airplane -> {
 
             var techInspectionPropertyNames = new LinkedHashMap<>(TechInspection.getPropertyNames());
             techInspectionPropertyNames.remove("airplaneIdProperty");
@@ -77,7 +77,12 @@ public class MainController {
                     techInspectionSortPropertyNames,
                     (pageInfo, filter) -> airplaneService.getTechInspections(airplane.getId(), pageInfo),
                     techInspectionService::deleteById,
-                    new TechInspectionInputFormBuilder(requestExecutor)
+                    new TechInspectionInputFormBuilder(requestExecutor),
+                    () -> {
+                        TechInspection techInspection = new TechInspection();
+                        techInspection.getAirplane().setId(airplane.getId());
+                        return techInspection;
+                    }
             );
 
             var repairPropertyNames = new LinkedHashMap<>(Repair.getPropertyNames());
@@ -93,7 +98,12 @@ public class MainController {
                     repairSortPropertyNames,
                     (pageInfo, filter) -> airplaneService.getRepairs(airplane.getId(), pageInfo),
                     repairService::deleteById,
-                    new RepairInputFormBuilder(requestExecutor)
+                    new RepairInputFormBuilder(requestExecutor),
+                    () -> {
+                        Repair repair = new Repair();
+                        repair.getAirplane().setId(airplane.getId());
+                        return repair;
+                    }
             );
 
             return EntityInfoWindowBuilder
@@ -103,20 +113,6 @@ public class MainController {
                     .build();
         };
 
-        Map<String, EntityWindowBuilder<Airplane>> contextWindowBuilders = new LinkedHashMap<>();
-        var techInspectionInputFormBuilder = new TechInspectionInputFormBuilder(requestExecutor);
-        var repairInputFormBuilder = new RepairInputFormBuilder(requestExecutor);
-        contextWindowBuilders.put("Добавить тех. осмотр", airplane -> {
-            TechInspection techInspection = new TechInspection();
-            techInspection.getAirplane().setId(airplane.getId());
-            return techInspectionInputFormBuilder.buildCreationFormWindow(techInspection);
-        });
-        contextWindowBuilders.put("Добавить ремонт", airplane -> {
-            Repair repair = new Repair();
-            repair.getAirplane().setId(airplane.getId());
-            return repairInputFormBuilder.buildCreationFormWindow(repair);
-        });
-
         createEntityTable(
                 "Самолеты",
                 Airplane.getPropertyNames(),
@@ -124,7 +120,7 @@ public class MainController {
                 ServiceFactory.getAirplaneService(),
                 new AirplaneInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                contextWindowBuilders
+                null
         );
     }
 
@@ -145,9 +141,14 @@ public class MainController {
     void openCities() {
         TicketService ticketService = ServiceFactory.getTicketService();
 
-        EntityWindowBuilder<City> infoWindowBuilder = city -> {
+        ContextWindowBuilder<City> infoWindowBuilder = city -> {
             FXMLLoader entityInfoLoader = FxmlLoaderFactory.createEntityInfoLoader();
-            Parent entityInfoRoot = entityInfoLoader.load();
+            Parent entityInfoRoot = null;
+            try {
+                entityInfoRoot = entityInfoLoader.load();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             EntityInfoController controller = entityInfoLoader.getController();
 
             requestExecutor
@@ -157,7 +158,10 @@ public class MainController {
                                 "Среднее число проданных билетов на рейсы до города: %.2f", averageSold
                         ));
                     }))
-                    .setOnFailureAction(this::setStatusBarMessage)
+                    .setOnFailureAction(errorMessage -> AlertDialogFactory.showErrorAlertDialog(
+                            "Не удалось загрузить информацию о городе",
+                            errorMessage
+                    ))
                     .submit();
 
             return EntityInfoWindowBuilder
@@ -183,7 +187,7 @@ public class MainController {
         DepartmentService departmentService = ServiceFactory.getDepartmentService();
         TeamService teamService = ServiceFactory.getTeamService();
 
-        EntityWindowBuilder<Department> infoWindowBuilder = department -> {
+        ContextWindowBuilder<Department> infoWindowBuilder = department -> {
             var teamPropertyNames = new LinkedHashMap<>(Team.getPropertyNames());
             teamPropertyNames.remove("departmentNameProperty");
             var teamSortPropertyNames = new LinkedHashMap<>(Team.getSortPropertyNames());
@@ -194,7 +198,12 @@ public class MainController {
                     teamSortPropertyNames,
                     (pageInfo, filter) -> departmentService.getTeams(department.getId(), pageInfo),
                     teamService::deleteById,
-                    new TeamInputFormBuilder(requestExecutor)
+                    new TeamInputFormBuilder(requestExecutor),
+                    () -> {
+                        Team team = new Team();
+                        team.getDepartment().setId(department.getId());
+                        return team;
+                    }
             );
 
             return EntityInfoWindowBuilder
@@ -203,14 +212,6 @@ public class MainController {
                     .build();
         };
 
-        Map<String, EntityWindowBuilder<Department>> contextWindowBuilders = new LinkedHashMap<>();
-        TeamInputFormBuilder teamInputFormBuilder = new TeamInputFormBuilder(requestExecutor);
-        contextWindowBuilders.put("Добавить бригаду", department -> {
-            Team team = new Team();
-            team.getDepartment().setId(department.getId());
-            return teamInputFormBuilder.buildCreationFormWindow(team);
-        });
-
         createEntityTable(
                 "Отделы",
                 Department.getPropertyNames(),
@@ -218,7 +219,7 @@ public class MainController {
                 ServiceFactory.getDepartmentService(),
                 new DepartmentInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                contextWindowBuilders
+                null
         );
     }
 
@@ -228,7 +229,7 @@ public class MainController {
         EmployeeService employeeService = ServiceFactory.getEmployeeService();
         var medicalExaminationService = ServiceFactory.getMedicalExaminationService();
 
-        EntityWindowBuilder<Employee> infoWindowBuilder = employee -> {
+        ContextWindowBuilder<Employee> infoWindowBuilder = employee -> {
             var medExamPropertyNames = new LinkedHashMap<>(MedicalExamination.getPropertyNames());
             medExamPropertyNames.remove("employeeNameProperty");
             var medExamSortPropertyNames = new LinkedHashMap<>(MedicalExamination.getSortPropertyNames());
@@ -239,7 +240,12 @@ public class MainController {
                     medExamSortPropertyNames,
                     (pageInfo, filter) -> employeeService.getMedicalExaminations(employee.getId(), pageInfo),
                     medicalExaminationService::deleteById,
-                    new MedicalExaminationInputFormBuilder(requestExecutor)
+                    new MedicalExaminationInputFormBuilder(requestExecutor),
+                    () -> {
+                        var medicalExamination = new MedicalExamination();
+                        medicalExamination.getEmployee().setId(employee.getId());
+                        return medicalExamination;
+                    }
             );
 
             return EntityInfoWindowBuilder
@@ -248,14 +254,6 @@ public class MainController {
                     .build();
         };
 
-        Map<String, EntityWindowBuilder<Employee>> contextWindowBuilders = new LinkedHashMap<>();
-        var medicalExaminationInputFormBuilder = new MedicalExaminationInputFormBuilder(requestExecutor);
-        contextWindowBuilders.put("Добавить мед. осмотр", employee -> {
-            MedicalExamination medicalExamination = new MedicalExamination();
-            medicalExamination.getEmployee().setId(employee.getId());
-            return medicalExaminationInputFormBuilder.buildCreationFormWindow(medicalExamination);
-        });
-
         createEntityTable(
                 "Сотрудники",
                 Employee.getPropertyNames(),
@@ -263,7 +261,7 @@ public class MainController {
                 ServiceFactory.getEmployeeService(),
                 new EmployeeInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                contextWindowBuilders
+                null
         );
     }
 
@@ -272,7 +270,7 @@ public class MainController {
         FlightService flightService = ServiceFactory.getFlightService();
         TicketService ticketService = ServiceFactory.getTicketService();
 
-        EntityWindowBuilder<Flight> infoWindowBuilder = flight -> {
+        ContextWindowBuilder<Flight> infoWindowBuilder = flight -> {
             var ticketPropertyNames = new LinkedHashMap<>(Ticket.getPropertyNames());
             ticketPropertyNames.remove("flightId");
             ticketPropertyNames.remove("priceProperty");
@@ -284,11 +282,22 @@ public class MainController {
                     ticketSortPropertyNames,
                     (pageInfo, filter) -> flightService.getTickets(flight.getId(), pageInfo),
                     ticketService::deleteById,
-                    new TicketInputFormBuilder(requestExecutor)
+                    new TicketInputFormBuilder(requestExecutor),
+                    () -> {
+                        Ticket ticket = new Ticket();
+                        ticket.setFlightId(flight.getId());
+                        return ticket;
+                    }
             );
 
             var entityInfoLoader = FxmlLoaderFactory.createEntityInfoLoader();
-            Node entityInfoList = entityInfoLoader.load();
+            Parent entityInfoList = null;
+            try {
+                entityInfoList = entityInfoLoader.load();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
             EntityInfoController entityInfoController = entityInfoLoader.getController();
             entityInfoController.addInfoLine(
                     String.format("Цена билета: %.2f р.", flight.getTicketPrice())
@@ -376,7 +385,7 @@ public class MainController {
         TeamService teamService = ServiceFactory.getTeamService();
         EmployeeService employeeService = ServiceFactory.getEmployeeService();
 
-        EntityWindowBuilder<Team> infoWindowBuilder = team -> {
+        ContextWindowBuilder<Team> infoWindowBuilder = team -> {
             var employeePropertyNames = new LinkedHashMap<>(Employee.getPropertyNames());
             employeePropertyNames.remove("departmentNameProperty");
             employeePropertyNames.remove("teamNameProperty");
@@ -389,7 +398,12 @@ public class MainController {
                     employeeSortPropertyNames,
                     (pageInfo, filter) -> teamService.getEmployees(team.getId(), pageInfo),
                     employeeService::deleteById,
-                    new EmployeeInputFormBuilder(requestExecutor)
+                    new EmployeeInputFormBuilder(requestExecutor),
+                    () -> {
+                        Employee employee = new Employee();
+                        employee.getTeam().setId(team.getId());
+                        return employee;
+                    }
             );
 
             return EntityInfoWindowBuilder
@@ -398,14 +412,6 @@ public class MainController {
                     .build();
         };
 
-        Map<String, EntityWindowBuilder<Team>> contextWindowBuilders = new LinkedHashMap<>();
-        EmployeeInputFormBuilder employeeInputFormBuilder = new EmployeeInputFormBuilder(requestExecutor);
-        contextWindowBuilders.put("Добавить сотрудника", team -> {
-            Employee employee = new Employee();
-            employee.getTeam().setId(team.getId());
-            return employeeInputFormBuilder.buildCreationFormWindow(employee);
-        });
-
         createEntityTable(
                 "Бригады",
                 Team.getPropertyNames(),
@@ -413,7 +419,7 @@ public class MainController {
                 ServiceFactory.getTeamService(),
                 new TeamInputFormBuilder(requestExecutor),
                 infoWindowBuilder,
-                contextWindowBuilders
+                null
         );
     }
 
@@ -458,8 +464,8 @@ public class MainController {
             Map<String, String> entitySortPropertyNames,
             Service<T> entityService,
             EntityInputFormBuilder<T> inputFormBuilder,
-            EntityWindowBuilder<T> infoWindowBuilder,
-            Map<String, EntityWindowBuilder<T>> contextWindowBuilders
+            ContextWindowBuilder<T> infoWindowBuilder,
+            Map<String, ContextWindowBuilder<T>> contextWindowBuilders
     ) {
         FXMLLoader tableLoader = FxmlLoaderFactory.createEntityTableLoader();
         Node table = tableLoader.load();
@@ -491,6 +497,8 @@ public class MainController {
                 entityPropertyNames,
                 entitySortPropertyNames,
                 inputFormBuilder,
+                null,
+                false,
                 this::setStatusBarMessage
         );
     }
@@ -501,7 +509,8 @@ public class MainController {
             Map<String, String> entitySortPropertyNames,
             EntityTableController.EntitySource<T> entitySource,
             EntityTableController.EntityRemover<T> entityRemover,
-            EntityInputFormBuilder<T> inputFormBuilder
+            EntityInputFormBuilder<T> inputFormBuilder,
+            Supplier<T> newEntitySupplier
     ) {
 
         FXMLLoader tableLoader = FxmlLoaderFactory.createEntityTableLoader();
@@ -511,11 +520,12 @@ public class MainController {
         entityTableController.setEntitySource(entitySource);
         entityTableController.setEntityRemover(entityRemover);
         entityTableController.setRequestExecutor(requestExecutor);
-        entityTableController.disableCreation();
         entityTableController.init(
                 entityPropertyNames,
                 entitySortPropertyNames,
                 inputFormBuilder,
+                newEntitySupplier,
+                true,
                 this::setStatusBarMessage
         );
 

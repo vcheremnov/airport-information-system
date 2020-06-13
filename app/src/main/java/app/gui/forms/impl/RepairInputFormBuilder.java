@@ -2,8 +2,9 @@ package app.gui.forms.impl;
 
 import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
+import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
-import app.model.Repair;
+import app.model.Airplane;
 import app.model.Repair;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
@@ -19,6 +20,7 @@ public class RepairInputFormBuilder extends AbstractEntityInputFormBuilder<Repai
     protected void fillInputForm(
             Repair repair,
             FormType formType,
+            boolean isContextWindow,
             EntityInputFormController<Repair> controller
     ) {
 
@@ -30,7 +32,7 @@ public class RepairInputFormBuilder extends AbstractEntityInputFormBuilder<Repai
                 "Не удалось загрузить список самолётов"
         );
 
-        if (formType == FormType.CREATION_FORM) {
+        if (formType == FormType.CREATION_FORM && !isContextWindow) {
             controller.addChoiceBox(
                     "Самолёт",
                     repair.getAirplane().getId(),

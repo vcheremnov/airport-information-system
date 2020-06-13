@@ -49,9 +49,15 @@
          <children>
             <Pagination fx:id="pagination" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" pageCount="7" prefHeight="50.0" prefWidth="200.0">
                <HBox.margin>
-                  <Insets />
+                  <Insets right="10.0" />
                </HBox.margin>
             </Pagination>
+            <VBox alignment="CENTER" spacing="10.0">
+               <children>
+                  <Label fx:id="pageSizeLabel" maxWidth="1.7976931348623157E308" />
+                  <Label fx:id="totalSizeLabel" maxWidth="1.7976931348623157E308" />
+               </children>
+            </VBox>
             <Region maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
             <Button fx:id="createButton" mnemonicParsing="false" onAction="#openCreateWindow" text="Добавить">
                <HBox.margin>

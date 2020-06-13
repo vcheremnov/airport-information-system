@@ -19,6 +19,7 @@ public class AirplaneInputFormBuilder extends AbstractEntityInputFormBuilder<Air
     protected void fillInputForm(
             Airplane airplane,
             FormType formType,
+            boolean isContextWindow,
             EntityInputFormController<Airplane> controller
     ) {
 
