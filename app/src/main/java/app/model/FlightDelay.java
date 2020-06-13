@@ -9,4 +9,9 @@ public class FlightDelay extends Entity {
 
     private FlightDelayReason delayReason;
 
+    @Override
+    public FlightDelay clone() {
+        return (FlightDelay) super.clone();
+    }
+
 }

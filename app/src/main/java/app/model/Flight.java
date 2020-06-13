@@ -34,6 +34,16 @@ public class Flight extends Entity {
     private String statusProperty;
 
     @Override
+    public Flight clone() {
+        var clone = (Flight) super.clone();
+        clone.setCity(city.clone());
+        if (flightDelay != null) {
+            clone.setFlightDelay(flightDelay.clone());
+        }
+        return clone;
+    }
+
+    @Override
     public void calculateProperties() {
         super.calculateProperties();
 
@@ -45,7 +55,7 @@ public class Flight extends Entity {
         int minutesDuration = ((Double) ((duration - hoursDuration) * 60.0)).intValue();
         durationProperty = String.format("%d ч. %d мин.", hoursDuration, minutesDuration);
 
-        wasDelayedProperty = flightDelay == null ? "нет" : "да";
+        wasDelayedProperty = flightDelay == null ? "Нет" : "Да";
 
         if (isCancelled) {
             statusProperty = "Отменен";

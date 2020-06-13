@@ -4,6 +4,7 @@ import app.model.types.Sex;
 import app.utils.LocalDateFormatter;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 
 import java.util.*;
 
@@ -16,6 +17,11 @@ public class Person extends Entity {
     
     private String birthDateProperty;
     private String sexProperty;
+
+    @Override
+    public Person clone() {
+        return (Person) super.clone();
+    }
 
     @Override
     public void calculateProperties() {

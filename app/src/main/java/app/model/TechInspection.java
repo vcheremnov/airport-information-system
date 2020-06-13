@@ -19,6 +19,13 @@ public class TechInspection extends Entity {
     private String resultProperty;
 
     @Override
+    public TechInspection clone() {
+        var clone = (TechInspection) super.clone();
+        clone.setAirplane(airplane.clone());
+        return clone;
+    }
+
+    @Override
     public void calculateProperties() {
         super.calculateProperties();
 

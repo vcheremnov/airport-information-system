@@ -25,14 +25,17 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.List;
 
-public class EntityInputFormController<T extends Entity> {
+public class EntityInputFormController<T> {
 
-    public interface SubmitAction<E extends Entity> {
+    public interface SubmitAction<E> {
         ServiceResponse<E> submit(E entity) throws Exception;
     }
 
@@ -137,7 +140,7 @@ public class EntityInputFormController<T extends Entity> {
                 name,
                 initFieldValue,
                 fieldSetter,
-                LocalDateFormatter.getDateFormat()
+                true
         );
     }
 
@@ -150,7 +153,7 @@ public class EntityInputFormController<T extends Entity> {
                 name,
                 initFieldValue,
                 fieldSetter,
-                LocalDateFormatter.getDateTimeFormat()
+                false
         );
     }
 
@@ -158,14 +161,17 @@ public class EntityInputFormController<T extends Entity> {
             String name,
             Date initFieldValue,
             EntityFieldSetter<Date> fieldSetter,
-            String timeFormat
+            boolean isDateOnly
     ) {
         DateTimePicker dateTimePicker = new DateTimePicker();
+        String timeFormat = isDateOnly ?
+                LocalDateFormatter.getDateFormat() : LocalDateFormatter.getDateTimeFormat();
         dateTimePicker.setFormat(timeFormat);
         dateTimePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
             LocalDateTime localDateTime = dateTimePicker.getDateTimeValue();
             Date date = localDateTime == null ?
                     null : Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
             fieldSetter.setField(date);
         });
 

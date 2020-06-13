@@ -10,9 +10,10 @@ import java.util.Date;
 public class FlightFilter {
 
     private Long airplaneId;
-    private FlightType flightType;
     private Long airplaneTypeId;
+
     private Long cityId;
+    private FlightType flightType;
     private Boolean isCancelled;
     private Boolean isDelayed;
     private String delayReason;
@@ -25,8 +26,5 @@ public class FlightFilter {
 
     private Double minTicketPrice;
     private Double maxTicketPrice;
-
-    private Double minSoldSeatsPercentage;
-    private Double maxSoldSeatsPercentage;
 
 }

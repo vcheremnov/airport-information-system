@@ -1,7 +1,9 @@
 package app.gui.controllers;
 
+import app.gui.AlertDialogFactory;
 import app.gui.controllers.interfaces.ContextWindowBuilder;
 import app.gui.forms.EntityInputFormBuilder;
+import app.gui.forms.FlightDelayFormBuilder;
 import app.gui.forms.impl.*;
 import app.model.types.FlightDelayReason;
 import app.services.*;
@@ -50,7 +52,6 @@ public class MainController {
                 AirplaneType.getSortPropertyNames(),
                 ServiceFactory.getAirplaneTypeService(),
                 new AirplaneTypeInputFormBuilder(requestExecutor),
-                null,
                 null
         );
     }
@@ -119,8 +120,7 @@ public class MainController {
                 Airplane.getSortPropertyNames(),
                 ServiceFactory.getAirplaneService(),
                 new AirplaneInputFormBuilder(requestExecutor),
-                infoWindowBuilder,
-                null
+                infoWindowBuilder
         );
     }
 
@@ -132,7 +132,6 @@ public class MainController {
                 Chief.getSortPropertyNames(),
                 ServiceFactory.getChiefService(),
                 new ChiefInputFormBuilder(requestExecutor),
-                null,
                 null
         );
     }
@@ -176,8 +175,7 @@ public class MainController {
                 City.getSortPropertyNames(),
                 ServiceFactory.getCityService(),
                 new CityInputFormBuilder(requestExecutor),
-                infoWindowBuilder,
-                null
+                infoWindowBuilder
         );
     }
 
@@ -218,8 +216,7 @@ public class MainController {
                 Department.getSortPropertyNames(),
                 ServiceFactory.getDepartmentService(),
                 new DepartmentInputFormBuilder(requestExecutor),
-                infoWindowBuilder,
-                null
+                infoWindowBuilder
         );
     }
 
@@ -260,8 +257,7 @@ public class MainController {
                 Employee.getSortPropertyNames(),
                 ServiceFactory.getEmployeeService(),
                 new EmployeeInputFormBuilder(requestExecutor),
-                infoWindowBuilder,
-                null
+                infoWindowBuilder
         );
     }
 
@@ -329,15 +325,48 @@ public class MainController {
                     .build();
         };
 
-        createEntityTable(
+        var controller = createEntityTable(
                 "Рейсы",
                 Flight.getPropertyNames(),
                 Flight.getSortPropertyNames(),
                 ServiceFactory.getFlightService(),
                 new FlightInputFormBuilder(requestExecutor),
-                infoWindowBuilder,
-                null
+                infoWindowBuilder
         );
+
+        controller.addContextMenuAction(
+            "Отменить",
+            flight -> {
+                Runnable dialogConfirmationAction = () -> {
+                    flight.setIsCancelled(true);
+                    requestExecutor.makeRequest(() -> flightService.save(flight))
+                        .setOnSuccessAction(responseBody -> controller.refreshTableContents(
+                                String.format("Рейс №%d успешно отменён", flight.getId())
+                        )).setOnFailureAction(errorMessage -> AlertDialogFactory.showErrorAlertDialog(
+                                String.format("Произошла ошибка при отмене рейса №%d", flight.getId()),
+                                errorMessage
+                        )).submit();
+                };
+
+                AlertDialogFactory.showConfirmationDialog(
+                        "Отмена рейса",
+                        String.format("Вы действительно хотите отменить рейс №%d?", flight.getId()),
+                        dialogConfirmationAction
+                );
+            }
+        );
+
+        FlightDelayFormBuilder flightDelayFormBuilder = new FlightDelayFormBuilder(requestExecutor);
+        controller.addContextMenuWindowAction(
+                "Задержать",
+                flight -> flightDelayFormBuilder.createFlightDelayFormWindow(
+                        flight,
+                        () -> controller.refreshTableContents(
+                                String.format("Рейс №%d успешно задержан", flight.getId())
+                        )
+                )
+        );
+
     }
 
     @FXML
@@ -348,20 +377,6 @@ public class MainController {
                 MedicalExamination.getSortPropertyNames(),
                 ServiceFactory.getMedicalExaminationService(),
                 new MedicalExaminationInputFormBuilder(requestExecutor),
-                null,
-                null
-        );
-    }
-
-    @FXML
-    void openPassengers() {
-        createEntityTable(
-                "Пассажиры",
-                Passenger.getPropertyNames(),
-                Passenger.getSortPropertyNames(),
-                ServiceFactory.getPassengerService(),
-                new PassengerInputFormBuilder(requestExecutor),
-                null,
                 null
         );
     }
@@ -374,7 +389,6 @@ public class MainController {
                 Repair.getSortPropertyNames(),
                 ServiceFactory.getRepairService(),
                 new RepairInputFormBuilder(requestExecutor),
-                null,
                 null
         );
     }
@@ -418,8 +432,7 @@ public class MainController {
                 Team.getSortPropertyNames(),
                 ServiceFactory.getTeamService(),
                 new TeamInputFormBuilder(requestExecutor),
-                infoWindowBuilder,
-                null
+                infoWindowBuilder
         );
     }
 
@@ -431,7 +444,6 @@ public class MainController {
                 TechInspection.getSortPropertyNames(),
                 ServiceFactory.getTechInspectionService(),
                 new TechInspectionInputFormBuilder(requestExecutor),
-                null,
                 null
         );
     }
@@ -444,7 +456,6 @@ public class MainController {
                 Ticket.getSortPropertyNames(),
                 ServiceFactory.getTicketService(),
                 new TicketInputFormBuilder(requestExecutor),
-                null,
                 null
         );
     }
@@ -458,14 +469,13 @@ public class MainController {
     }
 
     @SneakyThrows
-    private <T extends Entity> void createEntityTable(
+    private <T extends Entity> EntityTableController<T> createEntityTable(
             String tableName,
             Map<String, String> entityPropertyNames,
             Map<String, String> entitySortPropertyNames,
             Service<T> entityService,
             EntityInputFormBuilder<T> inputFormBuilder,
-            ContextWindowBuilder<T> infoWindowBuilder,
-            Map<String, ContextWindowBuilder<T>> contextWindowBuilders
+            ContextWindowBuilder<T> infoWindowBuilder
     ) {
         FXMLLoader tableLoader = FxmlLoaderFactory.createEntityTableLoader();
         Node table = tableLoader.load();
@@ -489,10 +499,6 @@ public class MainController {
         controller.setEntitySource((pageInfo, filter) -> entityService.getAll(pageInfo));
         controller.setRequestExecutor(requestExecutor);
 
-        if (contextWindowBuilders != null) {
-            contextWindowBuilders.forEach(controller::addContextWindowBuilder);
-        }
-
         controller.init(
                 entityPropertyNames,
                 entitySortPropertyNames,
@@ -501,6 +507,8 @@ public class MainController {
                 false,
                 this::setStatusBarMessage
         );
+
+        return controller;
     }
 
     @SneakyThrows

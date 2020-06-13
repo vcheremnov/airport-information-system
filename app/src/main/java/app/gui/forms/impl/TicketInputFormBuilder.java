@@ -4,10 +4,8 @@ import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
 import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
-import app.model.Employee;
-import app.model.Flight;
-import app.model.Team;
-import app.model.Ticket;
+import app.model.*;
+import app.model.types.Sex;
 import app.model.types.TicketStatus;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
@@ -40,15 +38,35 @@ public class TicketInputFormBuilder extends AbstractEntityInputFormBuilder<Ticke
                 );
             }
 
-            Long passengerId = ticket.getPassenger().getId();
-            controller.addIntegerField(
-                    "№ пассажира",
-                    passengerId == null ? 0 : passengerId.intValue(),
-                    value -> ticket.getPassenger().setId(value.longValue())
+            Passenger passenger = ticket.getPassenger();
+
+            ChoiceItemSupplier<Sex> sexChoiceItemSupplier = () -> Arrays.stream(Sex.values())
+                    .map(s -> new ChoiceItem<>(s, Sex.toLocalizedString(s)))
+                    .collect(Collectors.toList());
+
+            controller.addTextField(
+                    "ФИО пассажира",
+                    passenger.getName(),
+                    passenger::setName
             );
+
+            controller.addChoiceBox(
+                    "Пол",
+                    passenger.getSex(),
+                    passenger::setSex,
+                    sexChoiceItemSupplier
+            );
+
+            controller.addDateField(
+                    "Дата рождения",
+                    passenger.getBirthDate(),
+                    passenger::setBirthDate
+            );
+
         }
 
         ChoiceItemSupplier<TicketStatus> ticketStatusSupplier = () -> Arrays.stream(TicketStatus.values())
+                .filter(s -> formType == FormType.EDIT_FORM || s != TicketStatus.RETURNED)
                 .map(s -> new ChoiceItem<>(s, TicketStatus.toLocalizedString(s)))
                 .collect(Collectors.toList());
 

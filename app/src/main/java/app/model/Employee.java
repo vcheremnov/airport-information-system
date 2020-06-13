@@ -3,6 +3,7 @@ package app.model;
 import app.utils.LocalDateFormatter;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 
 import java.util.*;
 
@@ -16,6 +17,14 @@ public class Employee extends Person {
     private String employmentDateProperty;
     private String departmentNameProperty;
     private String teamNameProperty;
+
+    @Override
+    public Employee clone() {
+        var clone = (Employee) super.clone();
+        clone.setTeam(team.clone());
+        return clone;
+    }
+
 
     @Override
     public void calculateProperties() {

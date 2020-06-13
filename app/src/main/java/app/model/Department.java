@@ -2,6 +2,7 @@ package app.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 
 import java.util.*;
 
@@ -12,7 +13,14 @@ public class Department extends Entity {
     private Chief chief = new Chief();
 
     private String chiefNameProperty;
-    
+
+    @Override
+    public Department clone() {
+        var clone = (Department) super.clone();
+        clone.setChief(chief.clone());
+        return clone;
+    }
+
     @Override
     public void calculateProperties() {
         super.calculateProperties();

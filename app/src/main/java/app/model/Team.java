@@ -16,6 +16,13 @@ public class Team extends Entity {
     private String averageSalaryProperty;
 
     @Override
+    public Team clone() {
+        var clone = (Team) super.clone();
+        clone.setDepartment(department.clone());
+        return clone;
+    }
+
+    @Override
     public void calculateProperties() {
         super.calculateProperties();
 

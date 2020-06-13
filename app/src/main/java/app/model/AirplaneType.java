@@ -2,6 +2,7 @@ package app.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 
 import java.util.*;
 
@@ -14,6 +15,11 @@ public class AirplaneType extends Entity {
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
     private static final Map<String, String> sortPropertyNames = new LinkedHashMap<>();
+
+    @Override
+    public AirplaneType clone() {
+        return (AirplaneType) super.clone();
+    }
 
     static {
         propertyNames.putAll(Entity.getPropertyNames());

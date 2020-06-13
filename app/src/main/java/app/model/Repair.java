@@ -19,6 +19,13 @@ public class Repair extends Entity {
     private String finishTimeProperty;
 
     @Override
+    public Repair clone() {
+        var clone = (Repair) super.clone();
+        clone.setAirplane(airplane.clone());
+        return clone;
+    }
+
+    @Override
     public void calculateProperties() {
         super.calculateProperties();
 

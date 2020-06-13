@@ -2,16 +2,23 @@ package app.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 
 import java.util.*;
 
 @Getter @Setter
-public abstract class Entity {
+public abstract class Entity implements Cloneable {
 
     private Long id;
 
     private static final Map<String, String> propertyNames = new LinkedHashMap<>();
     private static final Map<String, String> sortPropertyNames = new LinkedHashMap<>();
+
+    @Override
+    @SneakyThrows
+    public Entity clone() {
+        return (Entity) super.clone();
+    }
 
     static {
         propertyNames.put("id", "№");

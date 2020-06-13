@@ -1,10 +1,13 @@
 package app.gui.controllers;
 
+import app.gui.AlertDialogFactory;
+import app.gui.controllers.interfaces.ContextMenuAction;
 import app.gui.controllers.interfaces.ContextWindowBuilder;
 import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
 import app.gui.forms.EntityInputFormBuilder;
 import app.model.Entity;
+import app.model.Flight;
 import app.services.ServiceResponse;
 import app.services.filters.Filter;
 import app.services.pagination.Page;
@@ -20,7 +23,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -43,7 +45,6 @@ public class EntityTableController<T extends Entity> {
     private ContextWindowBuilder<T> infoWindowBuilder;
     private Supplier<T> newEntitySupplier;
     private EntityInputFormBuilder<T> inputFormBuilder;
-    private Map<String, ContextWindowBuilder<T>> contextWindowBuilders = new LinkedHashMap<>();
     private Consumer<String> statusBarMessageAcceptor;
     private boolean isContextWindow;
 
@@ -63,31 +64,8 @@ public class EntityTableController<T extends Entity> {
         this.entityRemover = entityRemover;
     }
 
-    public void addContextWindowBuilder(
-            String contextMenuItemName,
-            ContextWindowBuilder<T> contextWindowBuilder
-    ) {
-        contextWindowBuilders.put(contextMenuItemName, contextWindowBuilder);
-    }
-
-    public void fillContextMenu() {
-        ContextMenu contextMenu = new ContextMenu();
-
-        for (var contextMenuItemName: contextWindowBuilders.keySet()) {
-            var contextWindowBuilder = contextWindowBuilders.get(contextMenuItemName);
-            MenuItem menuItem = new MenuItem(contextMenuItemName);
-            menuItem.setOnAction(event -> {
-                T entity = entityTable.getSelectionModel().getSelectedItem();
-                if (entity != null) {
-                    openWindow(
-                            () -> contextWindowBuilder.buildWindow(entity),
-                            String.format("Не удалось выполнить действие \"%s\"", contextMenuItemName)
-                    );
-                }
-            });
-
-            contextMenu.getItems().add(menuItem);
-        }
+    private void fillContextMenu() {
+        contextMenu = new ContextMenu();
 
         MenuItem infoItem = new MenuItem("Подробнее");
         MenuItem changeItem = new MenuItem("Изменить");
@@ -104,7 +82,7 @@ public class EntityTableController<T extends Entity> {
         });
 
         changeItem.setOnAction(event -> {
-            T entity = entityTable.getSelectionModel().getSelectedItem();
+            T entity = (T) entityTable.getSelectionModel().getSelectedItem().clone();
             if (entity != null) {
                 SuccessAction successAction = () -> refreshTableContents("Успешно изменено");
                 Supplier<Stage> windowBuilder = () -> {
@@ -134,6 +112,32 @@ public class EntityTableController<T extends Entity> {
         contextMenu.getItems().addAll(changeItem, deleteItem);
         entityTable.setContextMenu(contextMenu);
     }
+
+    public void addContextMenuWindowAction(String actionName, ContextWindowBuilder<T> windowBuilder) {
+        addContextMenuAction(
+                actionName,
+                entity -> openWindow(
+                        () -> windowBuilder.buildWindow(entity),
+                        String.format("Не удалось выполнить действие \"%s\"", actionName)
+                )
+        );
+    }
+
+    public void addContextMenuAction(String actionName, ContextMenuAction<T> menuAction) {
+        MenuItem menuItem = new MenuItem(actionName);
+        menuItem.setOnAction(event -> {
+            T entity = entityTable.getSelectionModel().getSelectedItem();
+            if (entity != null) {
+                menuAction.run((T) entity.clone());
+            }
+        });
+
+        contextMenu.getItems().add(0, menuItem);
+    }
+
+    private ContextMenu contextMenu;
+
+    private static final int CELL_HEIGHT = 24;
 
     @FXML
     private VBox rootVBox;
@@ -176,7 +180,7 @@ public class EntityTableController<T extends Entity> {
         this.statusBarMessageAcceptor = statusBarMessageAcceptor;
 
         pageSort = new PageSort();
-        pageInfo = new PageInfo(0L, 23L, pageSort);
+        pageInfo = new PageInfo(0L, 25L, pageSort);
 
         pagination.pageCountProperty().setValue(1);
         pagination.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> {
@@ -194,15 +198,16 @@ public class EntityTableController<T extends Entity> {
                 .collect(Collectors.toList());
 
         ChoiceItem<String> defaultSortField = new ChoiceItem<>("id", "№");
-        sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            pageSort.removeAllFields();
-            if (newValue.getValue() != null) {
-                pageSort.addField(newValue.getValue());
-            }
-        });
-        sortFieldList.add(defaultSortField);
+        sortFieldList.add(0, defaultSortField);
         sortChoiceBox.setValue(defaultSortField);
         sortChoiceBox.getItems().addAll(sortFieldList);
+        pageSort.addField(defaultSortField.getValue());
+
+        sortChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            pageSort.removeAllFields();
+            pageSort.addField(newValue.getValue());
+            refreshTableContents();
+        });
 
         List<TableColumn<T, String>> columns = entityPropertyNames
                 .entrySet()
@@ -219,17 +224,19 @@ public class EntityTableController<T extends Entity> {
 
         fillContextMenu();
 
-        refreshTableContents();
+        Platform.runLater(this::refreshTableContents);
     }
 
     @FXML
     private void setAscendingSortOrder() {
         pageSort.setOrder(PageSort.Order.ASC);
+        refreshTableContents();
     }
 
     @FXML
     private void setDescendingSortOrder() {
         pageSort.setOrder(PageSort.Order.DESC);
+        refreshTableContents();
     }
 
     @FXML
@@ -250,11 +257,11 @@ public class EntityTableController<T extends Entity> {
     }
 
     @FXML
-    private void refreshTableContents() {
+    public void refreshTableContents() {
         refreshTableContents("Данные успешно загружены");
     }
 
-    private void refreshTableContents(String successMessage) {
+    public void refreshTableContents(String successMessage) {
         disableComponent();
         requestExecutor
                 .makeRequest(() -> entitySource.getEntities(pageInfo, filter))

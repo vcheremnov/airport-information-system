@@ -3,6 +3,7 @@ package app.model;
 import app.utils.LocalDateFormatter;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 
 import java.util.*;
 
@@ -20,6 +21,16 @@ public class Airplane extends Entity {
     private String techTeamNameProperty;
     private String serviceTeamNameProperty;
     private String commissioningDateProperty;
+
+    @Override
+    public Airplane clone() {
+        Airplane clone = (Airplane) super.clone();
+        clone.setAirplaneType(airplaneType.clone());
+        clone.setPilotTeam(pilotTeam.clone());
+        clone.setTechTeam(techTeam.clone());
+        clone.setServiceTeam(serviceTeam.clone());
+        return clone;
+    }
 
     @Override
     public void calculateProperties() {

@@ -104,11 +104,6 @@
                                           <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                                        </VBox.margin>
                                     </Button>
-                                    <Button fx:id="passengerButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openPassengers" text="Пассажиры">
-                                       <VBox.margin>
-                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                       </VBox.margin>
-                                    </Button>
                                  </children>
                               </VBox>
                            </content>

@@ -3,6 +3,7 @@ package airport.controllers;
 import airport.dtos.FlightDelayDto;
 import airport.dtos.FlightDto;
 import airport.dtos.TicketDto;
+import airport.dtos.parameters.FlightDelayInfo;
 import airport.entities.types.FlightDelayReason;
 import airport.filters.FlightFilter;
 import airport.filters.TicketFilter;
@@ -35,21 +36,29 @@ public class FlightController extends AbstractController<FlightDto, Long> {
         return ResponseEntity.ok(flightService.search(filter, pageable));
     }
 
-    @GetMapping("/{id}/tickets")
+    @GetMapping("/{flightId}/tickets")
     public ResponseEntity<Page<TicketDto>> getTickets(
-            @PathVariable("id") Long flightId,
+            @PathVariable("flightId") Long flightId,
             Pageable pageable
     ) {
         return ResponseEntity.ok(flightService.getTickets(flightId, pageable));
     }
 
-    @PutMapping("/{id}/delay")
-    public ResponseEntity<FlightDto> delayFlight(
-            @PathVariable("id") Long flightId,
-            @RequestParam("flightTime") Timestamp newFlightTime,
-            @RequestParam("reason") FlightDelayReason reason
+    @PostMapping("/{flightId}/tickets")
+    public ResponseEntity<TicketDto> addTicket(
+            @PathVariable("flightId") Long flightId,
+            @RequestBody TicketDto ticketDto
     ) {
-        return ResponseEntity.ok(flightService.delayFlight(flightId, newFlightTime, reason));
+        return ResponseEntity.ok(flightService.addTicket(flightId, ticketDto));
+    }
+
+
+    @PutMapping("/{flightId}/delay")
+    public ResponseEntity<FlightDto> delayFlight(
+            @PathVariable("flightId") Long flightId,
+            @RequestBody FlightDelayInfo flightDelayInfo
+    ) {
+        return ResponseEntity.ok(flightService.delayFlight(flightId, flightDelayInfo));
     }
 
     @Override

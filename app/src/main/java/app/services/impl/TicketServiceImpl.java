@@ -14,6 +14,12 @@ public class TicketServiceImpl
     }
 
     @Override
+    public ServiceResponse<Ticket> create(Ticket ticket) {
+        var call = getServiceApi().addTicket(ticket.getFlightId(), ticket);
+        return getServerResponse(call);
+    }
+
+    @Override
     public ServiceResponse<Double> getAverageSoldByCity(Long cityId) {
         var call = getServiceApi().getAverageSoldByCity(cityId);
         return getServerResponse(call);

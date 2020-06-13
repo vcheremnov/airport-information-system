@@ -47,7 +47,7 @@ public abstract class AbstractCrudServiceImpl<T extends Entity> implements Servi
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
         crudServiceApi = retrofit.create(serviceApiClass);

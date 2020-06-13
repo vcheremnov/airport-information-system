@@ -2,6 +2,7 @@ package app.services.impl;
 
 import app.model.Flight;
 import app.model.Ticket;
+import app.model.parameters.FlightDelayInfo;
 import app.model.types.FlightDelayReason;
 import app.services.FlightService;
 import app.services.ServiceResponse;
@@ -21,9 +22,9 @@ public class FlightServiceImpl
 
     @Override
     public ServiceResponse<Flight> delayFlight(
-            Long flightId, Timestamp newFlightTime, FlightDelayReason reason
+            Long flightId, FlightDelayInfo flightDelayInfo
     ) {
-        var call = getServiceApi().delayFlight(flightId, newFlightTime, reason);
+        var call = getServiceApi().delayFlight(flightId, flightDelayInfo);
         return getServerResponse(call);
     }
 

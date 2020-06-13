@@ -1,19 +1,19 @@
 package app.gui.forms.impl;
 
-import app.gui.controllers.AlertDialogFactory;
+import app.gui.AlertDialogFactory;
 import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.FxmlLoaderFactory;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
 import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
 import app.gui.forms.EntityInputFormBuilder;
+import app.gui.forms.StageFactory;
 import app.model.Entity;
 import app.services.Service;
 import app.services.pagination.Page;
 import app.services.pagination.PageInfo;
 import app.utils.RequestExecutor;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import lombok.SneakyThrows;
 
@@ -157,16 +157,7 @@ public abstract class AbstractEntityInputFormBuilder<E extends Entity>
         String windowTitle = (formType == FormType.EDIT_FORM) ?
                 getEditFormWindowTitle(entity) : getCreationFormWindowTitle();
 
-        return createStage(rootNode, windowTitle);
-    }
-
-    private static Stage createStage(Parent rootNode, String title) {
-        Stage stage = new Stage();
-        stage.setTitle(title);
-        Scene scene = new Scene(rootNode);
-        stage.setScene(scene);
-        stage.sizeToScene();
-        return stage;
+        return StageFactory.createStage(rootNode, windowTitle);
     }
 
 }

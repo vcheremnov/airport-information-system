@@ -44,10 +44,6 @@ public class ServiceFactory {
         return new MedicalExaminationServiceImpl(AppProperties.getServerHostname());
     }
 
-    public PassengerService getPassengerService() {
-        return new PassengerServiceImpl(AppProperties.getServerHostname());
-    }
-
     public RepairService getRepairService() {
         return new RepairServiceImpl(AppProperties.getServerHostname());
     }

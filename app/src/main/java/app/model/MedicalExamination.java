@@ -18,6 +18,13 @@ public class MedicalExamination extends Entity {
     private String resultProperty;
 
     @Override
+    public MedicalExamination clone() {
+        var clone = (MedicalExamination) super.clone();
+        clone.setEmployee(employee.clone());
+        return clone;
+    }
+
+    @Override
     public void calculateProperties() {
         super.calculateProperties();
         employeeNameProperty = employee.getName();
