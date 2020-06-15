@@ -2,6 +2,7 @@ package app.utils;
 
 import lombok.experimental.UtilityClass;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -29,6 +30,14 @@ public class LocalDateFormatter {
 
     public static String getFormattedDateTime(long timeMillis) {
         return dateTimeFormatter.format(new Date(timeMillis));
+    }
+
+    public static Date parseDate(String date) throws ParseException {
+        return dateFormatter.parse(date);
+    }
+
+    public static Date parseDateTime(String dateTime) throws ParseException {
+        return dateTimeFormatter.parse(dateTime);
     }
 
     public String getDateFormat() {

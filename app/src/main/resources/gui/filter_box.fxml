@@ -13,7 +13,7 @@
    <children>
       <GridPane fx:id="grid" alignment="CENTER" hgap="10.0" vgap="5.0" VBox.vgrow="ALWAYS">
         <columnConstraints>
-            <ColumnConstraints fx:id="columnConstraints" hgrow="SOMETIMES" minWidth="10.0" prefWidth="70.0" />
+            <ColumnConstraints fx:id="columnConstraints" hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0" />
         </columnConstraints>
          <VBox.margin>
             <Insets bottom="10.0" />

@@ -230,7 +230,6 @@ public class EntityTableController<T extends Entity> {
 
         pagination.pageCountProperty().setValue(1);
         pagination.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue);
             int newPageNumber = (int) newValue;
             pageInfo.setPageNumber((long) newPageNumber);
             refreshTableContents();

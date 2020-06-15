@@ -137,7 +137,7 @@ public class FilterBoxController<T> {
             int columnIndex, int rowIndex, int colSpan
 
     ) {
-        ChoiceItem<X> defaultItem = new ChoiceItem<>(null, "...");
+        ChoiceItem<X> defaultItem = new ChoiceItem<>(null, "—");
         var items = itemSupplier.getItems();
         items.add(defaultItem);
 

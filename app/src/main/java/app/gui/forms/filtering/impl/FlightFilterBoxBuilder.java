@@ -76,13 +76,13 @@ public class FlightFilterBoxBuilder extends AbstractFilterBoxBuilder<Flight> {
         };
 
         ++row;
-        controller.addLabel("Отменен:", 0, row, 2);
+        controller.addLabel("Отменен:", 0, row, 1);
         controller.addChoiceBox(
-                flightFilter::setIsCancelled, booleanItemSupplier, 2, row, 1
+                flightFilter::setIsCancelled, booleanItemSupplier, 1, row, 2
         );
-        controller.addLabel("Задержан:", 3, row, 2);
+        controller.addLabel("Задержан:", 3, row, 1);
         controller.addChoiceBox(
-                flightFilter::setIsDelayed, booleanItemSupplier, 5, row, 1
+                flightFilter::setIsDelayed, booleanItemSupplier, 4, row, 2
         );
         controller.addLabel("Причина задержки:", 6, row, 2);
         controller.addChoiceBox(

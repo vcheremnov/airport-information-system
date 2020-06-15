@@ -4,12 +4,9 @@ import app.gui.controllers.interfaces.ChoiceItemSupplier;
 import app.gui.controllers.interfaces.ErrorAction;
 import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
-import app.gui.custom.DateTimePicker;
-import app.model.Entity;
 import app.services.ServiceResponse;
 import app.utils.LocalDateFormatter;
 import app.utils.RequestExecutor;
-import com.sun.javafx.scene.control.IntegerField;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -26,11 +23,9 @@ import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.SneakyThrows;
 
+import java.text.ParseException;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 import java.util.function.UnaryOperator;
@@ -53,7 +48,7 @@ public class EntityInputFormController<T> {
 
     private final List<TextField> textFields = new ArrayList<>();
     private final List<TextField> integerFields = new ArrayList<>();
-    private final List<DateTimePicker> dateTimePickers = new ArrayList<>();
+    private final List<TextField> dateTimeFields = new ArrayList<>();
     private final List<CheckBox> checkBoxes = new ArrayList<>();
     private final Map<ComboBox, ChoiceItem> choiceBoxes = new LinkedHashMap<>();
 
@@ -174,33 +169,63 @@ public class EntityInputFormController<T> {
             String name,
             Date initFieldValue,
             EntityFieldSetter<Date> fieldSetter,
-            boolean isDateOnly
+            final boolean isDateOnly
     ) {
-        DateTimePicker dateTimePicker = new DateTimePicker();
-        String timeFormat = isDateOnly ?
-                LocalDateFormatter.getDateFormat() : LocalDateFormatter.getDateTimeFormat();
-        dateTimePicker.setFormat(timeFormat);
-        dateTimePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            LocalDateTime localDateTime = dateTimePicker.getDateTimeValue();
-            Date date = localDateTime == null ?
-                    null : Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        TextField dateTimeField = new TextField();
+        Date currentDate = initFieldValue == null ? Date.from(Instant.now()) : initFieldValue;
+        fieldSetter.setField(currentDate);
 
-            fieldSetter.setField(date);
+        String currentDateText = isDateOnly ?
+                LocalDateFormatter.getFormattedDate(currentDate) :
+                LocalDateFormatter.getFormattedDateTime(currentDate);
+        dateTimeField.setText(currentDateText);
+
+        dateTimeField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                try {
+                    String dateText = dateTimeField.getText().trim();
+                    dateTimeField.setText(dateText);
+                    Date date = isDateOnly ?
+                            LocalDateFormatter.parseDate(dateText)
+                            : LocalDateFormatter.parseDateTime(dateText);
+                    fieldSetter.setField(date);
+                } catch (ParseException e) {
+                    dateTimeField.setText("");
+                    fieldSetter.setField(null);
+                }
+            }
         });
 
-        LocalDateTime initDateTimeValue = null;
-        if (initFieldValue != null) {
-            initDateTimeValue = LocalDateTime.ofInstant(
-                    initFieldValue.toInstant(), ZoneId.systemDefault()
-            );
-        }
+        addField(name, dateTimeField);
+        dateTimeFields.add(dateTimeField);
 
-        fieldSetter.setField(initFieldValue);
-        dateTimePicker.setDateTimeValue(initDateTimeValue);
-
-
-        addField(name, dateTimePicker);
-        dateTimePickers.add(dateTimePicker);
+//        DateTimePicker dateTimePicker = new DateTimePicker();
+//        String timeFormat = isDateOnly ?
+//                LocalDateFormatter.getDateFormat() : LocalDateFormatter.getDateTimeFormat();
+//        dateTimePicker.setFormat(timeFormat);
+//        dateTimePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+//            LocalDateTime localDateTime = dateTimePicker.getDateTimeValue();
+//            Date date = localDateTime == null ?
+//                    null : Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+//
+//            System.out.println(date);
+//
+//            fieldSetter.setField(date);
+//        });
+//
+//        LocalDateTime initDateTimeValue = null;
+//        if (initFieldValue != null) {
+//            initDateTimeValue = LocalDateTime.ofInstant(
+//                    initFieldValue.toInstant(), ZoneId.systemDefault()
+//            );
+//        }
+//
+//        fieldSetter.setField(initFieldValue);
+//        dateTimePicker.setDateTimeValue(initDateTimeValue);
+//
+//
+//        addField(name, dateTimePicker);
+//        dateTimePickers.add(dateTimePicker);
     }
 
     @SneakyThrows
@@ -267,10 +292,10 @@ public class EntityInputFormController<T> {
             }
         }
 
-        for (var dateTimePicker: dateTimePickers) {
-            var date = dateTimePicker.valueProperty().getValue();
-            if (date == null) {
-                dateTimePicker.requestFocus();
+        for (var dateTimeField: dateTimeFields) {
+            var dateText = dateTimeField.getText().trim();
+            if (dateText.isEmpty()) {
+                dateTimeField.requestFocus();
                 return false;
             }
         }
@@ -294,11 +319,11 @@ public class EntityInputFormController<T> {
         }
 
         for (var integerField: integerFields) {
-            integerField.setText(null);
+            integerField.setText("");
         }
 
-        for (var dateTimePicker: dateTimePickers) {
-            dateTimePicker.valueProperty().setValue(null);
+        for (var dateTimeField: dateTimeFields) {
+            dateTimeField.setText("");
         }
 
         for (var rawChoiceBox: choiceBoxes.keySet()) {
