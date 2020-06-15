@@ -15,7 +15,7 @@ public class Airplane extends Entity {
     private Team techTeam = new Team();
     private Team serviceTeam = new Team();
     private Date commissioningDate;
-    
+
     private String airplaneTypeProperty;
     private String pilotTeamNameProperty;
     private String techTeamNameProperty;
@@ -54,10 +54,6 @@ public class Airplane extends Entity {
         propertyNames.put("commissioningDateProperty", "Введен в эксплуатацию");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
-        sortPropertyNames.put("airplaneTypeName", "Название модели");
-        sortPropertyNames.put("pilotTeamName", "Бригада пилотов");
-        sortPropertyNames.put("techTeamName", "Бригада техников");
-        sortPropertyNames.put("serviceTeamName", "Бригада обслуживания");
         sortPropertyNames.put("commissioningDate", "Дата введения в эксплуатацию");
     }
 

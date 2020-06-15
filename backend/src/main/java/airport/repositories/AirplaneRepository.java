@@ -18,9 +18,9 @@ public interface AirplaneRepository extends JpaRepository<Airplane, Long> {
     @Query(
         "select distinct a " +
         "from Airplane a " +
-        "join a.repairs r " +
-        "join a.techInspections t " +
-        "where (:airplaneTypeId is null or a.airplaneType.id = :airplaneTypeId)" +
+        "left join a.repairs r " +
+        "left join a.techInspections t " +
+        "where (:airplaneTypeName is null or lower(a.airplaneType.name) like (:airplaneTypeName))" +
         "and (coalesce(:minCommDate, :minCommDate) is null or a.commissioningDate >= :minCommDate)" +
         "and (coalesce(:maxCommDate, :maxCommDate) is null or a.commissioningDate <= :maxCommDate)" +
         "and (coalesce(:minRepairDate, :minRepairDate) is null or r.startTime >= :minRepairDate)" +
@@ -28,25 +28,11 @@ public interface AirplaneRepository extends JpaRepository<Airplane, Long> {
         "and (coalesce(:minInspDate, :minInspDate) is null or t.inspectionTime >= :minInspDate)" +
         "and (coalesce(:maxInspDate, :maxInspDate) is null or t.inspectionTime <= :maxInspDate)" +
         "and (:minRepairsNumber is null or :minRepairsNumber <= size(r))" +
-        "and (:maxRepairsNumber is null or :maxRepairsNumber >= size(r))" +
-        "and (:minFlightsNumber is null or :minFlightsNumber <= " +
-                "(" +
-                "   select count(f) from Flight f " +
-                "   where f.airplane.id = a.id " +
-                "   and f.isCancelled = false " +
-                "   and current_timestamp >= f.flightTime" +
-                ")" +
-            ")" +
-        "and (:maxFlightsNumber is null or :maxFlightsNumber >= " +
-                "(" +
-                "   select count(f) from Flight f " +
-                "   where f.airplane.id = a.id " +
-                "   and f.isCancelled = false " +
-                "   and current_timestamp >= f.flightTime" +
-                ")" +
-            ")"
+        "and (:maxRepairsNumber is null or :maxRepairsNumber >= size(r))"
+//        "and (:minFlightsNumber is null or :minFlightsNumber <= a.flightsNumber)" +
+//        "and (:maxFlightsNumber is null or :maxFlightsNumber >= a.flightsNumber)"
     ) Page<Airplane> searchByFilter(
-            @Param("airplaneTypeId") Long airplaneTypeId,
+            @Param("airplaneTypeName") String airplaneTypeName,
             @Param("minCommDate") Date minCommissioningDate,
             @Param("maxCommDate") Date maxCommissioningDate,
             @Param("minRepairsNumber") Integer minRepairsNumber,
@@ -55,8 +41,8 @@ public interface AirplaneRepository extends JpaRepository<Airplane, Long> {
             @Param("maxRepairDate") Date maxRepairDate,
             @Param("minInspDate") Date minTechInspectionDate,
             @Param("maxInspDate") Date maxTechInspectionDate,
-            @Param("minFlightsNumber") Long minFlightsNumber,
-            @Param("maxFlightsNumber") Long maxFlightsNumber,
+//            @Param("minFlightsNumber") Long minFlightsNumber,
+//            @Param("maxFlightsNumber") Long maxFlightsNumber,
             Pageable pageable
     );
 

@@ -1,4 +1,4 @@
-package app.gui.forms;
+package app.gui.forms.input;
 
 import app.gui.AlertDialogFactory;
 import app.gui.controllers.EntityInputFormController;
@@ -6,6 +6,7 @@ import app.gui.controllers.FxmlLoaderFactory;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
 import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
+import app.gui.forms.StageFactory;
 import app.model.Flight;
 import app.model.parameters.FlightDelayInfo;
 import app.model.types.FlightDelayReason;
@@ -57,15 +58,11 @@ public class FlightDelayFormBuilder {
             EntityInputFormController<FlightDelayInfo> controller
     ) {
 
-        ChoiceItemSupplier<FlightDelayReason> delayReasonSupplier = () -> Arrays.stream(FlightDelayReason.values())
-                .map(r -> new ChoiceItem<>(r, FlightDelayReason.toLocalizedString(r)))
-                .collect(Collectors.toList());
-
         controller.addChoiceBox(
                 "Причина задержки",
                 null,
                 flightDelayInfo::setDelayReason,
-                delayReasonSupplier
+                FlightDelayReason::getChoiceItems
         );
 
         controller.addDateTimeField(

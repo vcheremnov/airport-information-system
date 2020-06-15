@@ -20,6 +20,10 @@ public class FxmlLoaderFactory {
         return createFxmlLoader("/gui/entity_input_form.fxml");
     }
 
+    public FXMLLoader createFilterBoxLoader() {
+        return createFxmlLoader("/gui/filter_box.fxml");
+    }
+
     public FXMLLoader createEntityInfoLoader() {
         return createFxmlLoader("/gui/entity_info.fxml");
     }

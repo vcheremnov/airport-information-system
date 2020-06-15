@@ -18,7 +18,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
         "select distinct e " +
         "from Employee e " +
         "join e.team t " +
-        "join e.medicalExaminations m " +
+        "left join e.medicalExaminations m " +
         "where (:sex is null or e.sex = :sex) " +
         "and (:name is null or lower(e.name) like :name) " +
         "and (:teamName is null or lower(e.team.name) like :teamName) " +
@@ -29,12 +29,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
         "and (coalesce(:maxEmploymentDate, :maxEmploymentDate) is null or e.employmentDate <= :maxEmploymentDate)" +
         "and (:minSalary is null or e.salary >= :minSalary)" +
         "and (:maxSalary is null or e.salary <= :maxSalary)" +
-        "and (:minTeamAverageSalary is null or :minTeamAverageSalary <= " +
-                "(select avg(e.salary) from Employee e join e.team et group by et having et.id = t.id)" +
-            ")" +
-        "and (:maxTeamAverageSalary is null or :maxTeamAverageSalary >= " +
-                "(select avg(e.salary) from Employee e join e.team et group by et having et.id = t.id)" +
-            ") " +
+        "and (:minTeamAverageSalary is null or :minTeamAverageSalary <= t.averageSalary)" +
+        "and (:maxTeamAverageSalary is null or :maxTeamAverageSalary >= t.averageSalary) " +
         "and ((:medExamYear is null or :medExamIsPassed is null) " +
                 "or (function('year', m.examDate) = :medExamYear and m.isPassed = :medExamIsPassed))"
     )

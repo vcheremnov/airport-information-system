@@ -1,4 +1,4 @@
-package app.gui.forms.impl;
+package app.gui.forms.input.impl;
 
 import app.gui.AlertDialogFactory;
 import app.gui.controllers.EntityInputFormController;
@@ -6,7 +6,7 @@ import app.gui.controllers.FxmlLoaderFactory;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
 import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
-import app.gui.forms.EntityInputFormBuilder;
+import app.gui.forms.input.EntityInputFormBuilder;
 import app.gui.forms.StageFactory;
 import app.model.Entity;
 import app.services.Service;

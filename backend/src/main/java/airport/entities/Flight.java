@@ -3,6 +3,7 @@ package airport.entities;
 import airport.entities.types.FlightType;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -38,20 +39,27 @@ public class Flight extends AbstractEntity<Long> {
     @OneToMany(mappedBy = "flight", fetch = FetchType.LAZY)
     private List<Ticket> tickets = new ArrayList<>();
 
-    @Transient
+    @Formula(
+            "(" +
+            "select (c.distance)::float / at.speed * 10000.0 " +
+            "from city c, airplane a, airplane_type at " +
+            "where c.id = city_id " +
+            "and a.id = airplane_id " +
+            "and a.airplane_type_id = at.id " +
+            ")"
+    )
     private Double ticketPrice;
 
-    @Transient
+    @Formula(
+            "(" +
+            "select (c.distance)::float / at.speed " +
+            "from city c, airplane a, airplane_type at " +
+            "where c.id = city_id " +
+            "and a.id = airplane_id " +
+            "and a.airplane_type_id = at.id " +
+            ")"
+    )
     private Double duration;
-
-    @PostLoad
-    private void postLoad() {
-        Integer flightDistance = city.getDistance();
-        Integer airplaneSpeed = airplane.getAirplaneType().getSpeed();
-
-        duration = flightDistance / (double) airplaneSpeed;
-        ticketPrice = duration * 10000.;
-    }
 
 }
 

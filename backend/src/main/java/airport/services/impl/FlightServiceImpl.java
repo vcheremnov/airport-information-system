@@ -76,8 +76,8 @@ public class FlightServiceImpl
         return repository.searchByFilter(
                 filter.getAirplaneId(),
                 filter.getFlightType(),
-                filter.getAirplaneTypeId(),
-                filter.getCityId(),
+                prepareStringToLikeStatement(filter.getAirplaneTypeName()),
+                prepareStringToLikeStatement(filter.getCityName()),
                 filter.getIsCancelled(),
                 filter.getIsDelayed(),
                 filter.getDelayReason(),

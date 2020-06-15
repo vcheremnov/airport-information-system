@@ -7,7 +7,6 @@
 <?import javafx.scene.control.Pagination?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -15,31 +14,31 @@
 
 <VBox fx:id="rootVBox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.gui.controllers.EntityTableController">
    <children>
-      <TitledPane expanded="false" text="Параметры поиска" VBox.vgrow="NEVER">
-         <content>
-            <HBox prefHeight="100.0" prefWidth="200.0">
+      <Button fx:id="searchButton" alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openSearchBox" text="Открыть параметры поиска" underline="true" />
+      <HBox fx:id="searchBox" alignment="CENTER">
+         <children>
+            <VBox fx:id="sortingBox" spacing="5.0" HBox.hgrow="ALWAYS">
                <children>
-                  <VBox spacing="5.0">
+                  <HBox alignment="CENTER_LEFT">
                      <children>
-                        <HBox>
-                           <children>
-                              <Label text="Сортировать по: " />
-                              <ComboBox fx:id="sortChoiceBox" prefWidth="150.0" />
-                           </children>
-                        </HBox>
-                        <RadioButton fx:id="ascendingOrderButton" mnemonicParsing="false" onAction="#setAscendingSortOrder" selected="true" text="По возрастанию">
-                           <toggleGroup>
-                              <ToggleGroup fx:id="sortOrderGroup" />
-                           </toggleGroup></RadioButton>
-                        <RadioButton fx:id="descendingOrderButton" mnemonicParsing="false" onAction="#setDescendingSortOrder" text="По убыванию" toggleGroup="$sortOrderGroup" />
+                        <Label maxWidth="1.7976931348623157E308" text="Сортировать по: " />
+                        <ComboBox fx:id="sortChoiceBox" prefWidth="150.0" />
                      </children>
-                  </VBox>
-                  <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
-                  <VBox fx:id="filteringVBox" prefHeight="200.0" prefWidth="100.0" />
+                  </HBox>
+                  <RadioButton fx:id="ascendingOrderButton" mnemonicParsing="false" onAction="#setAscendingSortOrder" selected="true" text="По возрастанию">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="sortOrderGroup" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="descendingOrderButton" mnemonicParsing="false" onAction="#setDescendingSortOrder" text="По убыванию" toggleGroup="$sortOrderGroup" />
                </children>
-            </HBox>
-         </content>
-      </TitledPane>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </VBox>
+            <VBox fx:id="filteringVBox" />
+         </children>
+      </HBox>
       <TableView fx:id="entityTable" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="646.0" VBox.vgrow="ALWAYS">
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

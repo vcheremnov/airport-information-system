@@ -45,8 +45,6 @@ public class Employee extends Person {
         propertyNames.put("salary", "Зарплата");
 
         sortPropertyNames.putAll(Person.getSortPropertyNames());
-        sortPropertyNames.put("teamDepartmentName", "Отдел");
-        sortPropertyNames.put("teamName", "Бригада");
         sortPropertyNames.put("employmentDate", "Дата найма");
         sortPropertyNames.put("salary", "Зарплата");
     }

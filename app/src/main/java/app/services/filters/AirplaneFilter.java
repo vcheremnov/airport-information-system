@@ -9,13 +9,10 @@ import java.util.Date;
 @Getter @Setter
 public class AirplaneFilter implements Filter<Airplane> {
 
-    private Long airplaneTypeId;
+    private String airplaneTypeName;
 
     private Date minCommissioningDate;
     private Date maxCommissioningDate;
-
-    private Long minFlightsNumber;
-    private Long maxFlightsNumber;
 
     private Integer minRepairsNumber;
     private Integer maxRepairsNumber;

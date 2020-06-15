@@ -85,9 +85,5 @@ public class EmployeeServiceImpl
         return mapper;
     }
 
-    private String prepareStringToLikeStatement(String stringValue) {
-        return stringValue == null ?
-                null : String.format("%%%s%%", stringValue.toLowerCase());
-    }
 }
 

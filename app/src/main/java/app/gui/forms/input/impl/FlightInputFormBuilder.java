@@ -1,4 +1,4 @@
-package app.gui.forms.impl;
+package app.gui.forms.input.impl;
 
 import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
@@ -39,15 +39,10 @@ public class FlightInputFormBuilder extends AbstractEntityInputFormBuilder<Fligh
                 "Не удалось загрузить список городов"
         );
 
-        ChoiceItemSupplier<FlightType> flightTypeSupplier = () ->
-                Arrays.stream(FlightType.values())
-                        .map(t -> new ChoiceItem<>(t, FlightType.toLocalizedString(t)))
-                        .collect(Collectors.toList());
-
         controller.addChoiceBox(
                 "Самолёт",
-                flight.getAirplaneId(),
-                flight::setAirplaneId,
+                flight.getAirplane().getId(),
+                value -> flight.getAirplane().setId(value),
                 airplaneIdSupplier
         );
 
@@ -62,7 +57,7 @@ public class FlightInputFormBuilder extends AbstractEntityInputFormBuilder<Fligh
                 "Тип рейса",
                 flight.getFlightType(),
                 flight::setFlightType,
-                flightTypeSupplier
+                FlightType::getChoiceItems
         );
 
         if (formType == FormType.CREATION_FORM) {

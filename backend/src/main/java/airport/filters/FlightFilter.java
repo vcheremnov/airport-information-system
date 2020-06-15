@@ -1,5 +1,6 @@
 package airport.filters;
 
+import airport.entities.types.FlightDelayReason;
 import airport.entities.types.FlightType;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,13 +11,13 @@ import java.util.Date;
 public class FlightFilter {
 
     private Long airplaneId;
-    private Long airplaneTypeId;
+    private String airplaneTypeName;
+    private String cityName;
 
-    private Long cityId;
     private FlightType flightType;
     private Boolean isCancelled;
     private Boolean isDelayed;
-    private String delayReason;
+    private FlightDelayReason delayReason;
 
     private Date minDate;
     private Date maxDate;

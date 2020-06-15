@@ -30,8 +30,8 @@ public interface TicketRepository
         "and (coalesce(:minFlightDate, :minFlightDate) is null or f.flightTime >= :minFlightDate)" +
         "and (coalesce(:maxFlightDate, :maxFlightDate) is null or f.flightTime <= :maxFlightDate) " +
         "and (:ticketStatus is null or t.status = :ticketStatus)" +
-        "and (:minPrice is null or (c.distance * 1.) / atype.speed * 10000. >= :minPrice)" +
-        "and (:maxPrice is null or (c.distance * 1.) / atype.speed * 10000. <= :maxPrice)" +
+        "and (:minPrice is null or f.ticketPrice >= :minPrice)" +
+        "and (:maxPrice is null or f.ticketPrice <= :maxPrice)" +
         "and (:sex is null or p.sex = :sex) " +
         "and (coalesce(:minBirthDate, :minBirthDate) is null or p.birthDate >= :minBirthDate) " +
         "and (coalesce(:maxBirthDate, :maxBirthDate) is null or p.birthDate <= :maxBirthDate) "

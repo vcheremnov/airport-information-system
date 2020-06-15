@@ -2,11 +2,17 @@ package app.gui.controllers;
 
 import app.gui.AlertDialogFactory;
 import app.gui.controllers.interfaces.ContextWindowBuilder;
-import app.gui.forms.EntityInputFormBuilder;
-import app.gui.forms.FlightDelayFormBuilder;
-import app.gui.forms.impl.*;
+import app.gui.forms.filtering.FilterBoxBuilder;
+import app.gui.forms.filtering.impl.AirplaneFilterBoxBuilder;
+import app.gui.forms.filtering.impl.EmployeeFilterBoxBuilder;
+import app.gui.forms.filtering.impl.FlightFilterBoxBuilder;
+import app.gui.forms.filtering.impl.TicketFilterBoxBuilder;
+import app.gui.forms.input.EntityInputFormBuilder;
+import app.gui.forms.input.FlightDelayFormBuilder;
+import app.gui.forms.input.impl.*;
 import app.model.types.FlightDelayReason;
 import app.services.*;
+import app.services.filters.*;
 import app.utils.LocalDateFormatter;
 import app.utils.ServiceFactory;
 import app.model.*;
@@ -52,6 +58,8 @@ public class MainController {
                 AirplaneType.getSortPropertyNames(),
                 ServiceFactory.getAirplaneTypeService(),
                 new AirplaneTypeInputFormBuilder(requestExecutor),
+                null,
+                null,
                 null
         );
     }
@@ -76,7 +84,7 @@ public class MainController {
             Node techInspectionsTable = createInfoWindowEntityTable(
                     techInspectionPropertyNames,
                     techInspectionSortPropertyNames,
-                    (pageInfo, filter) -> airplaneService.getTechInspections(airplane.getId(), pageInfo),
+                    pageInfo -> airplaneService.getTechInspections(airplane.getId(), pageInfo),
                     techInspectionService::deleteById,
                     new TechInspectionInputFormBuilder(requestExecutor),
                     () -> {
@@ -97,7 +105,7 @@ public class MainController {
             Node repairTable = createInfoWindowEntityTable(
                     repairPropertyNames,
                     repairSortPropertyNames,
-                    (pageInfo, filter) -> airplaneService.getRepairs(airplane.getId(), pageInfo),
+                    pageInfo -> airplaneService.getRepairs(airplane.getId(), pageInfo),
                     repairService::deleteById,
                     new RepairInputFormBuilder(requestExecutor),
                     () -> {
@@ -120,7 +128,9 @@ public class MainController {
                 Airplane.getSortPropertyNames(),
                 ServiceFactory.getAirplaneService(),
                 new AirplaneInputFormBuilder(requestExecutor),
-                infoWindowBuilder
+                infoWindowBuilder,
+                new AirplaneFilterBoxBuilder(),
+                AirplaneFilter::new
         );
     }
 
@@ -132,6 +142,8 @@ public class MainController {
                 Chief.getSortPropertyNames(),
                 ServiceFactory.getChiefService(),
                 new ChiefInputFormBuilder(requestExecutor),
+                null,
+                null,
                 null
         );
     }
@@ -175,7 +187,9 @@ public class MainController {
                 City.getSortPropertyNames(),
                 ServiceFactory.getCityService(),
                 new CityInputFormBuilder(requestExecutor),
-                infoWindowBuilder
+                infoWindowBuilder,
+                null,
+                null
         );
     }
 
@@ -194,7 +208,7 @@ public class MainController {
             Node teamsTable = createInfoWindowEntityTable(
                     teamPropertyNames,
                     teamSortPropertyNames,
-                    (pageInfo, filter) -> departmentService.getTeams(department.getId(), pageInfo),
+                    pageInfo -> departmentService.getTeams(department.getId(), pageInfo),
                     teamService::deleteById,
                     new TeamInputFormBuilder(requestExecutor),
                     () -> {
@@ -216,7 +230,9 @@ public class MainController {
                 Department.getSortPropertyNames(),
                 ServiceFactory.getDepartmentService(),
                 new DepartmentInputFormBuilder(requestExecutor),
-                infoWindowBuilder
+                infoWindowBuilder,
+                null,
+                null
         );
     }
 
@@ -235,7 +251,7 @@ public class MainController {
             Node medExamTable = createInfoWindowEntityTable(
                     medExamPropertyNames,
                     medExamSortPropertyNames,
-                    (pageInfo, filter) -> employeeService.getMedicalExaminations(employee.getId(), pageInfo),
+                    pageInfo -> employeeService.getMedicalExaminations(employee.getId(), pageInfo),
                     medicalExaminationService::deleteById,
                     new MedicalExaminationInputFormBuilder(requestExecutor),
                     () -> {
@@ -257,7 +273,9 @@ public class MainController {
                 Employee.getSortPropertyNames(),
                 ServiceFactory.getEmployeeService(),
                 new EmployeeInputFormBuilder(requestExecutor),
-                infoWindowBuilder
+                infoWindowBuilder,
+                new EmployeeFilterBoxBuilder(),
+                EmployeeFilter::new
         );
     }
 
@@ -276,7 +294,7 @@ public class MainController {
             Node ticketsTable = createInfoWindowEntityTable(
                     ticketPropertyNames,
                     ticketSortPropertyNames,
-                    (pageInfo, filter) -> flightService.getTickets(flight.getId(), pageInfo),
+                    pageInfo -> flightService.getTickets(flight.getId(), pageInfo),
                     ticketService::deleteById,
                     new TicketInputFormBuilder(requestExecutor),
                     () -> {
@@ -296,7 +314,14 @@ public class MainController {
 
             EntityInfoController entityInfoController = entityInfoLoader.getController();
             entityInfoController.addInfoLine(
-                    String.format("Цена билета: %.2f р.", flight.getTicketPrice())
+                    String.format(
+                            "Самолёт: %s (№%d)",
+                            flight.getAirplaneTypeProperty(),
+                            flight.getAirplaneIdProperty()
+                    )
+            );
+            entityInfoController.addInfoLine(
+                    String.format("Всего мест: %d", flight.getTotalSeatsProperty())
             );
             entityInfoController.addInfoLine(
                     String.format("Билетов продано: %d", flight.getTicketsSold())
@@ -331,7 +356,9 @@ public class MainController {
                 Flight.getSortPropertyNames(),
                 ServiceFactory.getFlightService(),
                 new FlightInputFormBuilder(requestExecutor),
-                infoWindowBuilder
+                infoWindowBuilder,
+                new FlightFilterBoxBuilder(),
+                FlightFilter::new
         );
 
         controller.addContextMenuAction(
@@ -377,6 +404,8 @@ public class MainController {
                 MedicalExamination.getSortPropertyNames(),
                 ServiceFactory.getMedicalExaminationService(),
                 new MedicalExaminationInputFormBuilder(requestExecutor),
+                null,
+                null,
                 null
         );
     }
@@ -389,6 +418,8 @@ public class MainController {
                 Repair.getSortPropertyNames(),
                 ServiceFactory.getRepairService(),
                 new RepairInputFormBuilder(requestExecutor),
+                null,
+                null,
                 null
         );
     }
@@ -410,7 +441,7 @@ public class MainController {
             Node employeeTable = createInfoWindowEntityTable(
                     employeePropertyNames,
                     employeeSortPropertyNames,
-                    (pageInfo, filter) -> teamService.getEmployees(team.getId(), pageInfo),
+                    pageInfo -> teamService.getEmployees(team.getId(), pageInfo),
                     employeeService::deleteById,
                     new EmployeeInputFormBuilder(requestExecutor),
                     () -> {
@@ -432,7 +463,9 @@ public class MainController {
                 Team.getSortPropertyNames(),
                 ServiceFactory.getTeamService(),
                 new TeamInputFormBuilder(requestExecutor),
-                infoWindowBuilder
+                infoWindowBuilder,
+                null,
+                null
         );
     }
 
@@ -444,19 +477,28 @@ public class MainController {
                 TechInspection.getSortPropertyNames(),
                 ServiceFactory.getTechInspectionService(),
                 new TechInspectionInputFormBuilder(requestExecutor),
+                null,
+                null,
                 null
         );
     }
 
     @FXML
     void openTickets() {
+        var sortProperties = new LinkedHashMap<>(Ticket.getSortPropertyNames());
+        sortProperties.remove("passengerName");
+        sortProperties.remove("passengerBirthDate");
+        sortProperties.remove("flightId");
+
         createEntityTable(
                 "Билеты",
                 Ticket.getPropertyNames(),
-                Ticket.getSortPropertyNames(),
+                sortProperties,
                 ServiceFactory.getTicketService(),
                 new TicketInputFormBuilder(requestExecutor),
-                null
+                null,
+                new TicketFilterBoxBuilder(),
+                TicketFilter::new
         );
     }
 
@@ -475,7 +517,9 @@ public class MainController {
             Map<String, String> entitySortPropertyNames,
             Service<T> entityService,
             EntityInputFormBuilder<T> inputFormBuilder,
-            ContextWindowBuilder<T> infoWindowBuilder
+            ContextWindowBuilder<T> infoWindowBuilder,
+            FilterBoxBuilder<T> filterBoxBuilder,
+            Supplier<Filter<T>> newFilterSupplier
     ) {
         FXMLLoader tableLoader = FxmlLoaderFactory.createEntityTableLoader();
         Node table = tableLoader.load();
@@ -496,7 +540,16 @@ public class MainController {
         controller.setInfoWindowBuilder(infoWindowBuilder);
 
         controller.setEntityRemover(entityService::deleteById);
-        controller.setEntitySource((pageInfo, filter) -> entityService.getAll(pageInfo));
+
+        Node filterBox = null;
+        if (filterBoxBuilder != null && newFilterSupplier != null) {
+            Filter<T> filter = newFilterSupplier.get();
+            filterBox = filterBoxBuilder.buildFilterBox(filter);
+            controller.setEntitySource(pageInfo -> entityService.search(filter, pageInfo));
+        } else {
+            controller.setEntitySource(entityService::getAll);
+        }
+
         controller.setRequestExecutor(requestExecutor);
 
         controller.init(
@@ -505,7 +558,8 @@ public class MainController {
                 inputFormBuilder,
                 null,
                 false,
-                this::setStatusBarMessage
+                this::setStatusBarMessage,
+                filterBox
         );
 
         return controller;
@@ -534,7 +588,8 @@ public class MainController {
                 inputFormBuilder,
                 newEntitySupplier,
                 true,
-                this::setStatusBarMessage
+                this::setStatusBarMessage,
+                null
         );
 
         return table;

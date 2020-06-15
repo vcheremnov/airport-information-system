@@ -42,6 +42,7 @@ public class Team extends Entity {
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
         sortPropertyNames.put("name", "Название");
         sortPropertyNames.put("departmentName", "Отдел");
+        sortPropertyNames.put("averageSalary", "Средняя з/п");
     }
 
     public static Map<String, String> getPropertyNames() {

@@ -1,4 +1,4 @@
-package app.gui.forms;
+package app.gui.forms.input;
 
 import app.gui.controllers.interfaces.SuccessAction;
 import app.model.Entity;

@@ -1,12 +1,9 @@
-package app.gui.forms.impl;
+package app.gui.forms.input.impl;
 
 import app.gui.controllers.EntityInputFormController;
-import app.gui.controllers.interfaces.SuccessAction;
-import app.model.Employee;
 import app.model.MedicalExamination;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
-import javafx.stage.Stage;
 
 public class MedicalExaminationInputFormBuilder
         extends AbstractEntityInputFormBuilder<MedicalExamination> {

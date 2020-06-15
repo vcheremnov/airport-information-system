@@ -14,5 +14,6 @@ public class AirplaneDto extends AbstractDto<Long> {
     private TeamDto techTeam;
     private TeamDto serviceTeam;
     private Date commissioningDate;
+    private Long flightsNumber;
 
 }

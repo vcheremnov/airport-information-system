@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 @Getter @Setter
 public class FlightDto extends AbstractDto<Long> {
 
-    private Long airplaneId;
+    private AirplaneDto airplane;
     private FlightType flightType;
     private Timestamp flightTime;
     private Boolean isCancelled;

@@ -23,6 +23,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
 import lombok.SneakyThrows;
 
 import java.time.Instant;
@@ -32,6 +33,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 public class EntityInputFormController<T> {
 
@@ -50,7 +52,7 @@ public class EntityInputFormController<T> {
     private RequestExecutor requestExecutor;
 
     private final List<TextField> textFields = new ArrayList<>();
-    private final List<IntegerField> integerFields = new ArrayList<>();
+    private final List<TextField> integerFields = new ArrayList<>();
     private final List<DateTimePicker> dateTimePickers = new ArrayList<>();
     private final List<CheckBox> checkBoxes = new ArrayList<>();
     private final Map<ComboBox, ChoiceItem> choiceBoxes = new LinkedHashMap<>();
@@ -118,14 +120,25 @@ public class EntityInputFormController<T> {
             Integer initFieldValue,
             EntityFieldSetter<Integer> fieldSetter
     ) {
-        IntegerField integerField = new IntegerField(Integer.MAX_VALUE);
-        integerField.valueProperty().addListener((observable, oldValue, newValue) -> {
-            fieldSetter.setField(newValue.intValue());
-        });
 
-        initFieldValue = Objects.requireNonNullElse(initFieldValue, 0);
-        fieldSetter.setField(initFieldValue);
-        integerField.setValue(initFieldValue);
+        UnaryOperator<TextFormatter.Change> integerFilter = change -> {
+            String newText = change.getControlNewText();
+            if (newText.matches("0|([1-9][0-9]{0,8})?")) {
+                return change;
+            }
+            return null;
+        };
+
+        TextField integerField = new TextField();
+        integerField.setTextFormatter(
+                new TextFormatter<>(
+                        new IntegerStringConverter(), initFieldValue, integerFilter
+                )
+        );
+
+        integerField.textProperty().addListener((observable, oldValue, newValue) -> {
+            fieldSetter.setField(newValue.isEmpty() ? null : Integer.valueOf(newValue));
+        });
 
         addField(name, integerField);
         integerFields.add(integerField);
@@ -247,8 +260,8 @@ public class EntityInputFormController<T> {
         }
 
         for (var integerField: integerFields) {
-            var value = integerField.valueProperty().getValue();
-            if (value == null) {
+            var value = integerField.getText();
+            if (value == null || value.isEmpty()) {
                 integerField.requestFocus();
                 return false;
             }
@@ -281,7 +294,7 @@ public class EntityInputFormController<T> {
         }
 
         for (var integerField: integerFields) {
-            integerField.valueProperty().setValue(null);
+            integerField.setText(null);
         }
 
         for (var dateTimePicker: dateTimePickers) {

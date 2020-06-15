@@ -12,7 +12,7 @@ import java.util.*;
 @Getter @Setter
 public class Flight extends Entity {
 
-    private Long airplaneId;
+    private Airplane airplane = new Airplane();
     private FlightType flightType;
     private Date flightTime;
     private Boolean isCancelled;
@@ -25,6 +25,9 @@ public class Flight extends Entity {
     private Long ticketsBooked;
     private Long ticketsReturned;
 
+    private Long airplaneIdProperty;
+    private String airplaneTypeProperty;
+    private Integer totalSeatsProperty;
     private String flightTypeProperty;
     private String flightTimeProperty;
     private String cityNameProperty;
@@ -47,6 +50,10 @@ public class Flight extends Entity {
     public void calculateProperties() {
         super.calculateProperties();
 
+        airplaneIdProperty = airplane.getId();
+        airplaneTypeProperty = airplane.getAirplaneType().getName();
+        totalSeatsProperty = airplane.getAirplaneType().getCapacity();
+
         flightTypeProperty = FlightType.toLocalizedString(flightType);
         flightTimeProperty = LocalDateFormatter.getFormattedDateTime(flightTime);
         cityNameProperty = city.getName();
@@ -54,6 +61,7 @@ public class Flight extends Entity {
         int hoursDuration = duration.intValue();
         int minutesDuration = ((Double) ((duration - hoursDuration) * 60.0)).intValue();
         durationProperty = String.format("%d ч. %d мин.", hoursDuration, minutesDuration);
+        ticketPriceProperty = String.format("%.2f", ticketPrice);
 
         wasDelayedProperty = flightDelay == null ? "Нет" : "Да";
 
@@ -71,18 +79,18 @@ public class Flight extends Entity {
 
     static {
         propertyNames.putAll(Entity.getPropertyNames());
-        propertyNames.put("airplaneId", "№ самолета");
         propertyNames.put("flightTypeProperty", "Тип");
         propertyNames.put("cityNameProperty", "Город");
         propertyNames.put("flightTimeProperty", "Время");
         propertyNames.put("durationProperty", "Длительность");
+        propertyNames.put("ticketPriceProperty", "Цена билета");
         propertyNames.put("statusProperty", "Статус");
         propertyNames.put("wasDelayedProperty", "Был задержан");
 
         sortPropertyNames.putAll(Entity.getSortPropertyNames());
-        sortPropertyNames.put("airplaneId", "№ самолета");
-        sortPropertyNames.put("cityName", "Название города");
         sortPropertyNames.put("flightTime", "Время");
+        sortPropertyNames.put("duration", "Длительность");
+        sortPropertyNames.put("ticketPrice", "Цена билета");
     }
 
     public static Map<String, String> getPropertyNames() {

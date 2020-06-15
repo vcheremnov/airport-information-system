@@ -5,11 +5,9 @@ import app.gui.controllers.interfaces.ContextMenuAction;
 import app.gui.controllers.interfaces.ContextWindowBuilder;
 import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
-import app.gui.forms.EntityInputFormBuilder;
+import app.gui.forms.input.EntityInputFormBuilder;
 import app.model.Entity;
-import app.model.Flight;
 import app.services.ServiceResponse;
-import app.services.filters.Filter;
 import app.services.pagination.Page;
 import app.services.pagination.PageInfo;
 import app.services.pagination.PageSort;
@@ -18,8 +16,10 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class EntityTableController<T extends Entity> {
 
     public interface EntitySource<E extends Entity> {
-        ServiceResponse<Page<E>> getEntities(PageInfo pageInfo, Filter<E> filter) throws Exception;
+        ServiceResponse<Page<E>> getEntities(PageInfo pageInfo) throws Exception;
     }
 
     public interface EntityRemover<E extends Entity> {
@@ -82,14 +82,16 @@ public class EntityTableController<T extends Entity> {
         });
 
         changeItem.setOnAction(event -> {
-            T entity = (T) entityTable.getSelectionModel().getSelectedItem().clone();
+            T entity = entityTable.getSelectionModel().getSelectedItem();
             if (entity != null) {
+                final T entityClone = (T) entity.clone();
+                entityClone.calculateProperties();
                 SuccessAction successAction = () -> refreshTableContents("Успешно изменено");
                 Supplier<Stage> windowBuilder = () -> {
                     if (isContextWindow) {
-                        return inputFormBuilder.buildContextEditFormWindow(entity, successAction);
+                        return inputFormBuilder.buildContextEditFormWindow(entityClone, successAction);
                     }
-                    return inputFormBuilder.buildEditFormWindow(entity, successAction);
+                    return inputFormBuilder.buildEditFormWindow(entityClone, successAction);
                 };
                 openWindow(
                         windowBuilder,
@@ -128,7 +130,9 @@ public class EntityTableController<T extends Entity> {
         menuItem.setOnAction(event -> {
             T entity = entityTable.getSelectionModel().getSelectedItem();
             if (entity != null) {
-                menuAction.run((T) entity.clone());
+                entity = (T) entity.clone();
+                entity.calculateProperties();
+                menuAction.run(entity);
             }
         });
 
@@ -136,8 +140,6 @@ public class EntityTableController<T extends Entity> {
     }
 
     private ContextMenu contextMenu;
-
-    private static final int CELL_HEIGHT = 24;
 
     @FXML
     private VBox rootVBox;
@@ -160,11 +162,31 @@ public class EntityTableController<T extends Entity> {
     @FXML
     private Label totalSizeLabel;
 
+    @FXML
+    private HBox searchBox;
+
+    @FXML
+    private VBox sortingBox;
+
+    @FXML
+    private Button searchButton;
+
     private final ObservableList<T> entityObservableList = FXCollections.observableArrayList();
 
-    private Filter<T> filter;
     private PageInfo pageInfo;
     private PageSort pageSort;
+    private final Label emptyTablePlaceholder = new Label();
+    private final Label promptTablePlaceholder = new Label(
+            "Для отображения данных, нажмите \"Обновить\""
+    );
+
+    @FXML
+    public void openSearchBox() {
+        searchBox.setVisible(!searchBox.isVisible());
+        searchButton.setText(searchBox.isVisible() ?
+                "Закрыть параметры поиска" : "Открыть параметры поиска"
+        );
+    }
 
     public void init(
             Map<String, String> entityPropertyNames,
@@ -172,24 +194,49 @@ public class EntityTableController<T extends Entity> {
             EntityInputFormBuilder<T> entityInputFormBuilder,
             Supplier<T> newEntitySupplier,
             boolean isContextWindow,
-            Consumer<String> statusBarMessageAcceptor
+            Consumer<String> statusBarMessageAcceptor,
+            Node filterBox
     ) {
+
+        searchBox.managedProperty().bind(searchBox.visibleProperty());
+        searchBox.setVisible(false);
+
+        sortingBox.setStyle(
+                "-fx-padding: 10;" +
+                "-fx-border-style: solid inside;" +
+                "-fx-border-width: 2;" +
+                "-fx-border-insets: 5;" +
+                "-fx-border-radius: 5;" +
+                "-fx-border-color: #3c3f4b;"
+        );
+
+        searchButton.focusedProperty().addListener((observable, wasFocused, isFocused) -> {
+            if (isFocused) {
+                rootVBox.requestFocus();
+            }
+        });
+
         this.inputFormBuilder = entityInputFormBuilder;
         this.newEntitySupplier = newEntitySupplier;
         this.isContextWindow = isContextWindow;
         this.statusBarMessageAcceptor = statusBarMessageAcceptor;
+
+        if (filterBox != null) {
+            filteringVBox.getChildren().add(filterBox);
+        }
 
         pageSort = new PageSort();
         pageInfo = new PageInfo(0L, 25L, pageSort);
 
         pagination.pageCountProperty().setValue(1);
         pagination.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(newValue);
             int newPageNumber = (int) newValue;
             pageInfo.setPageNumber((long) newPageNumber);
             refreshTableContents();
         });
 
-        entityTable.placeholderProperty().setValue(new Label());
+        entityTable.placeholderProperty().setValue(emptyTablePlaceholder);
 
         List<ChoiceItem<String>> sortFieldList = entitySortPropertyNames
                 .entrySet()
@@ -264,12 +311,16 @@ public class EntityTableController<T extends Entity> {
     public void refreshTableContents(String successMessage) {
         disableComponent();
         requestExecutor
-                .makeRequest(() -> entitySource.getEntities(pageInfo, filter))
+                .makeRequest(() -> entitySource.getEntities(pageInfo))
                 .setOnSuccessAction(page -> {
                     var entities = page.getElementList();
                     entities.forEach(Entity::calculateProperties);
 
                     Platform.runLater(() -> {
+                        pagination.pageCountProperty().setValue(
+                                page.getTotalPages().equals(0L) ? 1 : page.getTotalPages()
+                        );
+
                         pageSizeLabel.setText(String.format(
                                 "На странице: %d", page.getNumberOfElements()
                         ));
@@ -280,16 +331,17 @@ public class EntityTableController<T extends Entity> {
 
                         entityObservableList.clear();
                         entityObservableList.addAll(entities);
-                        pagination.pageCountProperty().setValue(page.getTotalPages());
                         statusBarMessageAcceptor.accept(successMessage);
+                        entityTable.setPlaceholder(emptyTablePlaceholder);
                     });
                 })
-                .setOnFailureAction(errorMessage -> Platform.runLater(() ->
+                .setOnFailureAction(errorMessage -> Platform.runLater(() -> {
                         AlertDialogFactory.showErrorAlertDialog(
                                 "Не удалось загрузить информацию",
                                 errorMessage
-                        )
-                ))
+                        );
+                        entityTable.setPlaceholder(promptTablePlaceholder);
+                }))
                 .setFinalAction(() -> Platform.runLater(this::enableComponent))
                 .submit();
     }

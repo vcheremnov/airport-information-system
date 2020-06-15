@@ -1,4 +1,4 @@
-package app.gui.forms.impl;
+package app.gui.forms.input.impl;
 
 import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
@@ -25,10 +25,6 @@ public class ChiefInputFormBuilder extends AbstractEntityInputFormBuilder<Chief>
             EntityInputFormController<Chief> controller
     ) {
 
-        ChoiceItemSupplier<Sex> sexChoiceItemSupplier = () -> Arrays.stream(Sex.values())
-                .map(s -> new ChoiceItem<>(s, Sex.toLocalizedString(s)))
-                .collect(Collectors.toList());
-
         controller.addTextField(
                 "ФИО начальника",
                 chief.getName(),
@@ -39,7 +35,7 @@ public class ChiefInputFormBuilder extends AbstractEntityInputFormBuilder<Chief>
                 "Пол",
                 chief.getSex(),
                 chief::setSex,
-                sexChoiceItemSupplier
+                Sex::getChoiceItems
         );
 
         controller.addDateField(

@@ -1,5 +1,11 @@
 package app.model.types;
 
+import app.gui.custom.ChoiceItem;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public enum FlightType {
     ARRIVAL,
     DEPARTURE;
@@ -13,5 +19,11 @@ public enum FlightType {
             default:
                 return "";
         }
+    }
+
+    public static List<ChoiceItem<FlightType>> getChoiceItems() {
+        return Arrays.stream(FlightType.values())
+                .map(t -> new ChoiceItem<>(t, FlightType.toLocalizedString(t)))
+                .collect(Collectors.toList());
     }
 }

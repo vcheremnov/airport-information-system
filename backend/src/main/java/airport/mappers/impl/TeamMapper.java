@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Objects;
 
 @Component
 public class TeamMapper extends AbstractMapper<Team, TeamDto, Long> {
@@ -31,23 +32,15 @@ public class TeamMapper extends AbstractMapper<Team, TeamDto, Long> {
     @PostConstruct
     public void setupMapper() {
         skipDtoField(TeamDto::setDepartment);
-        skipDtoField(TeamDto::setAverageSalary);
 
         skipEntityField(Team::setDepartment);
+        skipEntityField(Team::setAverageSalary);
         skipEntityField(Team::setEmployees);
     }
 
     @Override
     protected void mapSpecificFields(Team sourceEntity, TeamDto destinationDto) {
         destinationDto.setDepartment(departmentMapper.toDto(sourceEntity.getDepartment()));
-        destinationDto.setAverageSalary(
-            sourceEntity
-                .getEmployees()
-                .stream()
-                .mapToInt(Employee::getSalary)
-                .average()
-                .orElse(0.0)
-        );
     }
 
     @Override

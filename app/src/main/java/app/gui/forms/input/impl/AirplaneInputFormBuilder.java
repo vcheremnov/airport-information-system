@@ -1,4 +1,4 @@
-package app.gui.forms.impl;
+package app.gui.forms.input.impl;
 
 import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;

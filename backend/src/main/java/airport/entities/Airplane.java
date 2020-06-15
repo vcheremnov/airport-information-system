@@ -2,6 +2,7 @@ package airport.entities;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -40,5 +41,16 @@ public class Airplane extends AbstractEntity<Long> {
 
     @OneToMany(mappedBy = "airplane", fetch = FetchType.LAZY)
     private List<Flight> flights = new ArrayList<>();
+
+//    @Formula(
+//            "(" +
+//            "select count(*) " +
+//            "from flight f " +
+//            "where f.airplane_id = id " +
+//            "and f.is_cancelled = false " +
+//            "and current_timestamp >= f.flight_time " +
+//            ")"
+//    )
+//    private Long flightsNumber;
 
 }

@@ -23,4 +23,7 @@ public class Team extends AbstractEntity<Long> {
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
     private List<Employee> employees = new ArrayList<>();
 
+    @Formula("(select coalesce(avg(e.salary), 0.0) from employee e where e.team_id = id)")
+    private Double averageSalary;
+
 }

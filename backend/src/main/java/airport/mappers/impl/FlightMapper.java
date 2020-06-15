@@ -1,5 +1,6 @@
 package airport.mappers.impl;
 
+import airport.dtos.AirplaneDto;
 import airport.dtos.CityDto;
 import airport.dtos.FlightDelayDto;
 import airport.dtos.FlightDto;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class FlightMapper extends AbstractMapper<Flight, FlightDto, Long> {
 
     private final Mapper<FlightDelay, FlightDelayDto, Long> flightDelayMapper;
+    private final Mapper<Airplane, AirplaneDto, Long> airplaneMapper;
     private final Mapper<City, CityDto, Long> cityMapper;
 
     private final JpaRepository<Airplane, Long> airplaneRepository;
@@ -31,12 +33,14 @@ public class FlightMapper extends AbstractMapper<Flight, FlightDto, Long> {
     @Autowired
     public FlightMapper(ModelMapper mapper,
                         Mapper<FlightDelay, FlightDelayDto, Long> flightDelayMapper,
+                        Mapper<Airplane, AirplaneDto, Long> airplaneMapper,
                         Mapper<City, CityDto, Long> cityMapper,
                         JpaRepository<Airplane, Long> airplaneRepository,
                         FlightDelayRepository flightDelayRepository,
                         CityRepository cityRepository) {
         super(mapper, Flight.class, FlightDto.class);
         this.flightDelayMapper = flightDelayMapper;
+        this.airplaneMapper = airplaneMapper;
         this.cityMapper = cityMapper;
         this.airplaneRepository = airplaneRepository;
         this.flightDelayRepository = flightDelayRepository;
@@ -45,10 +49,12 @@ public class FlightMapper extends AbstractMapper<Flight, FlightDto, Long> {
 
     @PostConstruct
     public void setupMapper() {
-        skipDtoField(FlightDto::setAirplaneId);
+        skipDtoField(FlightDto::setAirplane);
         skipDtoField(FlightDto::setCity);
         skipDtoField(FlightDto::setFlightDelay);
 
+        skipEntityField(Flight::setDuration);
+        skipEntityField(Flight::setTicketPrice);
         skipEntityField(Flight::setAirplane);
         skipEntityField(Flight::setCity);
         skipEntityField(Flight::setFlightDelay);
@@ -56,7 +62,7 @@ public class FlightMapper extends AbstractMapper<Flight, FlightDto, Long> {
 
     @Override
     protected void mapSpecificFields(Flight sourceEntity, FlightDto destinationDto) {
-        destinationDto.setAirplaneId(sourceEntity.getAirplane().getId());
+        destinationDto.setAirplane(airplaneMapper.toDto(sourceEntity.getAirplane()));
         destinationDto.setCity(cityMapper.toDto(sourceEntity.getCity()));
         destinationDto.setFlightDelay(flightDelayMapper.toDto(sourceEntity.getFlightDelay()));
 
@@ -72,7 +78,7 @@ public class FlightMapper extends AbstractMapper<Flight, FlightDto, Long> {
     @Override
     protected void mapSpecificFields(FlightDto sourceDto, Flight destinationEntity) {
         destinationEntity.setAirplane(
-                getEntityByIdOrThrow(airplaneRepository, sourceDto.getAirplaneId())
+                getEntityByIdOrThrow(airplaneRepository, sourceDto.getAirplane().getId())
         );
         destinationEntity.setCity(
                 getEntityByIdOrThrow(cityRepository, sourceDto.getCity().getId())

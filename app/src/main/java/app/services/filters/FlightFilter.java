@@ -1,6 +1,7 @@
 package app.services.filters;
 
 import app.model.Flight;
+import app.model.types.FlightDelayReason;
 import app.model.types.FlightType;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,12 +12,13 @@ import java.util.Date;
 public class FlightFilter implements Filter<Flight> {
 
     private Long airplaneId;
+    private String airplaneTypeName;
+    private String cityName;
+
     private FlightType flightType;
-    private Long airplaneTypeId;
-    private Long cityId;
     private Boolean isCancelled;
     private Boolean isDelayed;
-    private String delayReason;
+    private FlightDelayReason delayReason;
 
     private Date minDate;
     private Date maxDate;
@@ -26,8 +28,5 @@ public class FlightFilter implements Filter<Flight> {
 
     private Double minTicketPrice;
     private Double maxTicketPrice;
-
-    private Double minSoldSeatsPercentage;
-    private Double maxSoldSeatsPercentage;
 
 }

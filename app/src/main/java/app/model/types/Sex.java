@@ -1,5 +1,11 @@
 package app.model.types;
 
+import app.gui.custom.ChoiceItem;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public enum Sex {
     MALE,
     FEMALE;
@@ -13,5 +19,11 @@ public enum Sex {
             default:
                 return "";
         }
+    }
+
+    public static List<ChoiceItem<Sex>> getChoiceItems() {
+        return Arrays.stream(Sex.values())
+                .map(s -> new ChoiceItem<>(s, Sex.toLocalizedString(s)))
+                .collect(Collectors.toList());
     }
 }

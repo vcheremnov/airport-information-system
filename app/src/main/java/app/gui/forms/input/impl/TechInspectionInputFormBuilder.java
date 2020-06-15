@@ -1,15 +1,11 @@
-package app.gui.forms.impl;
+package app.gui.forms.input.impl;
 
 import app.gui.controllers.EntityInputFormController;
 import app.gui.controllers.interfaces.ChoiceItemSupplier;
-import app.gui.controllers.interfaces.SuccessAction;
 import app.gui.custom.ChoiceItem;
-import app.model.Airplane;
-import app.model.Repair;
 import app.model.TechInspection;
 import app.utils.RequestExecutor;
 import app.utils.ServiceFactory;
-import javafx.stage.Stage;
 
 public class TechInspectionInputFormBuilder
         extends AbstractEntityInputFormBuilder<TechInspection> {

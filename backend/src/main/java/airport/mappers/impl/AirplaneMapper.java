@@ -41,6 +41,7 @@ public class AirplaneMapper extends AbstractMapper<Airplane, AirplaneDto, Long> 
         skipDtoField(AirplaneDto::setTechTeam);
         skipDtoField(AirplaneDto::setServiceTeam);
 
+//        skipEntityField(Airplane::setFlightsNumber);
         skipEntityField(Airplane::setAirplaneType);
         skipEntityField(Airplane::setPilotTeam);
         skipEntityField(Airplane::setTechTeam);

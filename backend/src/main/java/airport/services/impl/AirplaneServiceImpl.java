@@ -75,7 +75,7 @@ public class AirplaneServiceImpl
     public Page<AirplaneDto> search(AirplaneFilter filter, Pageable pageable) {
         return repository
                 .searchByFilter(
-                        filter.getAirplaneTypeId(),
+                        prepareStringToLikeStatement(filter.getAirplaneTypeName()),
                         filter.getMinCommissioningDate(),
                         filter.getMaxCommissioningDate(),
                         filter.getMinRepairsNumber(),
@@ -84,8 +84,6 @@ public class AirplaneServiceImpl
                         filter.getMaxRepairDate(),
                         filter.getMinTechInspectionDate(),
                         filter.getMaxTechInspectionDate(),
-                        filter.getMinFlightsNumber(),
-                        filter.getMaxFlightsNumber(),
                         pageable
                 ).map(mapper::toDto);
     }
